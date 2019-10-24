@@ -3,11 +3,44 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="wwwroot\css\bootstrap\**" />
+    <Compile Remove="wwwroot\open-iconic\font\**" />
+    <Content Remove="wwwroot\css\bootstrap\**" />
+    <Content Remove="wwwroot\open-iconic\font\**" />
+    <EmbeddedResource Remove="wwwroot\css\bootstrap\**" />
+    <EmbeddedResource Remove="wwwroot\open-iconic\font\**" />
+    <None Remove="wwwroot\css\bootstrap\**" />
+    <None Remove="wwwroot\open-iconic\font\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\open-iconic\FONT-LICENSE" />
+    <Content Remove="wwwroot\css\site.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Images\menu.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\menu.svg">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BlazorStyled" Version="1.0.0" />
+    <PackageReference Include="BlazorTypography" Version="1.0.0" />
     <PackageReference Include="ElectronNET.API" Version="5.22.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="3.0.0" />
+    <PackageReference Include="Tewr.Blazor.FileReader" Version="1.1.0.19274" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 </Project>

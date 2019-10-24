@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Blazor.FileReader;
+using BlazorStyled;
+using BlazorTypography;
 using ElectronNET.API;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Mytheme.Dal;
 using Mytheme.Data;
+
 
 namespace Mytheme
 {
@@ -18,6 +19,10 @@ namespace Mytheme
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            using var db = new DataStorage();
+            db.Database.EnsureCreated();
+            db.Database.Migrate();
         }
 
         public IConfiguration Configuration { get; }
@@ -28,7 +33,17 @@ namespace Mytheme
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddBlazorStyled();
+            services.AddTypography();
+            services.AddServerSideBlazor().AddHubOptions(o =>
+            {
+                o.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+            });
+            services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
+
+            services.AddSingleton<SvgHelperService>();
+            services.AddSingleton<RandomTableService>();
+            services.AddSingleton<FileHandlerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

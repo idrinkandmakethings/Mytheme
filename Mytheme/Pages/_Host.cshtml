@@ -9,12 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mytheme</title>
     <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link href="css/site.css" rel="stylesheet" />
+    @(await Html.RenderComponentAsync<BlazorStyled.ServerSideStyled>(RenderMode.Server))
 </head>
 <body>
     <app>
-        @(await Html.RenderComponentAsync<App>(RenderMode.ServerPrerendered))
+        @(await Html.RenderComponentAsync<App>(RenderMode.Server))
     </app>
 
     <script src="_framework/blazor.server.js"></script>

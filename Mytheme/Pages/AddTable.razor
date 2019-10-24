@@ -1,0 +1,149 @@
+﻿@page "/add-table"
+@using System.IO
+@using Blazor.FileReader
+@using Mytheme.Dal.Dto
+@using Mytheme.Data
+
+@inject IStyled Styled
+@inject RandomTableService RandomTableService
+@inject FileHandlerService FileHandlerService
+@inject IFileReaderService FileReaderService
+
+<Styled @bind-Classname="@dropTarget">
+    display:block;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 1px dashed black;
+    border-radius: 5px;
+</Styled>
+
+<Styled @bind-Classname="@dropTargetDrag">
+    border-color: orangered;
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@dropArea" Compose1="@dropTarget" Compose2="@dropTargetDrag" Compose2If="@dragging" />
+
+<h1>AddTable</h1>
+
+<div class="@dropArea"
+     @ref=dropTargetElement
+     @ondrop=OnDrop
+     @ondragenter=OnDragEnter
+     @ondragleave=OnDragLeave>
+     @fileName
+    
+</div>
+
+@if (entries == null)
+{
+    <p><em>@loadingText</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(var i = 0 + page * perPage; i < entries.Length && i < (page + 1) * perPage; i++)
+        {
+            <tr>
+                <td>@entries[i]</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-primary" @onclick="@SaveTable">Save Table</button>
+
+@code {
+
+    private int page = 0;
+
+    private int perPage = 50;
+
+    private string dropArea, dropTarget, dropTargetDrag;
+
+    private bool dragging;
+
+    private string fileName = "Drop Files here.";
+    private string loadingText = "";
+
+    string[] entries;
+
+    RandomTable table = new RandomTable();
+
+    List<IFileInfo> FileList { get; } = new List<IFileInfo>();
+
+    ElementReference dropTargetElement;
+    IFileReaderRef dropReference;
+
+    protected override async Task OnAfterRenderAsync(bool isFirstRender)
+    {
+        if (isFirstRender)
+        {
+            dropReference = FileReaderService.CreateReference(dropTargetElement);
+            await dropReference.RegisterDropEventsAsync();
+        }
+    }
+
+    protected async Task SaveTable()
+    {
+        table = await RandomTableService.AddRandomTable(table);
+    }
+
+    public void OnDragEnter(EventArgs e)
+    {
+        dragging = true;
+    }
+
+    public void OnDragLeave(EventArgs e)
+    {
+        dragging = false;
+    }
+
+    public async Task OnDrop(EventArgs e)
+    {
+
+        dragging = false;
+        this.StateHasChanged();
+        await this.RefreshFileList();
+        await TryParesFile();
+    }
+
+    private async Task RefreshFileList()
+    {
+        FileList.Clear();
+        foreach (var file in await dropReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+            FileList.Add(fileInfo);
+        }
+
+        fileName = FileList.FirstOrDefault()?.Name;
+
+        this.StateHasChanged();
+    }
+
+    private async Task TryParesFile()
+    {
+        loadingText = "Loading...";
+        foreach (var file in await dropReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+            if (fileInfo.Name == fileName)
+            {
+                await using var fs = await file.OpenReadAsync();
+                await using var ms = new MemoryStream();
+                await fs.CopyToAsync(ms);
+
+                entries = await FileHandlerService.ParseTableFile(ms);
+
+            }
+        }
+    }
+}
