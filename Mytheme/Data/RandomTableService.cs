@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
 
@@ -55,7 +56,9 @@ namespace Mytheme.Data
             return await Task.Run(() =>
             {
                 using var db = new DataStorage();
-                return db.RandomTables.Single(t => t.Id == id);
+                return db.RandomTables
+                    .Include(t => t.Entries)
+                    .First(t => t.Id == id);
             });
         }
 
@@ -64,7 +67,9 @@ namespace Mytheme.Data
             return await Task.Run(() =>
             {
                 using var db = new DataStorage();
-                return db.RandomTables.Single(t => t.Name == name);
+                return db.RandomTables
+                    .Include(t => t.Entries)
+                    .First(t => t.Name == name);
             });
         }
 

@@ -43,6 +43,7 @@ namespace Mytheme
 
             services.AddMythemeModal();
 
+            services.AddSingleton<BreadcrumbService>();
             services.AddSingleton<SvgHelperService>();
             services.AddSingleton<RandomTableService>();
             services.AddSingleton<FileHandlerService>();

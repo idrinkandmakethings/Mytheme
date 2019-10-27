@@ -1,4 +1,18 @@
 ﻿@page "/"
+@using Mytheme.Data
+
+@inject BreadcrumbService BreadcrumbService
 
 <h1>Mytheme</h1>
 /ˈmɪθiːm/ (noun) a set of fundamental generic units of narrative structure from which myths are thought to be constructed.
+
+
+@code
+{
+
+    protected override void OnInitialized()
+    {
+        BreadcrumbService.SetBreadCrumb("");
+    }
+
+}

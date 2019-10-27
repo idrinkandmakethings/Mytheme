@@ -3,6 +3,8 @@
 @using Mytheme.Data
 
 @inject RandomTableService RandomTableService
+@inject NavigationManager NavigationManager
+@inject BreadcrumbService BreadcrumbService
 
 @if (tables == null)
 {
@@ -10,25 +12,20 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Description</th>
+    <MythemeGrid Items="tables" Context="table">
+        <GridHeader>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+        </GridHeader>
+        <GridRow >
+            <tr @onclick="@(() => NavigationManager.NavigateTo($"edit-table/{table.Name}"))">
+                <td>@table.Name</td>
+                <td>@table.Category</td>
+                <td>@table.Description</td>
             </tr>
-        </thead>
-        <tbody>
-            @for (var i = 0 + page * perPage; i < tables.Length && i < (page + 1) * perPage; i++)
-            {
-            <tr>
-                <td>@tables[i].Name</td>
-                <td>@tables[i].Category</td>
-                <td>@tables[i].Description</td>
-            </tr>
-            }
-        </tbody>
-    </table>
+        </GridRow>
+    </MythemeGrid>
 }
 
 @code {
@@ -42,6 +39,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        BreadcrumbService.SetBreadCrumb("Tables");
         tables = await RandomTableService.GetAllRandomTables();
     }
 }

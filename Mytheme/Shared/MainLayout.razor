@@ -4,10 +4,18 @@
 
 @inject SvgHelperService SvgHelperService
 @inject NavigationManager NavigationManager
+@inject BreadcrumbService BreadcrumbService
 
 @inject IStyled Styled
 @inject ITypography Typography
 
+<!--
+Colors
+    pale gold - #C0B283
+    silk - #DCD0C0
+    paper - #F4F4F4
+    charcoal - #373737
+-->
 
 <Styled>
     html {
@@ -74,7 +82,7 @@
 
 <Styled @bind-Classname="@topNav">
     width: 100%;
-    background-color: #555;
+    background-color: #373737;
     overflow: auto;
     position: fixed;
     top: 0;
@@ -109,9 +117,9 @@
 
 <div class="@sideNav">
     <span class="closeBtn" @onclick="@CloseNav">&times;</span>
-    <a href="#" @onclick="@(e => OnNavlinkClicked(""))">Home</a>
-    <a href="tables" @onclick="@(e => OnNavlinkClicked("Tables"))">Tables</a>
-    <a href="add-table" @onclick="@(e => OnNavlinkClicked("Add Table"))">Add Table</a> 
+    <a href="#">Home</a>
+    <a href="tables">Tables</a>
+    <a href="edit-table">Add Table</a> 
 </div>
 
 <div class="@topNav">
@@ -131,6 +139,31 @@
     private string breadCrumb = "";
 
 
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += LocationChanged;
+        BreadcrumbService.OnBreadCrumbChange += UpdateBreadCrumb;
+
+        var theme = new BlazorTypography.Themes.Stardust();
+        Typography.ApplyTypography(theme);
+
+        //Setup default theme
+        Styled.SetThemeValue("colors.background-color", "#F4F4F4");
+        Styled.SetThemeValue("colors.brand", "#727D71");
+        Styled.SetThemeValue("colors.link-color", "#974442");
+        Styled.SetThemeValue("colors.link-active-color", "#727D71");
+        Styled.SetThemeValue("colors.text-color", "#333333");
+        Styled.SetThemeValue("colors.code-background", "#DCD0C0");
+        Styled.SetThemeValue("colors.code-text", "#373737");
+        Styled.SetThemeValue("colors.hr", "#974442");
+    }
+
+    private void UpdateBreadCrumb(string text)
+    {
+        breadCrumb = text;
+    }
+
     protected void OpenNav()
     {
         navWidth = "260px";
@@ -141,29 +174,6 @@
     {
         navWidth = "0px";
         StateHasChanged();
-    }
-
-    protected void OnNavlinkClicked(string title)
-    {
-        breadCrumb = title;
-    }
-
-    protected override void OnInitialized()
-    {
-        NavigationManager.LocationChanged += LocationChanged;
-
-        var theme = new BlazorTypography.Themes.Stardust();
-        Typography.ApplyTypography(theme);
-
-        //Setup default theme
-        Styled.SetThemeValue("colors.background-color", "#F8F6ED");
-        Styled.SetThemeValue("colors.brand", "#727D71");
-        Styled.SetThemeValue("colors.link-color", "#974442");
-        Styled.SetThemeValue("colors.link-active-color", "#727D71");
-        Styled.SetThemeValue("colors.text-color", "#333333");
-        Styled.SetThemeValue("colors.code-background", "#263238");
-        Styled.SetThemeValue("colors.code-text", "#C792EA");
-        Styled.SetThemeValue("colors.hr", "#974442");
     }
 
     private void LocationChanged(object sender, LocationChangedEventArgs e)

@@ -12,11 +12,16 @@
 <Styled @bind-Classname="@gridHeader">
     text-align: center;
     border-collapse: collapse;
-    background: #ebebeb;
+    background: #C0B283;
 </Styled>
 
-<Styled @bind-Classname="@gridRow" PseudoClass="PseudoClasses.Hover">
-    background: #9fcdf4;
+<Styled @bind-Classname="@gridBody">
+    & tr{
+    background: #DCD0C0;
+    }
+    & tr:hover{
+    background: #F4F4F4;
+    }
 </Styled>
 
 <Styled @bind-Classname="@pageButton">
@@ -25,18 +30,18 @@
 </Styled>
 
 <Styled @bind-Classname="@currentPage">
-    background-color: dodgerblue;
-    color: white;
+    background-color: #DCD0C0;
+    color: Black;
 </Styled>
 
 <table class="@gridStyle">
     <thead>
     <tr class="@gridHeader">@GridHeader</tr>
-    </thead>32
-    <tbody>
+    </thead>
+    <tbody class="@gridBody">
     @foreach (var item in ItemList)
     {
-        <tr class="@gridRow">@GridRow(item)</tr>
+        @GridRow(item)
     }
     </tbody>
 </table>
@@ -49,7 +54,7 @@
     {
         var page = i;
         <button class="btn pagebutton @(page==curPage?currentPage:"")" @onclick=@(async () => UpdateList(page))>
-            @page
+            @(page.ToString())
         </button>
     }
 
@@ -62,7 +67,7 @@
 
 @code {
     // css class names
-    private string gridStyle, gridHeader, gridRow, pageButton, currentPage;
+    private string gridStyle, gridHeader, gridBody, pageButton, currentPage;
 
     int totalPages;
     int curPage;
@@ -89,6 +94,11 @@
     {
         pagerSize = 5;
         curPage = 1;
+
+        if (PageSize == 0)
+        {
+            PageSize = 25;
+        }
 
         ItemList = Items.Skip((curPage - 1) * PageSize).Take(PageSize);
         totalPages = (int)Math.Ceiling(Items.Count() / (decimal)PageSize);

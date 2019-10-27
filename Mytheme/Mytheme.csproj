@@ -52,6 +52,7 @@
     <Folder Include="wwwroot\css\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Mytheme.Grid\Mytheme.Grid.csproj" />
     <ProjectReference Include="..\Mytheme.Modal\Mytheme.Modal.csproj" />
   </ItemGroup>
 </Project>

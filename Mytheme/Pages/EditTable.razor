@@ -1,4 +1,6 @@
-﻿@page "/add-table"
+﻿@page "/edit-table"
+@page "/edit-table/{tablename}"
+
 @using System.IO
 @using Blazor.FileReader
 @using Mytheme.Dal.Dto
@@ -10,6 +12,7 @@
 @inject FileHandlerService FileHandlerService
 @inject IFileReaderService FileReaderService
 @inject IModalService ModalService
+@inject BreadcrumbService BreadcrumbService
 
 
 <Styled>
@@ -106,28 +109,24 @@
 }
 else
 {
-    <table class="table">
-        <thead>
+    <MythemeGrid Items="entries">
+        <GridHeader>
+            <th>Value</th>
+        </GridHeader>
+        <GridRow>
             <tr>
-                <th>Value</th>
+                <td>@context</td>
             </tr>
-        </thead>
-        <tbody>
-            @for (var i = 0 + page * perPage; i < entries.Length && i < (page + 1) * perPage; i++)
-            {
-                <tr>
-                    <td>@entries[i]</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        </GridRow>
+    </MythemeGrid>
 }
 
 
 
 @code {
 
-
+    [Parameter]
+    public string Tablename { get; set; }
 
     private int page = 0;
 
@@ -157,8 +156,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        if (string.IsNullOrEmpty(Tablename))
+        {
+            BreadcrumbService.SetBreadCrumb("Add Table");
+   
+        }
+        else
+        {
+            table = await RandomTableService.GetRandomTable(Tablename);
+            entries = table.Entries.Select(x => x.Entry).ToArray();
+        }
 
-
+        
         categories = await RandomTableService.GetCategories();
         categoryText = "Select category ...";
         StateHasChanged();
@@ -191,7 +200,7 @@ else
         {
             try
             {
-                categories.Add((string) result.Data);
+                categories.Add((string)result.Data);
                 categories.Sort();
                 StateHasChanged();
             }
@@ -211,6 +220,7 @@ else
 
     protected async Task SaveTable()
     {
+        table.Entries = entries.Select(e => new TableEntry() {Entry = e}).ToList();
         var result = await RandomTableService.AddRandomTable(table);
         if (result.success)
         {
