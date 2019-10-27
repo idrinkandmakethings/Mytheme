@@ -1,0 +1,166 @@
+﻿@using Mytheme.Modal.Services
+@inject IModalService ModalService
+
+
+<Styled @bind-Classname="@modal">
+    display: @modalDisplay;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+</Styled>
+
+
+<Styled @bind-Classname="@modalContent">
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    animation-name: @animateTop;
+    animation-duration: 0.4s;
+</Styled>
+
+<Styled @bind-Classname="@animateTop" IsKeyframes="true">
+    from {
+    top:-300px; 
+    opacity:0;
+    }
+    to {
+    top:0; 
+    opacity:1;
+    }
+</Styled>
+
+<Styled @bind-Classname="@modalHeader">
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@modalBody">
+    padding: 2px 16px;
+</Styled>
+
+<Styled @bind-Classname="@modalFooter">
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+</Styled>
+
+
+<div class="@modal">
+
+    <div class="@modal" @onclick="HandleBackgroundClick"></div>
+
+    <div class="@modalContent">
+        <div class="@ComponentStyle">
+            <div class="@modalHeader">
+                <h3 class="blazored-modal-title">@Title</h3>
+                @if (!ComponentHideCloseButton)
+                {
+                    <button type="button" @onclick="@(() => ModalService.Cancel())">
+                        <span>&times;</span>
+                    </button>
+                }
+            </div>
+            <div class="">
+                <CascadingValue Value="@Parameters">
+                    @Content
+                </CascadingValue>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private string modal, modalContent, modalHeader, modalBody, modalFooter, closeModal, animateTop;
+
+    private string modalDisplay = "none";
+
+    [Parameter]
+    public bool HideCloseButton { get; set; }
+
+    [Parameter]
+    public bool DisableBackgroundCancel { get; set; }
+
+    [Parameter]
+    public string Position { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
+
+
+    protected bool ComponentDisableBackgroundCancel { get; set; }
+    protected bool ComponentHideCloseButton { get; set; }
+    protected string ComponentPosition { get; set; }
+    protected string ComponentStyle { get; set; }
+    protected ModalOptions Options { get; set; }
+    protected bool IsVisible { get; set; }
+    protected string Title { get; set; }
+    protected RenderFragment Content { get; set; }
+    protected ModalParameters Parameters { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ((ModalService)ModalService).OnShow += ShowModal;
+        ModalService.OnClose += CloseModal;
+    }
+
+    public void ShowModal(string title, RenderFragment content, ModalParameters parameters, ModalOptions options)
+    {
+        Title = title;
+        Content = content;
+        Parameters = parameters;
+
+        SetModalOptions(options);
+
+        modalDisplay = "block";
+        StateHasChanged();
+    }
+
+    internal void CloseModal(ModalResult modalResult)
+    {
+        
+        Title = "";
+        Content = null;
+        ComponentStyle = "";
+        modalDisplay = "none";
+        StateHasChanged();
+    }
+
+    protected void HandleBackgroundClick()
+    {
+        if (ComponentDisableBackgroundCancel) return;
+
+        ModalService.Cancel();
+    }
+
+    public void Dispose()
+    {
+        ((ModalService)ModalService).OnShow -= ShowModal;
+        ModalService.OnClose -= CloseModal;
+    }
+
+    private void SetModalOptions(ModalOptions options)
+    {
+        ComponentHideCloseButton = HideCloseButton;
+        if (options.HideCloseButton.HasValue)
+            ComponentHideCloseButton = options.HideCloseButton.Value;
+
+        ComponentDisableBackgroundCancel = DisableBackgroundCancel;
+        if (options.DisableBackgroundCancel.HasValue)
+            ComponentDisableBackgroundCancel = options.DisableBackgroundCancel.Value;
+    }
+
+}

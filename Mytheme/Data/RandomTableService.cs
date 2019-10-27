@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
@@ -7,16 +9,31 @@ namespace Mytheme.Data
 {
     public class RandomTableService
     {
-        public async Task<RandomTable> AddRandomTable(RandomTable table)
+        public async Task<(bool success, string result)> AddRandomTable(RandomTable table)
         {
-            return await Task.Run(async () =>
+            var success = false;
+            var result = string.Empty;
+            
+            await Task.Run(async () =>
             {
-                using var db = new DataStorage();
-
-                var result = await db.RandomTables.AddAsync(table);
-                db.SaveChanges(true);
-                return result.Entity;
+                try
+                {
+                    await using var db = new DataStorage();
+                    var result = await db.RandomTables.AddAsync(table);
+                    db.SaveChanges(true);
+                    if (result.Entity.Id > 0)
+                    {
+                        success = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    result = "Error saving table";
+                }
             });
+
+            return (success, result);
         }
 
         public async Task<int> UpdateRandomTable(RandomTable table)
@@ -36,7 +53,7 @@ namespace Mytheme.Data
         {
             return await Task.Run(() => {
                 using var db = new DataStorage();
-                return db.RandomTables.Single(t => t.TableId == id);
+                return db.RandomTables.Single(t => t.Id == id);
             });
         }
 
@@ -44,7 +61,7 @@ namespace Mytheme.Data
         {
             return await Task.Run(() => { 
                 using var db = new DataStorage();
-                return db.RandomTables.Single(t => t.TableName == name);
+                return db.RandomTables.Single(t => t.Name == name);
             });
         }
 
@@ -55,6 +72,43 @@ namespace Mytheme.Data
                 using var db = new DataStorage();
                 return db.RandomTables.ToArray();
             });
+        }
+
+        public async Task<List<string>> GetCategories()
+        {
+            return await Task.Run(() =>
+            {
+                using var db = new DataStorage();
+                var result = db.TableCategories.Select(x => x.Name).OrderBy(n => n).ToList();
+                return result;
+            });
+        }
+
+        public async Task<(bool success, string result)> AddCategory(string category)
+        {
+            var success = false;
+            var result = string.Empty;
+
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    await using var db = new DataStorage();
+                    var result = await db.TableCategories.AddAsync(new TableCategory(){Name = category});
+                    db.SaveChanges(true);
+                    if (result.Entity.Id > 0)
+                    {
+                        success = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    result = "Error saving table";
+                }
+            });
+
+            return (success, result);
         }
     }
 }

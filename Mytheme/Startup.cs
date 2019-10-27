@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Mytheme.Dal;
 using Mytheme.Data;
+using Mytheme.Modal;
 
 
 namespace Mytheme
@@ -21,7 +22,6 @@ namespace Mytheme
             Configuration = configuration;
 
             using var db = new DataStorage();
-            db.Database.EnsureCreated();
             db.Database.Migrate();
         }
 
@@ -40,6 +40,8 @@ namespace Mytheme
                 o.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
             });
             services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
+
+            services.AddMythemeModal();
 
             services.AddSingleton<SvgHelperService>();
             services.AddSingleton<RandomTableService>();

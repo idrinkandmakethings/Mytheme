@@ -3,11 +3,11 @@
 @inherits LayoutComponentBase
 
 @inject SvgHelperService SvgHelperService
+@inject NavigationManager NavigationManager
+
 @inject IStyled Styled
 @inject ITypography Typography
 
-
-<StyledGoogleFont Name="Fira Code" Styles="400" />
 
 <Styled>
     html {
@@ -23,58 +23,79 @@
     hr {
     background-color: {colors.hr};
     }
-</Styled>
-
-<Styled>
-    p > code {
-    font-family: 'Fira Code', monospace;
-    margin-top: 20px;
-    color: {colors.code-text};
-    font-weight: 400;
-    line-height: 1.7em;
-    background-color: {colors.code-background};
-    border-radius: 0.325rem;
-    margin: 0;
-    padding: 0.2rem 0.325rem;
-    }
-    code {
-    line-height: 1.25em;
-    }
-    pre {
-    line-height: 1.25em;
-    }
     h1 {
-    margin-top: 0px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+</Styled>
+
+
+<Styled @bind-Classname="@sideNav">
+
+    height: 100%;
+    width: @navWidth;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 60px;
+    transition: 0.5s;
+
+    & a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    transition: 0.3s;
+    }
+
+    & a:hover {
+    color: #f1f1f1;
+    }
+
+    & .closeBtn{
+    padding: 8px 8px 8px 32px;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    white-space: nowrap;
+    position: absolute;
+    font-weight: bold;
+    cursor: pointer;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
     }
 </Styled>
 
-<Styled @bind-Classname="@icon">
-    width: 28px;
-    height: 28px;
-    fill: #f00;
-</Styled>
-
-<Styled @bind-Classname="@menuIcon">
-    fill: #f00;
-</Styled>
 
 <Styled @bind-Classname="@topNav">
     width: 100%;
     background-color: #555;
     overflow: auto;
+    position: fixed;
+    top: 0;
+</Styled>
 
-    & a {
+<Styled @bind-Classname="@topNavComponents">
+    margin: 0;
     float: left;
     padding: 12px;
     color: white;
     text-decoration: none;
-    font-size: 17px;
-    }
+    font-size: 24px;
 
     & a:hover {
     background-color: #000;
     }
-
 </Styled>
 
 <Styled Classname="@topNav" MediaQuery="MediaQueries.LargerThanTablet">
@@ -84,91 +105,59 @@
     }
 </Styled>
 
-<Styled @bind-Classname="@container">
-    label: container;
-    margin: auto;
+<Styled @bind-Classname="@mainView">
+    margin-top: 40px;
+    padding: 20px 30px;
 </Styled>
 
-<Styled Classname="@container" MediaQuery="MediaQueries.LargerThanTablet">
-    width: 1024px;
-    display: flex;
-</Styled>
+<MythemeModal/>
 
-<Styled @bind-Classname="@navColumn" MediaQuery="MediaQueries.LargerThanTablet">
-    label: nav-column;
-    @column
-    flex-shrink: 0;
-    position: fixed;
-    width: 225px;
-</Styled>
-
-<Styled @bind-Classname="@mainColumn" MediaQuery="MediaQueries.LargerThanTablet">
-    label: main-column;
-    @column
-    width: 876px;
-    margin-left: 225px;
-</Styled>
-
-<Styled @bind-Classname="@bottom">
-    label: content;
-    padding: 20px;
-</Styled>
-
-<Styled Classname="@bottom" MediaQuery="MediaQueries.LargerThanTablet">
-    flex-grow: 1;
-</Styled>
-
-<Styled @bind-Classname="@main" MediaQuery="MediaQueries.LargerThanTablet">
-    margin-top: 10px;
-</Styled>
-
-<Styled @bind-Classname="@brand">
-    label: brand;
-    margin: 0;
-    margin-left: 16px;
-    padding: 0;
-    font-size: 24px;
-    color: {color.brand};
-</Styled>
-
-<Styled @bind-Classname="@ul">
-    label: nav-ul;
-    display: inline-flex;
-    list-style: none;
-    margin: 0;
-</Styled>
-
-<Styled @bind-Classname="@li">
-    label: nav-li;
-    margin-right: 20px;
-</Styled>
+<div class="@sideNav">
+    <span class="closeBtn" @onclick="@CloseNav">&times;</span>
+    <a href="#" @onclick="@(e => OnNavlinkClicked(""))">Home</a>
+    <a href="tables" @onclick="@(e => OnNavlinkClicked("Tables"))">Tables</a>
+    <a href="add-table" @onclick="@(e => OnNavlinkClicked("Add Table"))">Add Table</a> 
+</div>
 
 <div class="@topNav">
-    <a>@SvgHelperService.GetMenu(26, "fill: white")</a>
-    <a class="active" href="#"> Home</a>
-    <a href="#"> Search</a>
-    <a href="#"> Contact</a>
-    <a href="#"> Login</a>
+    <a @onclick="OpenNav" class="@topNavComponents">@SvgHelperService.GetMenu(26, "fill: white")</a>
+    <p class="@topNavComponents">@breadCrumb</p>
 </div>
 
 
-        <div>
-            @Body
-        </div>
+<div class="@mainView">
+    @Body
+</div>
 
 
 @code {
-    private string icon, menuIcon, container, navColumn, mainColumn, topNav, bottom, brand, ul, li, main;
+    private string topNav, topNavComponents, sideNav, mainView, closeBtn;
+    private string navWidth = "0px";
+    private string breadCrumb = "";
 
-    private string column = @"
-height: 100%;
-display: flex;
-flex-direction: column;
-";
 
-    protected override async void OnInitialized()
+    protected void OpenNav()
     {
-        var theme = new BlazorTypography.Themes.Sutro();
+        navWidth = "260px";
+        StateHasChanged();
+    }
+
+    protected void CloseNav()
+    {
+        navWidth = "0px";
+        StateHasChanged();
+    }
+
+    protected void OnNavlinkClicked(string title)
+    {
+        breadCrumb = title;
+    }
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += LocationChanged;
+
+        var theme = new BlazorTypography.Themes.Stardust();
         Typography.ApplyTypography(theme);
 
         //Setup default theme
@@ -180,5 +169,11 @@ flex-direction: column;
         Styled.SetThemeValue("colors.code-background", "#263238");
         Styled.SetThemeValue("colors.code-text", "#C792EA");
         Styled.SetThemeValue("colors.hr", "#974442");
+    }
+
+    private void LocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        navWidth = "0px";
+        StateHasChanged();
     }
 }

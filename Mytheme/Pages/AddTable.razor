@@ -3,11 +3,47 @@
 @using Blazor.FileReader
 @using Mytheme.Dal.Dto
 @using Mytheme.Data
+@using Mytheme.Modals
 
 @inject IStyled Styled
 @inject RandomTableService RandomTableService
 @inject FileHandlerService FileHandlerService
 @inject IFileReaderService FileReaderService
+@inject IModalService ModalService
+
+
+<Styled>
+    input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    }
+
+    label {
+    width: 100%;
+    margin: 8px 0;
+    display: block;
+    }
+
+    textarea {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    }
+</Styled>
+
+<Styled @bind-Classname="@form">
+    display:block;0
+    margin-bottom: 10px;
+</Styled>
 
 <Styled @bind-Classname="@dropTarget">
     display:block;
@@ -24,56 +60,93 @@
 
 <Styled @bind-Classname="@dropArea" Compose1="@dropTarget" Compose2="@dropTargetDrag" Compose2If="@dragging" />
 
-<h1>AddTable</h1>
+<Styled @bind-Classname="@loading">
+    align: center;
+    color: black;
+</Styled>
+
+
+<EditForm Model="@table" class="@form" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label for="name">Name: </label>
+    <InputText id="name" @bind-Value="table.Name" />
+
+    <label for="category">Category: </label>
+    <div>
+        <InputSelect id="classification" @bind-Value="table.Category">
+            <option value="">@categoryText</option>
+            @foreach (var cat in categories)
+            {
+                <option value="@cat">@cat</option>
+            }
+        </InputSelect>
+        <button type="button" class="btn btn-primary" @onclick="@OpenCategoryModal">+</button>
+    </div>
+
+    <label for="desc">Description: </label>
+    <InputTextArea id="desc" @bind-Value="table.Description"></InputTextArea>
+    <button type="Submit" class="btn btn-primary">Save Table</button>
+</EditForm>
 
 <div class="@dropArea"
      @ref=dropTargetElement
      @ondrop=OnDrop
      @ondragenter=OnDragEnter
      @ondragleave=OnDragLeave>
-     @fileName
-    
+    @fileName
 </div>
+
 
 @if (entries == null)
 {
-    <p><em>@loadingText</em></p>
+    <div>
+        <p class="@loading"><em>@loadingText</em></p>
+    </div>
 }
 else
 {
     <table class="table">
         <thead>
-        <tr>
-            <th>Value</th>
-        </tr>
+            <tr>
+                <th>Value</th>
+            </tr>
         </thead>
         <tbody>
-        @for(var i = 0 + page * perPage; i < entries.Length && i < (page + 1) * perPage; i++)
-        {
-            <tr>
-                <td>@entries[i]</td>
-            </tr>
-        }
+            @for (var i = 0 + page * perPage; i < entries.Length && i < (page + 1) * perPage; i++)
+            {
+                <tr>
+                    <td>@entries[i]</td>
+                </tr>
+            }
         </tbody>
     </table>
 }
 
-<button class="btn btn-primary" @onclick="@SaveTable">Save Table</button>
+
 
 @code {
+
+   
 
     private int page = 0;
 
     private int perPage = 50;
 
-    private string dropArea, dropTarget, dropTargetDrag;
+    // css class names
+    private string form, dropArea, dropTarget, dropTargetDrag, loading;
+
+    // css attributes
+
 
     private bool dragging;
 
     private string fileName = "Drop Files here.";
+    private string categoryText = "Loading...";
     private string loadingText = "";
 
     string[] entries;
+    List<string> categories = new List<string>();
 
     RandomTable table = new RandomTable();
 
@@ -81,6 +154,13 @@ else
 
     ElementReference dropTargetElement;
     IFileReaderRef dropReference;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await RandomTableService.GetCategories();
+        categoryText = "Select category ...";
+        StateHasChanged();
+    }
 
     protected override async Task OnAfterRenderAsync(bool isFirstRender)
     {
@@ -91,9 +171,30 @@ else
         }
     }
 
+    protected void OpenCategoryModal()
+    {
+        ModalService.Show<AddCategoryModal>("Add Category");
+    }
+    
+    protected async Task HandleValidSubmit()
+    {
+        await SaveTable();
+    }
+
     protected async Task SaveTable()
     {
-        table = await RandomTableService.AddRandomTable(table);
+        var result = await RandomTableService.AddRandomTable(table);
+        if (result.success)
+        {
+            loadingText = "Saved!";
+        }
+        else
+        {
+            loadingText = result.result;
+        }
+        table = new RandomTable();
+        entries = null;
+
     }
 
     public void OnDragEnter(EventArgs e)
@@ -126,7 +227,7 @@ else
 
         fileName = FileList.FirstOrDefault()?.Name;
 
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private async Task TryParesFile()
@@ -146,4 +247,5 @@ else
             }
         }
     }
+
 }

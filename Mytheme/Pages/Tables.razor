@@ -1,0 +1,47 @@
+﻿@page "/tables"
+@using Mytheme.Dal.Dto
+@using Mytheme.Data
+
+@inject RandomTableService RandomTableService
+
+@if (tables == null)
+{
+    <p><em>@loadingText</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0 + page * perPage; i < tables.Length && i < (page + 1) * perPage; i++)
+            {
+            <tr>
+                <td>@tables[i].Name</td>
+                <td>@tables[i].Category</td>
+                <td>@tables[i].Description</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private int page = 0;
+
+    private int perPage = 50;
+
+    RandomTable[] tables;
+
+    private string loadingText = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        tables = await RandomTableService.GetAllRandomTables();
+    }
+}
