@@ -127,7 +127,7 @@ else
 
 @code {
 
-   
+
 
     private int page = 0;
 
@@ -157,6 +157,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+
+
         categories = await RandomTableService.GetCategories();
         categoryText = "Select category ...";
         StateHasChanged();
@@ -173,9 +175,35 @@ else
 
     protected void OpenCategoryModal()
     {
-        ModalService.Show<AddCategoryModal>("Add Category");
+        ModalService.OnClose += OnModalClosed;
+        ModalService.Show<AddCategoryModal>("Add Category", null,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                PixelWidth = 360
+            });
     }
-    
+
+    private void OnModalClosed(ModalResult result)
+    {
+        if (!result.Cancelled)
+        {
+            try
+            {
+                categories.Add((string) result.Data);
+                categories.Sort();
+                StateHasChanged();
+            }
+            catch
+            {
+                //nom nom
+            }
+        }
+
+        ModalService.OnClose -= OnModalClosed;
+    }
+
     protected async Task HandleValidSubmit()
     {
         await SaveTable();

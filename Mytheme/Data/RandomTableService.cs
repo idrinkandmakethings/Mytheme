@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
@@ -13,7 +14,7 @@ namespace Mytheme.Data
         {
             var success = false;
             var result = string.Empty;
-            
+
             await Task.Run(async () =>
             {
                 try
@@ -51,7 +52,8 @@ namespace Mytheme.Data
 
         public async Task<RandomTable> GetRandomTable(int id)
         {
-            return await Task.Run(() => {
+            return await Task.Run(() =>
+            {
                 using var db = new DataStorage();
                 return db.RandomTables.Single(t => t.Id == id);
             });
@@ -59,7 +61,8 @@ namespace Mytheme.Data
 
         public async Task<RandomTable> GetRandomTable(string name)
         {
-            return await Task.Run(() => { 
+            return await Task.Run(() =>
+            {
                 using var db = new DataStorage();
                 return db.RandomTables.Single(t => t.Name == name);
             });
@@ -94,7 +97,7 @@ namespace Mytheme.Data
                 try
                 {
                     await using var db = new DataStorage();
-                    var result = await db.TableCategories.AddAsync(new TableCategory(){Name = category});
+                    var result = await db.TableCategories.AddAsync(new TableCategory() {Name = category});
                     db.SaveChanges(true);
                     if (result.Entity.Id > 0)
                     {
@@ -109,6 +112,15 @@ namespace Mytheme.Data
             });
 
             return (success, result);
+        }
+
+        public async Task<bool> CategoryExists(string name)
+        {
+            return await Task.Run(async () =>
+            {
+                await using var db = new DataStorage();
+                return db.TableCategories.ToList().Any(x => x.Name == name);
+            });
         }
     }
 }

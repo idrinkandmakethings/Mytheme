@@ -4,7 +4,8 @@
     {
         public bool? DisableBackgroundCancel { get; set; }
         public bool? HideCloseButton { get; set; }
-        public string Position { get; set; }
-        public string Style { get; set; }
+        public string HeaderBackgroundColor { get; set; }
+        public string HeaderColor { get; set; }
+        public int PixelWidth { get; set; }
     }
 }

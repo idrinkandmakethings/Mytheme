@@ -2,29 +2,39 @@
 @inject IModalService ModalService
 
 
-<Styled @bind-Classname="@modal">
+<Styled @bind-Classname="@modalContainer">
     display: @modalDisplay;
     position: fixed;
-    z-index: 1;
-    padding-top: 100px;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
     overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
 </Styled>
 
 
-<Styled @bind-Classname="@modalContent">
-    position: relative;
-    background-color: #fefefe;
-    margin: auto;
-    padding: 0;
-    border: 1px solid #888;
-    width: 80%;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+<Styled @bind-Classname="@modalBackground">
+    display: block;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 101;
+    background-color: rgba(0,0,0,0.5);
+</Styled>
+
+<Styled @bind-Classname="@modalWrapper">
+    z-index: 102;
+    width: @modalWidth;
+</Styled>
+
+<Styled @bind-Classname="@modal">
+    background-color: #fff;
+    border-radius: 4px;
+    border: 1px solid #000;
+    box-shadow: 0 2px 2px rgba(0,0,0,.25);
     animation-name: @animateTop;
     animation-duration: 0.4s;
 </Styled>
@@ -41,39 +51,54 @@
 </Styled>
 
 <Styled @bind-Classname="@modalHeader">
-    padding: 2px 16px;
-    background-color: #5cb85c;
-    color: white;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: @titleBackground;
+
+</Styled>
+
+<Styled @bind-Classname="@modalTitle">
+    color: @titleColor;
+    margin-bottom: 0;
+</Styled>
+
+<Styled @bind-Classname="@modalClose">
+    padding: 1rem;
+    margin: -1rem -1rem -1rem auto;
+    background-color: transparent;
+    color: @titleColor;
+    border: 0;
+    -webkit-appearance: none;
+    cursor: pointer;
+    font-size: 1.5rem;
     font-weight: bold;
 </Styled>
 
-<Styled @bind-Classname="@modalBody">
-    padding: 2px 16px;
-</Styled>
-
-<Styled @bind-Classname="@modalFooter">
-    padding: 2px 16px;
-    background-color: #5cb85c;
-    color: white;
+<Styled @bind-Classname="@modalContent">
+    padding: 10px 20px 20px ;
 </Styled>
 
 
-<div class="@modal">
 
-    <div class="@modal" @onclick="HandleBackgroundClick"></div>
 
-    <div class="@modalContent">
-        <div class="@ComponentStyle">
+<div class="@modalContainer">
+
+    <div class="@modalBackground" @onclick="HandleBackgroundClick"></div>
+
+    <div class="@modalWrapper">
+        <div class="@modal">
             <div class="@modalHeader">
-                <h3 class="blazored-modal-title">@Title</h3>
+                <h3 class="@modalTitle">@Title</h3>
                 @if (!ComponentHideCloseButton)
                 {
-                    <button type="button" @onclick="@(() => ModalService.Cancel())">
+                    <button type="button" class="@modalClose" @onclick="@(() => ModalService.Cancel())">
                         <span>&times;</span>
                     </button>
                 }
             </div>
-            <div class="">
+            <div class="@modalContent">
                 <CascadingValue Value="@Parameters">
                     @Content
                 </CascadingValue>
@@ -84,23 +109,17 @@
 
 @code {
 
-    private string modal, modalContent, modalHeader, modalBody, modalFooter, closeModal, animateTop;
+    // css classes
+    private string modalContainer, modalBackground, modalContent, modal, modalHeader, modalTitle, modalClose, modalWrapper, closeModal, animateTop;
 
+
+    // css properties
     private string modalDisplay = "none";
-
-    [Parameter]
-    public bool HideCloseButton { get; set; }
-
-    [Parameter]
-    public bool DisableBackgroundCancel { get; set; }
-
-    [Parameter]
-    public string Position { get; set; }
-
-    [Parameter]
-    public string Style { get; set; }
-
-
+    private string titleBackground = "white";
+    private string titleColor = "black";
+    private string modalWidth = "80%";
+    
+    
     protected bool ComponentDisableBackgroundCancel { get; set; }
     protected bool ComponentHideCloseButton { get; set; }
     protected string ComponentPosition { get; set; }
@@ -125,7 +144,7 @@
 
         SetModalOptions(options);
 
-        modalDisplay = "block";
+        modalDisplay = "flex";
         StateHasChanged();
     }
 
@@ -154,13 +173,17 @@
 
     private void SetModalOptions(ModalOptions options)
     {
-        ComponentHideCloseButton = HideCloseButton;
         if (options.HideCloseButton.HasValue)
             ComponentHideCloseButton = options.HideCloseButton.Value;
 
-        ComponentDisableBackgroundCancel = DisableBackgroundCancel;
         if (options.DisableBackgroundCancel.HasValue)
             ComponentDisableBackgroundCancel = options.DisableBackgroundCancel.Value;
+
+        titleBackground = options.HeaderBackgroundColor ?? "white";
+        titleColor = options.HeaderColor ?? "black";
+
+        modalWidth = options.PixelWidth > 0 ? $"{options.PixelWidth}px" : "80%";
+
     }
 
 }
