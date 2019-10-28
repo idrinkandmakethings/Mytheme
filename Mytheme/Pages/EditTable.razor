@@ -3,6 +3,7 @@
 
 @using System.IO
 @using Blazor.FileReader
+@using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Data
 @using Mytheme.Modals
@@ -49,7 +50,7 @@
 </Styled>
 
 <Styled @bind-Classname="@dropTarget">
-    display:block;
+    display:@dropZoneVisibility;
     padding: 20px;
     margin-bottom: 10px;
     border: 1px dashed black;
@@ -128,15 +129,14 @@ else
     [Parameter]
     public string Tablename { get; set; }
 
-    private int page = 0;
-
-    private int perPage = 50;
 
     // css class names
     private string form, dropArea, dropTarget, dropTargetDrag, loading;
 
     // css attributes
+    private string dropZoneVisibility;
 
+    private bool isUpdate;
 
     private bool dragging;
 
@@ -159,16 +159,29 @@ else
         if (string.IsNullOrEmpty(Tablename))
         {
             BreadcrumbService.SetBreadCrumb("Add Table");
-   
+            dropZoneVisibility = "block";
+            isUpdate = false;
         }
         else
         {
-            table = await RandomTableService.GetRandomTable(Tablename);
+            dropZoneVisibility = "none";
+            isUpdate = true;
+            var result = await RandomTableService.GetRandomTable(Tablename);
+            if (result.IsSuccess)
+            {
+                table = result.Result;
+            }
             entries = table.Entries.Select(x => x.Entry).ToArray();
         }
 
+
+        var catResult = await RandomTableService.GetCategories();
+
+        if (catResult.IsSuccess)
+        {
+            categories = catResult.Result;
+        }
         
-        categories = await RandomTableService.GetCategories();
         categoryText = "Select category ...";
         StateHasChanged();
     }
@@ -221,18 +234,38 @@ else
     protected async Task SaveTable()
     {
         table.Entries = entries.Select(e => new TableEntry() {Entry = e}).ToList();
-        var result = await RandomTableService.AddRandomTable(table);
-        if (result.success)
+
+        
+
+
+        if (isUpdate)
         {
-            loadingText = "Saved!";
+            var result = await RandomTableService.UpdateRandomTable(table);
+
+            if (result.IsSuccess)
+            {
+                loadingText = "Updated!";
+            }
+            else
+            {
+                loadingText = result.Message;
+            }
         }
         else
         {
-            loadingText = result.result;
-        }
-        table = new RandomTable();
-        entries = null;
+            var result = await RandomTableService.AddRandomTable(table);
 
+            if (result.IsSuccess)
+            {
+                loadingText = "Saved!";
+                table = new RandomTable();
+                entries = null;
+            }
+            else
+            {
+                loadingText = result.Message;
+            }
+        }
     }
 
     public void OnDragEnter(EventArgs e)

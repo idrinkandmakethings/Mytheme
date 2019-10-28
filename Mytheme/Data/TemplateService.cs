@@ -2,105 +2,100 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
 using Mytheme.Data.Interfaces;
 
 namespace Mytheme.Data
 {
-    public class RandomTableService : IRandomTableService
+    public class TemplateService : ITemplateService
     {
-        public async Task<DalResult> AddRandomTable(RandomTable table)
+        public async Task<DalResult> AddTemplate(Template template)
         {
             return await Task.Run(async () =>
             {
                 try
                 {
                     await using var db = new DataStorage();
-                    var result = await db.RandomTables.AddAsync(table);
+                    var result = await db.Templates.AddAsync(template);
                     db.SaveChanges(true);
 
                     return new DalResult(DalStatus.Success);
                 }
                 catch (Exception e)
                 {
-                    return new DalResult(DalStatus.Unknown, "Error saving table");
+                    return new DalResult(DalStatus.Unknown, "Error saving template");
                 }
             });
         }
 
-        public async Task<DalResult> UpdateRandomTable(RandomTable table)
+        public async Task<DalResult> UpdateTemplate(Template template)
         {
             return await Task.Run(() =>
             {
                 try
                 {
                     using var db = new DataStorage();
-                    db.RandomTables.Update(table);
+                    db.Templates.Update(template);
                     db.SaveChanges(true);
 
                     return new DalResult(DalStatus.Success);
                 }
                 catch (Exception e)
                 {
-                    return new DalResult(DalStatus.Unknown, "Error updating table");
+                    return new DalResult(DalStatus.Unknown, "Error updating template");
                 }
             });
         }
 
-        public async Task<DalResult<RandomTable>> GetRandomTable(int id)
+        public async Task<DalResult<Template>> GetTemplate(int id)
         {
             return await Task.Run(() =>
             {
                 try
                 {
                     using var db = new DataStorage();
-                    var result = db.RandomTables
-                        .Include(t => t.Entries)
-                        .First(t => t.Id == id);
-                    return new DalResult<RandomTable>(DalStatus.Success, result);
+                    var result = db.Templates.First(t => t.Id == id);
+                    return new DalResult<Template>(DalStatus.Success, result);
 
-                }
-                catch (Exception e) 
-                {
-                    return new DalResult<RandomTable>(DalStatus.Unknown, null, "Unknown error retrieving table");
-                }
-            });
-        }
-
-        public async Task<DalResult<RandomTable>> GetRandomTable(string name)
-        {
-            return await Task.Run(() =>
-            {
-                try
-                {
-                    using var db = new DataStorage();
-                    var result = db.RandomTables
-                        .Include(t => t.Entries)
-                        .First(t => t.Name == name);
-                    return new DalResult<RandomTable>(DalStatus.Success, result);
                 }
                 catch (Exception e)
                 {
-                    return new DalResult<RandomTable>(DalStatus.Unknown, null, "Unknown error retrieving table");
+                    return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
                 }
             });
         }
 
-        public async Task<DalResult<RandomTable[]>> GetAllRandomTables()
+        public async Task<DalResult<Template>> GetTemplate(string name)
         {
             return await Task.Run(() =>
             {
                 try
                 {
                     using var db = new DataStorage();
-                    var result = db.RandomTables.ToArray();
-                    return new DalResult<RandomTable[]>(DalStatus.Success, result);
+                    var result = db.Templates.First(t => t.Name == name);
+                    return new DalResult<Template>(DalStatus.Success, result);
                 }
                 catch (Exception e)
                 {
-                    return new DalResult<RandomTable[]>(DalStatus.Unknown, null, "Unknown error retrieving tables");
+                    return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
+                }
+            });
+        }
+
+        public async Task<DalResult<Template[]>> GetAllTemplates()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    using var db = new DataStorage();
+                    var result = db.Templates.ToArray();
+                    return new DalResult<Template[]>(DalStatus.Success, result);
+                }
+                catch (Exception e)
+                {
+                    return new DalResult<Template[]>(DalStatus.Unknown, null, "Unknown error retrieving templates");
                 }
             });
         }
@@ -112,7 +107,7 @@ namespace Mytheme.Data
                 try
                 {
                     using var db = new DataStorage();
-                    var result = db.TableCategories.Select(x => x.Name).OrderBy(n => n).ToList();
+                    var result = db.TemplateCategories.Select(x => x.Name).OrderBy(n => n).ToList();
                     return new DalResult<List<string>>(DalStatus.Success, result);
                 }
                 catch (Exception e)
@@ -129,13 +124,13 @@ namespace Mytheme.Data
                 try
                 {
                     await using var db = new DataStorage();
-                    var result = await db.TableCategories.AddAsync(new TableCategory() {Name = category});
+                    var result = await db.TemplateCategories.AddAsync(new TemplateCategory { Name = category });
                     db.SaveChanges(true);
                     return new DalResult(DalStatus.Success);
                 }
                 catch (Exception e)
                 {
-                    return new DalResult(DalStatus.Unknown,"Error saving table");
+                    return new DalResult(DalStatus.Unknown, "Error saving table");
                 }
             });
         }
@@ -147,7 +142,7 @@ namespace Mytheme.Data
                 try
                 {
                     await using var db = new DataStorage();
-                    var exists = db.TableCategories.ToList().Any(x => x.Name == name);
+                    var exists = db.TemplateCategories.ToList().Any(x => x.Name == name);
                     return new DalResult<bool>(DalStatus.Success, exists);
                 }
                 catch (Exception e)

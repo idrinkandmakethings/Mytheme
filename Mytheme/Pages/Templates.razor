@@ -1,4 +1,5 @@
-﻿@page "/tables"
+﻿@page "/templates"
+
 @using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Data
@@ -19,7 +20,7 @@ else
             <th>Category</th>
             <th>Description</th>
         </GridHeader>
-        <GridRow >
+        <GridRow>
             <tr @onclick="@(() => NavigationManager.NavigateTo($"edit-table/{table.Name}"))">
                 <td>@table.Name</td>
                 <td>@table.Category</td>
@@ -36,7 +37,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        BreadcrumbService.SetBreadCrumb("Tables");
+        BreadcrumbService.SetBreadCrumb("Templates");
         var result = await RandomTableService.GetAllRandomTables();
 
         if (result.Status == DalStatus.Success)

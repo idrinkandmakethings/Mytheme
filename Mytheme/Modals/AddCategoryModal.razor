@@ -39,8 +39,12 @@
             errorMessage = "Name cannot be blank";
             validationDisplay = "block";
             StateHasChanged();
+            return;
         }
-        else if (await RandomTableService.CategoryExists(Name))
+
+        var result = await RandomTableService.CategoryExists(Name); 
+
+        if (result.Result)
         {
             errorMessage = "Name already exists";
             validationDisplay = "block";
