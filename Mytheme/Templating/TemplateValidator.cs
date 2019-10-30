@@ -25,29 +25,26 @@ namespace Mytheme.Templating
         private IRandomTableService randomTableService;
         private ITemplateService templateService;
 
-        Regex fieldMatch = new Regex(@"\[\w{3}:.*?\]", RegexOptions.IgnoreCase & RegexOptions.Compiled);
+        Regex fieldMatch = new Regex(@"\[\w{3}:.*?\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private Dictionary<TemplateFieldType, Regex> validationRegexs;
 
-
-        public TemplateValidator()
-        {
-            validationRegexs = new Dictionary<TemplateFieldType, Regex>
-            {
-                {TemplateFieldType.RandomNumber,new Regex(@"^\[rng:(\+?\d+|\-?\d+):(\+?\d+|\-?\d+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.RandomTable, new Regex(@"^\[tbl:([\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.DieRoll,new Regex(@"^\[die:((\d*)d(\d+)(\+\d+|\-\d+)?)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.Template, new Regex(@"^\[tmp:([\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.List, new Regex(@"^\[lst:\{([\w\s\d,]+)\}\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.Variable, new Regex(@"^\[var:([\{\}\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)}
-            };
-            
-        }
 
         public TemplateValidator(IRandomTableService randomTableService, ITemplateService templateService)
         {
             this.randomTableService = randomTableService;
             this.templateService = templateService;
+
+            validationRegexs = new Dictionary<TemplateFieldType, Regex>
+            {
+                {TemplateFieldType.RandomNumber,new Regex(@"^\[rng:(\+?\d+|\-?\d+):(\+?\d+|\-?\d+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.RandomTable, new Regex(@"^\[tbl:([\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.DieRoll,new Regex(@"^\[die:((\d*)d(\d+)(\+\d+|\-\d+)?)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.Template, new Regex(@"^\[tmp:([\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.List, new Regex(@"^\[lst:\{([\w\s\d,]+)\}\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.Variable, new Regex(@"^\[var:([\{\}\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)}
+            };
+            
         }
 
         public ValidationResult ValidateTemplate(Template template)
