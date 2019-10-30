@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
 using Mytheme.Data.Interfaces;
+using Serilog;
 
 namespace Mytheme.Data
 {
@@ -24,6 +25,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception adding template. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult(DalStatus.Unknown, "Error saving template");
                 }
             });
@@ -43,6 +46,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception updating template id {template.Id}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult(DalStatus.Unknown, "Error updating template");
                 }
             });
@@ -61,6 +66,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception getting template id {id}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
                 }
             });
@@ -78,6 +85,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception adding template {name}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
                 }
             });
@@ -95,6 +104,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception getting all template. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<Template[]>(DalStatus.Unknown, null, "Unknown error retrieving templates");
                 }
             });
@@ -112,6 +123,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception getting all template categories. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<List<string>>(DalStatus.Unknown, null, "Unknown error retrieving categories");
                 }
             });
@@ -130,7 +143,9 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
-                    return new DalResult(DalStatus.Unknown, "Error saving table");
+                    Log.Error($"Exception adding template category {category}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
+                    return new DalResult(DalStatus.Unknown, "Error saving category");
                 }
             });
         }
@@ -147,6 +162,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception checking if template category {name} exists. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<bool>(DalStatus.Unknown, false, "Error determining category exists");
                 }
             });

@@ -1,0 +1,38 @@
+﻿<Styled @bind-Classname="@buttonGroup">
+    & button {
+    background-color: #4CAF50;
+    border: 1px solid green;
+    color: white;
+    padding: 10px 24px;
+    cursor: pointer;
+    float: left;
+    }
+
+    & .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+    }
+
+    & button:not(:last-child) {
+    border-right: none;
+    }
+
+    & button:hover {
+    background-color: #3e8e41;
+    }
+</Styled>
+
+<div class="@buttonGroup">
+    @foreach (var button in Buttons)
+    {
+        <button @onclick="@(() => { button.OnClick?.Invoke(); })">@button.ButtonText</button>
+    }
+</div>
+
+@code {
+    // css class names
+    private string buttonGroup;
+
+    [Parameter] public List<ButtonOptions> Buttons { get; set; }
+}

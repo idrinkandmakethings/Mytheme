@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mytheme.Templating;
 
 namespace Mytheme.Dal.Dto
 {
@@ -17,6 +19,8 @@ namespace Mytheme.Dal.Dto
 
         [Required]
         public string TemplateBody { get; set; }
+
+        public List<TemplateField> Fields { get; set; }
     }
 
    
@@ -27,5 +31,25 @@ namespace Mytheme.Dal.Dto
         public int Id { get; set; }
 
         [Required] public string Name { get; set; }
+    }
+
+    public class TemplateField : IComparable<TemplateField>
+    {
+        public int Id { get; set; }
+        public int TemplateForeignKey { get; set; }
+        public int Order { get; set; }
+        public TemplateFieldType FieldType { get; set; }
+
+        public string Value { get; set; }
+        
+        [ForeignKey("TemplateForeignKey")]
+        public Template RandomTable { get; set; }
+
+        public int CompareTo(TemplateField other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return Order.CompareTo(other.Order);
+        }
     }
 }

@@ -1,48 +1,61 @@
 ﻿@page "/templates"
 
+@using Mytheme.ButtonGroup
 @using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Data
 
-@inject RandomTableService RandomTableService
+@inject TemplateService TemplateService
 @inject NavigationManager NavigationManager
 @inject BreadcrumbService BreadcrumbService
 
-@if (tables == null)
+<MythemeButtonGroup Buttons="buttons"/>
+<br/>
+<br/>
+@if (templates == null)
 {
     <p><em>@loadingText</em></p>
 }
 else
 {
-    <MythemeGrid Items="tables" Context="table">
+    <MythemeGrid Items="templates" Context="template">
         <GridHeader>
             <th>Name</th>
             <th>Category</th>
             <th>Description</th>
         </GridHeader>
         <GridRow>
-            <tr @onclick="@(() => NavigationManager.NavigateTo($"edit-table/{table.Name}"))">
-                <td>@table.Name</td>
-                <td>@table.Category</td>
-                <td>@table.Description</td>
+            <tr @onclick="@(() => NavigationManager.NavigateTo($"edit-template/{template.Id}"))">
+                <td>@template.Name</td>
+                <td>@template.Category</td>
+                <td>@template.Description</td>
             </tr>
         </GridRow>
     </MythemeGrid>
 }
 
 @code {
-    RandomTable[] tables;
+
+    Template[] templates;
+    List<ButtonOptions> buttons;
 
     private string loadingText = "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
         BreadcrumbService.SetBreadCrumb("Templates");
-        var result = await RandomTableService.GetAllRandomTables();
+
+        buttons = new List<ButtonOptions>
+        {
+            new ButtonOptions("Add Template", () => NavigationManager.NavigateTo($"edit-template")),
+            new ButtonOptions("Import Template", null)
+        };
+
+        var result = await TemplateService.GetAllTemplates();
 
         if (result.Status == DalStatus.Success)
         {
-            tables = result.Result;
+            templates = result.Result;
         }
     }
 }

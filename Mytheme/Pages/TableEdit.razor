@@ -3,12 +3,10 @@
 
 @using System.IO
 @using Blazor.FileReader
-@using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Data
 @using Mytheme.Modals
 
-@inject IStyled Styled
 @inject RandomTableService RandomTableService
 @inject FileHandlerService FileHandlerService
 @inject IFileReaderService FileReaderService
@@ -181,7 +179,7 @@ else
         {
             categories = catResult.Result;
         }
-        
+
         categoryText = "Select category ...";
         StateHasChanged();
     }
@@ -233,9 +231,9 @@ else
 
     protected async Task SaveTable()
     {
-        table.Entries = entries.Select(e => new TableEntry() {Entry = e}).ToList();
+        table.Entries = entries.Select(e => new TableEntry() { Entry = e }).ToList();
 
-        
+
 
 
         if (isUpdate)

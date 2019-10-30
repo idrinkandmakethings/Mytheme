@@ -41,6 +41,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="1.1.0.19274" />
   </ItemGroup>
   <ItemGroup>
@@ -52,6 +54,7 @@
     <Folder Include="wwwroot\css\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Mytheme.ButtonGroup\Mytheme.ButtonGroup.csproj" />
     <ProjectReference Include="..\Mytheme.Grid\Mytheme.Grid.csproj" />
     <ProjectReference Include="..\Mytheme.Modal\Mytheme.Modal.csproj" />
   </ItemGroup>

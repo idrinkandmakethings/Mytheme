@@ -1,4 +1,5 @@
 ﻿@page "/tables"
+@using Mytheme.ButtonGroup
 @using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Data
@@ -7,6 +8,9 @@
 @inject NavigationManager NavigationManager
 @inject BreadcrumbService BreadcrumbService
 
+<MythemeButtonGroup Buttons="buttons" />
+<br />
+<br />
 @if (tables == null)
 {
     <p><em>@loadingText</em></p>
@@ -19,7 +23,7 @@ else
             <th>Category</th>
             <th>Description</th>
         </GridHeader>
-        <GridRow >
+        <GridRow>
             <tr @onclick="@(() => NavigationManager.NavigateTo($"edit-table/{table.Name}"))">
                 <td>@table.Name</td>
                 <td>@table.Category</td>
@@ -31,12 +35,20 @@ else
 
 @code {
     RandomTable[] tables;
+    List<ButtonOptions> buttons; 
 
     private string loadingText = "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
         BreadcrumbService.SetBreadCrumb("Tables");
+      
+        buttons = new List<ButtonOptions>
+        {
+            new ButtonOptions("Add Table", () => { NavigationManager.NavigateTo($"edit-table"); }),
+            new ButtonOptions("Import Table", null)
+        };
+        
         var result = await RandomTableService.GetAllRandomTables();
 
         if (result.Status == DalStatus.Success)

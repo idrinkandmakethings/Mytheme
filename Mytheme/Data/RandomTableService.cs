@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
 using Mytheme.Data.Interfaces;
+using Serilog;
 
 namespace Mytheme.Data
 {
@@ -25,6 +26,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception saving table {table.Name}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult(DalStatus.Unknown, "Error saving table");
                 }
             });
@@ -44,6 +47,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception updating table id {table.Id}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult(DalStatus.Unknown, "Error updating table");
                 }
             });
@@ -64,6 +69,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e) 
                 {
+                    Log.Error($"Exception getting table id {id}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<RandomTable>(DalStatus.Unknown, null, "Unknown error retrieving table");
                 }
             });
@@ -83,6 +90,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception getting table name {name}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<RandomTable>(DalStatus.Unknown, null, "Unknown error retrieving table");
                 }
             });
@@ -100,6 +109,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception getting tables. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<RandomTable[]>(DalStatus.Unknown, null, "Unknown error retrieving tables");
                 }
             });
@@ -117,6 +128,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception getting Table Categories. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<List<string>>(DalStatus.Unknown, null, "Unknown error retrieving categories");
                 }
             });
@@ -135,6 +148,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception adding Table Category {category}. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult(DalStatus.Unknown,"Error saving table");
                 }
             });
@@ -152,6 +167,8 @@ namespace Mytheme.Data
                 }
                 catch (Exception e)
                 {
+                    Log.Error($"Exception checking if Table Category {name} exists. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
                     return new DalResult<bool>(DalStatus.Unknown, false, "Error determining category exists");
                 }
             });
