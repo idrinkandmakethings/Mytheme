@@ -1,11 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Mytheme.Dal.Dto;
 using Mytheme.Data.Interfaces;
+using Mytheme.Templating.TemplateTypes;
+using Newtonsoft.Json;
+using Serilog;
 
 namespace Mytheme.Templating
 {
+    /*
+     * [lst:{male,female}]
+     * [var:{"name":"race","type":"tbl","value":"Races","display":true}]
+     * [var:{"name":"gender","type":"lst","value":{male,female},"display":true}]
+     * 
+     * [tbl:{race} {gender} names]
+     * 
+     * [tbl:{race} backgrounds]
+     */
+
     public class TemplateValidator
     {
         private IRandomTableService randomTableService;
@@ -20,10 +34,12 @@ namespace Mytheme.Templating
         {
             validationRegexs = new Dictionary<TemplateFieldType, Regex>
             {
-                {TemplateFieldType.RandomNumber,new Regex(@"^\[rng:\d+-\d+\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
+                {TemplateFieldType.RandomNumber,new Regex(@"^\[rng:(\+?\d+|\-?\d+):(\+?\d+|\-?\d+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
                 {TemplateFieldType.RandomTable, new Regex(@"^\[tbl:([\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.DieRoll,new Regex(@"^\[die:([\dd+-]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
-                {TemplateFieldType.Template, new Regex(@"^\[tmp:([\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)}
+                {TemplateFieldType.DieRoll,new Regex(@"^\[die:((\d*)d(\d+)(\+\d+|\-\d+)?)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
+                {TemplateFieldType.Template, new Regex(@"^\[tmp:([\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
+                {TemplateFieldType.List, new Regex(@"^\[lst:\{([\w\s\d,]+)\}\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)},
+                {TemplateFieldType.Variable, new Regex(@"^\[var:([\{\}\w\s]+)\]$", RegexOptions.IgnoreCase & RegexOptions.Compiled)}
             };
             
         }
@@ -38,12 +54,13 @@ namespace Mytheme.Templating
         {
             var result = new ValidationResult{Template = template};
             
-            var fields = fieldMatch.Match(template.TemplateBody).Groups.Values.Select(x => x.Value).ToList();
+            var fieldText = fieldMatch.Match(template.TemplateBody).Groups.Values.Select(x => x.Value).ToList();
 
-            result.Template.Fields = GenerateFields(fields);
+            var fields = GenerateFields(fieldText);
 
-            result.ValidationErrors = ValidateFields(result.Template.Fields);
+            result.ValidationErrors = ValidateFields(ref fields);
 
+            result.Template.Fields = fields;
             return result;
         }
 
@@ -71,6 +88,12 @@ namespace Mytheme.Templating
                     case "tmp":
                         field.FieldType = TemplateFieldType.Template;
                         break;
+                    case "lst":
+                        field.FieldType = TemplateFieldType.List;
+                        break;
+                    case "var":
+                        field.FieldType = TemplateFieldType.Variable;
+                        break;
                     default:
                         field.FieldType = TemplateFieldType.Error;
                         break;
@@ -82,14 +105,116 @@ namespace Mytheme.Templating
             return result;
         }
 
-        internal Dictionary<string, ValidationError> ValidateFields(List<TemplateField> fields)
+        internal Dictionary<string, ValidationError> ValidateFields(ref List<TemplateField> fields)
         {
             var result = new Dictionary<string, ValidationError>();
 
-            foreach (var VARIABLE in COLLECTION)
+            for (int i = 0; i < fields.Count; i++)
             {
-                
+                var field = fields[i];
+                 
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
+                {
+                    result[field.Value] = ValidationError.InvalidTag;
+                    field.Valid = false;
+                    fields[i] = field;
+                    continue;
+                }
+
+                var err = ValidationError.None;
+
+                switch (field.FieldType)
+                {
+                    case TemplateFieldType.RandomNumber:
+                        err = SetRandomNumberField(ref field, match);
+                        break;
+                    case TemplateFieldType.RandomTable:
+                        err = SetRandomTableField(ref field, match);
+                        break;
+                    case TemplateFieldType.Template:
+                        err = SetTemplateField(ref field, match);
+                        break;
+                    case TemplateFieldType.DieRoll:
+                        err = SetDieRollField(ref field, match);
+                        break;
+                    case TemplateFieldType.List:
+                        err = SetListField(ref field, match);
+                        break;
+                    case TemplateFieldType.Variable:
+                        err = SetVariableField(ref field, match);
+                        break;
+
+                }
+
+                if (err != ValidationError.None)
+                {
+                    result[field.Value] = err;
+                }
+
+                fields[i] = field;
             }
+
+            return result;
+        }
+
+        private ValidationError SetRandomNumberField(ref TemplateField field, Match match)
+        {
+            try
+            {
+                var x = int.Parse(match.Groups[1].Value);
+                var y = int.Parse(match.Groups[2].Value);
+
+                var rng = new TemplateRng();
+
+                if (x > y)
+                {
+                    rng.UpperBound = x;
+                    rng.LowerBound = y;
+                }
+                else
+                {
+                    rng.UpperBound = x;
+                    rng.LowerBound = y;
+                }
+
+                field.TemplateJson = JsonConvert.SerializeObject(rng);
+                field.Valid = true;
+                return ValidationError.None;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Exception parsing {field.Value}. ex:{ex.Message}");
+                Log.Debug(ex.StackTrace);
+                field.Valid = false;
+                return ValidationError.InvalidTag;
+            }
+        }
+
+        private ValidationError SetRandomTableField(ref TemplateField field, Match match)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ValidationError SetTemplateField(ref TemplateField field, Match match)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ValidationError SetDieRollField(ref TemplateField field, Match match)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ValidationError SetListField(ref TemplateField field, Match match)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ValidationError SetVariableField(ref TemplateField field, Match match)
+        {
+            throw new NotImplementedException();
         }
     }
 

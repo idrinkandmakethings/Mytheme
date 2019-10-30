@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Blazor.FileReader;
 using BlazorStyled;
 using BlazorTypography;
@@ -71,7 +72,7 @@ namespace Mytheme
                 endpoints.MapFallbackToPage("/_Host");
             });
 
-            Electron.WindowManager.CreateWindowAsync();
+            Task.Run(function: async () => await Electron.WindowManager.CreateWindowAsync());
         }
     }
 }

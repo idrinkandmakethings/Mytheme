@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mytheme.Templating;
+using Mytheme.Templating.TemplateTypes;
 
 namespace Mytheme.Dal.Dto
 {
@@ -16,6 +16,8 @@ namespace Mytheme.Dal.Dto
         public string Name { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
+        [Required]
+        public bool Enabled { get; set; }
 
         [Required]
         public string TemplateBody { get; set; }
@@ -37,11 +39,13 @@ namespace Mytheme.Dal.Dto
     {
         public int Id { get; set; }
         public int TemplateForeignKey { get; set; }
-        public int Order { get; set; }
-        public TemplateFieldType FieldType { get; set; }
-
-        public string Value { get; set; }
+        [Required] public int Order { get; set; }
+        [Required] public TemplateFieldType FieldType { get; set; }
         
+        [Required] public bool Valid { get; set; }
+        [Required] public string Value { get; set; }
+        [Required] public string TemplateJson { get; set; }
+
         [ForeignKey("TemplateForeignKey")]
         public Template RandomTable { get; set; }
 

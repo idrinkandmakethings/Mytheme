@@ -1,4 +1,5 @@
 using ElectronNET.API;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -9,8 +10,29 @@ namespace Mytheme
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File(@"logs\mytheme.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
 
-            CreateHostBuilder(args).Build().Run();
+            Log.Information($"===================================================================");
+            Log.Information($"Mytheme version {Constants.APP_VERSION}");
+            Log.Information("Copyright 2019");
+            Log.Information($"===================================================================");
+            
+            
+            BuildWebHost(args).Run();
+            //CreateHostBuilder(args).Build().Run();
+
+            Log.CloseAndFlush();
+        }
+
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                //.UseElectron(args)
+                .Build();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -14,6 +14,8 @@ namespace Mytheme.Dal.Dto
         public string Name { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
+        [Required]
+        public bool Enabled { get; set; }
 
         public List<TableEntry> Entries { get; set; }
     }
@@ -38,5 +40,7 @@ namespace Mytheme.Dal.Dto
 
         [Required]
         public string Name { get; set; }
+        [Required]
+        public bool Enabled { get; set; }
     }
 }

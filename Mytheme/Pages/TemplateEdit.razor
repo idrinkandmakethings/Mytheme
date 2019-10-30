@@ -123,14 +123,6 @@
         StateHasChanged();
     }
 
-    protected override async Task OnAfterRenderAsync(bool isFirstRender)
-    {
-        if (isFirstRender)
-        {
-            dropReference = FileReaderService.CreateReference(dropTargetElement);
-            await dropReference.RegisterDropEventsAsync();
-        }
-    }
 
     protected void OpenCategoryModal()
     {
@@ -165,17 +157,18 @@
 
     protected async Task HandleValidSubmit()
     {
-        await SaveTable();
+        await SaveTemplate();
     }
 
-    protected async Task SaveTable()
+    protected async Task SaveTemplate()
     {
-        table.Entries = entries.Select(e => new TableEntry() { Entry = e }).ToList();
-
-
+    //TODO: Add Template validation
+        
         if (isUpdate)
         {
-            var result = await RandomTableService.UpdateRandomTable(table);
+            
+
+            var result = await TemplateService.UpdateTemplate(template);
 
             if (result.IsSuccess)
             {
@@ -188,14 +181,12 @@
         }
         else
         {
-            var result = await RandomTableService.AddRandomTable(table);
+            var result = await TemplateService.AddTemplate(template);
 
             if (result.IsSuccess)
             {
                 loadingText = "Saved!";
-                table = new RandomTable();
-                entries = null;
-            }
+                }
             else
             {
                 loadingText = result.Message;
