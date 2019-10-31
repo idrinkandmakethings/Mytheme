@@ -47,7 +47,7 @@ namespace Mytheme.Dal.Dto
         [Required] public string TemplateJson { get; set; }
 
         [ForeignKey("TemplateForeignKey")]
-        public Template RandomTable { get; set; }
+        public Template Template { get; set; }
 
         public int CompareTo(TemplateField other)
         {

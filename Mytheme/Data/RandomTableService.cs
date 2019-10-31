@@ -67,7 +67,7 @@ namespace Mytheme.Data
                     return new DalResult<RandomTable>(DalStatus.Success, result);
 
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     Log.Error($"Exception getting table id {id}. ex: {e.Message}");
                     Log.Debug(e.StackTrace);
@@ -150,7 +150,7 @@ namespace Mytheme.Data
                 {
                     Log.Error($"Exception adding Table Category {category}. ex: {e.Message}");
                     Log.Debug(e.StackTrace);
-                    return new DalResult(DalStatus.Unknown,"Error saving table");
+                    return new DalResult(DalStatus.Unknown, "Error saving table");
                 }
             });
         }
@@ -170,6 +170,25 @@ namespace Mytheme.Data
                     Log.Error($"Exception checking if Table Category {name} exists. ex: {e.Message}");
                     Log.Debug(e.StackTrace);
                     return new DalResult<bool>(DalStatus.Unknown, false, "Error determining category exists");
+                }
+            });
+        }
+
+        public async Task<DalResult<bool>> TableExists(string name)
+        {
+            return await Task.Run(async () =>
+            {
+                try
+                {
+                    await using var db = new DataStorage();
+                    var exists = db.RandomTables.ToList().Any(x => x.Name == name);
+                    return new DalResult<bool>(DalStatus.Success, exists);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Exception checking if table {name} exists. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
+                    return new DalResult<bool>(DalStatus.Unknown, false, "Error determining table exists");
                 }
             });
         }

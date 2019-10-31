@@ -168,5 +168,24 @@ namespace Mytheme.Data
                 }
             });
         }
+
+        public async Task<DalResult<bool>> TemplateExists(string name)
+        {
+            return await Task.Run(async () =>
+            {
+                try
+                {
+                    await using var db = new DataStorage();
+                    var exists = db.Templates.ToList().Any(x => x.Name == name);
+                    return new DalResult<bool>(DalStatus.Success, exists);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Exception checking if template {name} exists. ex: {e.Message}");
+                    Log.Debug(e.StackTrace);
+                    return new DalResult<bool>(DalStatus.Unknown, false, "Error determining Template exists");
+                }
+            });
+        }
     }
 }

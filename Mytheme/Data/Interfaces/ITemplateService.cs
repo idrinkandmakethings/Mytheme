@@ -14,6 +14,8 @@ namespace Mytheme.Data.Interfaces
         Task<DalResult<Template[]>> GetAllTemplates();
         Task<DalResult<List<string>>> GetCategories();
         Task<DalResult> AddCategory(string category);
+
         Task<DalResult<bool>> CategoryExists(string name);
+        Task<DalResult<bool>> TemplateExists(string name);
     }
 }

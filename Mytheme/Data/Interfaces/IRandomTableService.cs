@@ -14,6 +14,8 @@ namespace Mytheme.Data.Interfaces
         Task<DalResult<RandomTable[]>> GetAllRandomTables();
         Task<DalResult<List<string>>> GetCategories();
         Task<DalResult> AddCategory(string category);
+
         Task<DalResult<bool>> CategoryExists(string name);
+        Task<DalResult<bool>> TableExists(string name);
     }
 }

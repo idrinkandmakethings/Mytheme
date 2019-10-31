@@ -3,12 +3,16 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="logs\**" />
     <Compile Remove="wwwroot\css\bootstrap\**" />
     <Compile Remove="wwwroot\open-iconic\font\**" />
+    <Content Remove="logs\**" />
     <Content Remove="wwwroot\css\bootstrap\**" />
     <Content Remove="wwwroot\open-iconic\font\**" />
+    <EmbeddedResource Remove="logs\**" />
     <EmbeddedResource Remove="wwwroot\css\bootstrap\**" />
     <EmbeddedResource Remove="wwwroot\open-iconic\font\**" />
+    <None Remove="logs\**" />
     <None Remove="wwwroot\css\bootstrap\**" />
     <None Remove="wwwroot\open-iconic\font\**" />
   </ItemGroup>
