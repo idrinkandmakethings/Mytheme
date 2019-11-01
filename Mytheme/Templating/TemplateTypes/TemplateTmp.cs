@@ -6,6 +6,11 @@ namespace Mytheme.Templating.TemplateTypes
     {
         public string TemplateName { get; set; }
 
-        private List<string> Variables { get; set; }
+        public List<string> Variables { get; set; }
+
+        public TemplateTmp()
+        {
+            Variables = new List<string>();
+        }
     }
 }

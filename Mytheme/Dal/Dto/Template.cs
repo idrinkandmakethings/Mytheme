@@ -23,6 +23,8 @@ namespace Mytheme.Dal.Dto
         public string TemplateBody { get; set; }
 
         public List<TemplateField> Fields { get; set; }
+
+        public Dictionary<string, TemplateField> TemplateVariables { get; set; }
     }
 
    

@@ -29,9 +29,9 @@ namespace TemplatingTests
 
             var json = JsonConvert.DeserializeObject<TemplateRng>(result.TemplateJson);
 
-            Assert.IsTrue(error == ValidationError.None, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json.LowerBound == 3, $"Lower bound was incorrect: {json.LowerBound}");
-            Assert.IsTrue(json.UpperBound == 18, $"Upper bound was incorrect: {json.UpperBound}");
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual(3, json.LowerBound, $"Lower bound was incorrect: {json.LowerBound}");
+            Assert.AreEqual(18, json.UpperBound, $"Upper bound was incorrect: {json.UpperBound}");
         }
 
         [TestMethod]
@@ -52,9 +52,9 @@ namespace TemplatingTests
 
             var json = JsonConvert.DeserializeObject<TemplateRng>(result.TemplateJson);
 
-            Assert.IsTrue(error == ValidationError.None, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json.LowerBound == -18, $"Lower bound was incorrect: {json.LowerBound}");
-            Assert.IsTrue(json.UpperBound == -3, $"Upper bound was incorrect: {json.UpperBound}");
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual(-18, json.LowerBound, $"Lower bound was incorrect: {json.LowerBound}");
+            Assert.AreEqual(-3, json.UpperBound, $"Upper bound was incorrect: {json.UpperBound}");
         }
 
         [TestMethod]
@@ -73,10 +73,11 @@ namespace TemplatingTests
 
             var (error, result) = validator.SetRandomTableField(field).Result;
 
-            var json = result.TemplateJson;
+            var json = JsonConvert.DeserializeObject<TemplateTbl>(result.TemplateJson);
 
-            Assert.IsTrue(error == ValidationError.None, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json == "Test Table", $"Table value was incorrect: {json}");
+            Assert.AreEqual(ValidationError.None,error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("Test Table",json.TableName, $"Table value was incorrect: {json}");
+            Assert.AreEqual(0,json.Variables.Count, $"There should be no variables set");
         }
 
         [TestMethod]
@@ -95,14 +96,84 @@ namespace TemplatingTests
 
             var (error, result) = validator.SetRandomTableField(field).Result;
 
-            var json = result.TemplateJson;
+            var json = JsonConvert.DeserializeObject<TemplateTbl>(result.TemplateJson);
 
-            Assert.IsTrue(error == ValidationError.TableDoesNotExist, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json == "Missing Table", $"Table value was incorrect: {json}");
+            Assert.AreEqual(ValidationError.TableDoesNotExist, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("Missing Table", json.TableName, $"Table value was incorrect: {json}");
+            Assert.AreEqual(0, json.Variables.Count, $"There should be no variables set");
+        }
+
+
+        [TestMethod]
+        public void SetRandomTableExistsWithVariablesTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tbl:{Var 1} Test {Var 2} Table]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.RandomTable
+            };
+
+            var (error, result) = validator.SetRandomTableField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTbl>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("{Var 1} Test {Var 2} Table", json.TableName, $"Table value was incorrect: {json}");
+            Assert.IsTrue(json.Variables.Contains("Var 1"), "Var 1 is not in variable list");
+            Assert.IsTrue(json.Variables.Contains("Var 2"), "Var 2 is not in variable list");
         }
 
         [TestMethod]
-        public void SetTemplateExistsTest()
+        public void SetRandomTableExistsWithBadVariablesTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tbl:{Var 1 Test {Var 2} Table]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.RandomTable
+            };
+
+            var (error, result) = validator.SetRandomTableField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTbl>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.InvalidTag, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("{Var 1 Test {Var 2} Table", json.TableName, $"Table value was incorrect: {json}");
+        }
+
+        [TestMethod]
+        public void SetRandomTableExistsWithBadVariablesNestedTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tbl:{Var 1 Test {Var 2}} Table]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.RandomTable
+            };
+
+            var (error, result) = validator.SetRandomTableField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTbl>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.InvalidTag, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("{Var 1 Test {Var 2}} Table", json.TableName, $"Table value was incorrect: {json}");
+        }
+
+        [TestMethod]
+        public void SetTemplateTmpExistsTest()
         {
             var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
 
@@ -117,14 +188,14 @@ namespace TemplatingTests
 
             var (error, result) = validator.SetTemplateField(field).Result;
 
-            var json = result.TemplateJson;
+            var json = JsonConvert.DeserializeObject<TemplateTmp>(result.TemplateJson);
 
-            Assert.IsTrue(error == ValidationError.None, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json == "Test Template", $"Template value was incorrect: {json}");
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("Test Template", json.TemplateName, $"Template value was incorrect: {json}");
         }
 
         [TestMethod]
-        public void SetTemplateNotExistTest()
+        public void SetTemplateTmpNotExistTest()
         {
             var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
 
@@ -139,10 +210,78 @@ namespace TemplatingTests
 
             var (error, result) = validator.SetTemplateField(field).Result;
 
-            var json = result.TemplateJson;
+            var json = JsonConvert.DeserializeObject<TemplateTmp>(result.TemplateJson);
 
-            Assert.IsTrue(error == ValidationError.TemplateDoesNotExist, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json == "Missing Template", $"Table value was incorrect: {json}");
+            Assert.AreEqual(ValidationError.TemplateDoesNotExist, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("Missing Template", json.TemplateName, $"Table value was incorrect: {json}");
+        }
+
+        [TestMethod]
+        public void SetTemplateTmpWithVariablesTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tmp:{Var 1} Test {Var 2} Template]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.Template
+            };
+
+            var (error, result) = validator.SetTemplateField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTmp>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("{Var 1} Test {Var 2} Template", json.TemplateName, $"Table value was incorrect: {json}");
+            Assert.IsTrue(json.Variables.Contains("Var 1"), "Var 1 is not in variable list");
+            Assert.IsTrue(json.Variables.Contains("Var 2"), "Var 2 is not in variable list");
+        }
+
+        [TestMethod]
+        public void SetTemplateTmpWithBadVariablesTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tmp:{Var 1 Test {Var 2} Template]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.Template
+            };
+
+            var (error, result) = validator.SetTemplateField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTmp>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.InvalidTag, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("{Var 1 Test {Var 2} Template", json.TemplateName, $"Table value was incorrect: {json}");
+        }
+
+        [TestMethod]
+        public void SetTemplateTmpWithBadVariablesNestedTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tmp:{Var 1 Test {Var 2}} Template]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.Template
+            };
+
+            var (error, result) = validator.SetTemplateField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTmp>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.InvalidTag, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("{Var 1 Test {Var 2}} Template", json.TemplateName, $"Table value was incorrect: {json}");
         }
 
         [TestMethod]
@@ -281,12 +420,12 @@ namespace TemplatingTests
 
             var (error, result) = validator.SetListField(field);
 
-            var json = JsonConvert.DeserializeObject<List<string>>(result.TemplateJson);
+            var json = JsonConvert.DeserializeObject<TemplateLst>(result.TemplateJson);
 
             Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
-            Assert.IsTrue(json.Contains("alfa"), $"List does not contain alfa");
-            Assert.IsTrue(json.Contains("bravo"), $"List does not contain bravo");
-            Assert.IsTrue(json.Contains("charlie"), $"List does not contain charlie");
+            Assert.IsTrue(json.Values.Contains("alfa"), $"List does not contain alfa");
+            Assert.IsTrue(json.Values.Contains("bravo"), $"List does not contain bravo");
+            Assert.IsTrue(json.Values.Contains("charlie"), $"List does not contain charlie");
         }
 
         [TestMethod]
@@ -303,15 +442,18 @@ namespace TemplatingTests
                 FieldType = TemplateFieldType.Variable
             };
 
-            var (error, result) = validator.SetVariableField(field);
+            var (error, result) = validator.SetVariableField(field).Result;
 
             var json = JsonConvert.DeserializeObject<TemplateVar>(result.TemplateJson);
 
-            var list = (TemplateLst)json.Value;
+            var listField = JsonConvert.DeserializeObject<TemplateField>(json.TemplateObjectJson);
+
+            var list = JsonConvert.DeserializeObject<TemplateLst>(listField.TemplateJson);
+
             Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
             Assert.IsTrue(json.Display, $"Display is incorrect: {json.Display}");
             Assert.AreEqual("gender", json.Name, $"Name is incorrect: {json.Name}");
-            Assert.AreEqual(TemplateFieldType.List, json.Type, $"Type is not list");
+            Assert.AreEqual(TemplateFieldType.List, json.TemplateObjectType, $"Type is not list");
             Assert.IsTrue(list.Values.Contains("male"), $"List does not contain male");
             Assert.IsTrue(list.Values.Contains("female"), $"List does not contain female");
         }

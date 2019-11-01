@@ -27,6 +27,8 @@ namespace Mytheme.Dal.Dto
         public int Id { get; set; }
         public int RandomTableForeignKey { get; set; }
         public string Entry { get; set; }
+        public int LowerBound { get; set; }
+        public int UpperBound { get; set; }
         
         [ForeignKey("RandomTableForeignKey")]
         public RandomTable RandomTable { get; set; }

@@ -8,7 +8,6 @@ using Mytheme.Dal.Dto;
 using Mytheme.Data.Interfaces;
 using Mytheme.Templating.TemplateTypes;
 using Newtonsoft.Json;
-using Polished.Internal;
 using Serilog;
 
 
@@ -31,6 +30,7 @@ namespace Mytheme.Templating
         private readonly ITemplateService templateService;
 
         readonly Regex fieldMatch = new Regex(@"\[\w{3}:.*?\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        readonly Regex variableMatch = new Regex(@"\{([\w\s\d]*?)\}", RegexOptions.Compiled);
 
         internal Dictionary<TemplateFieldType, Regex> validationRegexs;
 
@@ -43,13 +43,12 @@ namespace Mytheme.Templating
             validationRegexs = new Dictionary<TemplateFieldType, Regex>
             {
                 {TemplateFieldType.RandomNumber,new Regex(@"^\[rng:(\+?\d+|\-?\d+):(\+?\d+|\-?\d+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
-                {TemplateFieldType.RandomTable, new Regex(@"^\[tbl:([\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.RandomTable, new Regex(@"^\[tbl:([\{\}\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
                 {TemplateFieldType.DieRoll,new Regex(@"^\[die:((\d*)d(\d+)(\+\d+|\-\d+)?)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
-                {TemplateFieldType.Template, new Regex(@"^\[tmp:([\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.Template, new Regex(@"^\[tmp:([\{\}\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
                 {TemplateFieldType.List, new Regex(@"^\[lst:([\w\s\d,]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
                 {TemplateFieldType.Variable, new Regex(@"^\[var:([\{\}\w\s\:\[\]\"",]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)}
             };
-            
         }
 
         public async Task<ValidationResult> ValidateTemplate(Template template)
@@ -58,9 +57,11 @@ namespace Mytheme.Templating
 
             var fields = GenerateFields(fieldText);
 
-            var result = await ValidateFields(fields);
+            var result = await SetFields(fields);
 
             template.Fields = result.fields;
+
+            VerifyVariables();
 
             return new ValidationResult
             {
@@ -76,12 +77,37 @@ namespace Mytheme.Templating
             for (int i = 0; i < fieldMatches.Count; i++)
             {
                 var field = AssignFieldType(fieldMatches[i], i);
-                
+
                 result.Add(field);
             }
 
             return result;
         }
+
+        internal async Task<(Dictionary<string, ValidationError> errors, List<TemplateField> fields)> SetFields(List<TemplateField> fields)
+        {
+            var errors = new Dictionary<string, ValidationError>();
+
+            for (var i = 0; i < fields.Count; i++)
+            {
+                var (err, field) = await SetFieldByType(fields[i]);
+
+                if (err != ValidationError.None)
+                {
+                    errors[field.Value] = err;
+                }
+
+                fields[i] = field;
+            }
+
+            return (errors, fields);
+        }
+
+        private void VerifyVariables()
+        {
+            throw new NotImplementedException();
+        }
+
 
         internal TemplateField AssignFieldType(string val, int order)
         {
@@ -117,61 +143,46 @@ namespace Mytheme.Templating
             return field;
         }
 
-        internal async Task<(Dictionary<string, ValidationError> errors, List<TemplateField> fields)> ValidateFields(List<TemplateField> fields)
+
+        internal async Task<(ValidationError err, TemplateField field)> SetFieldByType(TemplateField field)
         {
-            var result = new Dictionary<string, ValidationError>();
+            var err = ValidationError.None;
 
-            for (var i = 0; i < fields.Count; i++)
+            switch (field.FieldType)
             {
-                var field = fields[i];
-                 
-
-
-                var err = ValidationError.None;
-
-                switch (field.FieldType)
-                {
-                    case TemplateFieldType.RandomNumber:
-                        var rng = SetRandomNumberField(field);
-                        field = rng.field;
-                        err = rng.error;
-                        break;
-                    case TemplateFieldType.RandomTable:
-                        var tbl = await SetRandomTableField(field);
-                        field = tbl.field;
-                        err = tbl.error;
-                        break;
-                    case TemplateFieldType.Template:
-                        var tmp = await SetTemplateField(field);
-                        field = tmp.field;
-                        err = tmp.error;
-                        break;
-                    case TemplateFieldType.DieRoll:
-                        var die = SetDieRollField(field);
-                        field = die.field;
-                        err = die.error;
-                        break;
-                    case TemplateFieldType.List:
-                        var lst = SetListField(field);
-                        field = lst.field;
-                        err = lst.error;
-                        break;
-                    case TemplateFieldType.Variable:
-                        var var = SetVariableField(field);
-                        field = var.field;
-                        err = var.error;
-                        break;
-                }
-
-                if ( err != ValidationError.None)
-                {
-                    result[field.Value] = err;
-                }
-
-                fields[i] = field;
+                case TemplateFieldType.RandomNumber:
+                    var rng = SetRandomNumberField(field);
+                    field = rng.field;
+                    err = rng.error;
+                    break;
+                case TemplateFieldType.RandomTable:
+                    var tbl = await SetRandomTableField(field);
+                    field = tbl.field;
+                    err = tbl.error;
+                    break;
+                case TemplateFieldType.Template:
+                    var tmp = await SetTemplateField(field);
+                    field = tmp.field;
+                    err = tmp.error;
+                    break;
+                case TemplateFieldType.DieRoll:
+                    var die = SetDieRollField(field);
+                    field = die.field;
+                    err = die.error;
+                    break;
+                case TemplateFieldType.List:
+                    var lst = SetListField(field);
+                    field = lst.field;
+                    err = lst.error;
+                    break;
+                case TemplateFieldType.Variable:
+                    var var = await SetVariableField(field);
+                    field = var.field;
+                    err = var.error;
+                    break;
             }
 
-            return (result, fields);
+            return (err, field);
         }
 
         internal (ValidationError error, TemplateField field) SetRandomNumberField(TemplateField field)
@@ -217,56 +228,106 @@ namespace Mytheme.Templating
 
         internal async Task<(ValidationError error, TemplateField field)> SetRandomTableField(TemplateField field)
         {
-            var match = validationRegexs[field.FieldType].Match(field.Value);
-
-            if (!match.Success)
+            ValidationError err = ValidationError.None;
+            try
             {
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
+                {
+                    field.Valid = false;
+                    return (ValidationError.InvalidTag, field);
+                }
+
+                var table = match.Groups[1].Value;
+
+                var json = new TemplateTbl
+                {
+                    TableName = table
+                };
+
+                // if table uses variables don't check the db
+                if (table.Contains('{') || table.Contains('}'))
+                {
+                    var (valid, vars) = ParseVariableNames(table);
+                    
+                    err = valid ? ValidationError.None : ValidationError.InvalidTag;
+                    field.Valid = valid;
+                    json.Variables = vars;
+                }
+                else
+                {
+                    var result = await randomTableService.TableExists(table);
+
+                    if (!result.Result)
+                    {
+                        field.Valid = false;
+                        err = ValidationError.TableDoesNotExist;
+                    }
+                }
+
+                field.TemplateJson = JsonConvert.SerializeObject(json);
+
+                field.Valid = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Exception parsing {field.Value}. ex:{ex.Message}");
+                Log.Debug(ex.StackTrace);
                 field.Valid = false;
-                return (ValidationError.InvalidTag, field);
+                err = ValidationError.InvalidTag;
             }
 
-            var table = match.Groups[1].Value;
-
-            var result = await randomTableService.TableExists(table);
-
-            if (!result.Result)
-            {
-                field.Valid = false;
-                field.TemplateJson = table;
-                return (ValidationError.TableDoesNotExist, field);
-            }
-
-            field.Valid = true;
-            field.TemplateJson = table;
-
-            return (ValidationError.None, field);
+            return (err, field);
         }
 
         internal async Task<(ValidationError error, TemplateField field)> SetTemplateField(TemplateField field)
         {
-            var match = validationRegexs[field.FieldType].Match(field.Value);
-
-            if (!match.Success)
+            ValidationError err = ValidationError.None;
+            try
             {
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
+                {
+                    field.Valid = false;
+                    return (ValidationError.InvalidTag, field);
+                }
+
+                var template = match.Groups[1].Value;
+
+                var json = new TemplateTmp{TemplateName = template};
+
+                if (template.Contains('{') || template.Contains('}'))
+                {
+                    var (valid, vars) = ParseVariableNames(template);
+
+                    err = valid ? ValidationError.None : ValidationError.InvalidTag;
+                    field.Valid = valid;
+                    json.Variables = vars;
+                }
+                else
+                {
+                    var result = await templateService.TemplateExists(template);
+                    if (!result.Result)
+                    {
+                        field.Valid = false;
+                        err = ValidationError.TemplateDoesNotExist;
+                    }
+                }
+
+                field.TemplateJson = JsonConvert.SerializeObject(json);
+                field.Valid = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Exception parsing {field.Value}. ex:{ex.Message}");
+                Log.Debug(ex.StackTrace);
                 field.Valid = false;
-                return (ValidationError.InvalidTag, field);
+                err = ValidationError.InvalidTag;
             }
 
-            var template = match.Groups[1].Value;
-
-            var result = await templateService.TemplateExists(template);
-
-            if (!result.Result)
-            {
-                field.Valid = false;
-                field.TemplateJson = template;
-                return (ValidationError.TemplateDoesNotExist, field);
-            }
-
-            field.Valid = true;
-            field.TemplateJson = template;
-
-            return (ValidationError.None, field);
+            return (err, field);
         }
 
         internal (ValidationError error, TemplateField field) SetDieRollField(TemplateField field)
@@ -327,8 +388,11 @@ namespace Mytheme.Templating
                     return (ValidationError.InvalidTag, field);
                 }
 
-                var lst = match.Groups[1].Value.Split(',').Select(x => x.TrimStart(' ').TrimEnd(' ')).ToList();
-
+                var lst = new TemplateLst
+                {
+                    Values = match.Groups[1].Value.Split(',').Select(x => x.TrimStart(' ').TrimEnd(' ')).ToList()
+                };
+            
                 field.TemplateJson = JsonConvert.SerializeObject(lst);
                 field.Valid = true;
                 return (ValidationError.None, field);
@@ -342,8 +406,9 @@ namespace Mytheme.Templating
             }
         }
 
-        internal (ValidationError error, TemplateField field) SetVariableField(TemplateField field)
+        internal async Task<(ValidationError error, TemplateField field)> SetVariableField(TemplateField field)
         {
+            var err = ValidationError.None;
             try
             {
                 var match = validationRegexs[field.FieldType].Match(field.Value);
@@ -354,19 +419,62 @@ namespace Mytheme.Templating
                     return (ValidationError.InvalidTag, field);
                 }
 
-                var var = JsonConvert.DeserializeObject<TemplateVar>(match.Groups[1].Value);
+                var variable = JsonConvert.DeserializeObject<TemplateVar>(match.Groups[1].Value);
 
-                field.TemplateJson = match.Groups[1].Value;
-                field.Valid = true;
-                return (ValidationError.None, field);
+                var childField = AssignFieldType(variable.Value, 0);
+                var setResult = await SetFieldByType(childField);
+
+                variable.TemplateObjectJson = JsonConvert.SerializeObject(setResult.field);
+                variable.TemplateObjectType = setResult.field.FieldType;
+
+                if (setResult.err != ValidationError.None)
+                {
+                    err = setResult.err;
+                    field.Valid = false;
+                }
+                else
+                {
+                    field.Valid = true;
+                }
+                
+                field.TemplateJson = JsonConvert.SerializeObject(variable);
             }
             catch (Exception ex)
             {
                 Log.Error($"Exception parsing {field.Value}. ex:{ex.Message}");
                 Log.Debug(ex.StackTrace);
                 field.Valid = false;
-                return (ValidationError.InvalidTag, field);
+                err = ValidationError.InvalidTag;
             }
+
+            return (err, field);
+        }
+
+        private (bool valid, List<string> vars) ParseVariableNames(string table)
+        {
+            var vars = new List<string>();
+
+            var right = table.Count(x => x == '}');
+            var left = table.Count(x => x == '{');
+
+            if (right != left)
+            {
+                return (false, vars);
+            }
+
+            var matches = variableMatch.Matches(table);
+
+            if (matches.Count == right)
+            {
+                foreach (Match var in matches)
+                {
+                    vars.Add(var.Groups[1].ToString());
+                }
+
+                return (true, vars);
+            }
+
+            return (false, vars);
         }
     }
 
