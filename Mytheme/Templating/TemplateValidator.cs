@@ -8,6 +8,7 @@ using Mytheme.Dal.Dto;
 using Mytheme.Data.Interfaces;
 using Mytheme.Templating.TemplateTypes;
 using Newtonsoft.Json;
+using Polished.Internal;
 using Serilog;
 
 
@@ -45,8 +46,8 @@ namespace Mytheme.Templating
                 {TemplateFieldType.RandomTable, new Regex(@"^\[tbl:([\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
                 {TemplateFieldType.DieRoll,new Regex(@"^\[die:((\d*)d(\d+)(\+\d+|\-\d+)?)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
                 {TemplateFieldType.Template, new Regex(@"^\[tmp:([\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
-                {TemplateFieldType.List, new Regex(@"^\[lst:\{([\w\s\d,]+)\}\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
-                {TemplateFieldType.Variable, new Regex(@"^\[var:([\{\}\w\s]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)}
+                {TemplateFieldType.List, new Regex(@"^\[lst:([\w\s\d,]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)},
+                {TemplateFieldType.Variable, new Regex(@"^\[var:([\{\}\w\s\:\[\]\"",]+)\]$", RegexOptions.IgnoreCase | RegexOptions.Compiled)}
             };
             
         }
@@ -74,39 +75,46 @@ namespace Mytheme.Templating
 
             for (int i = 0; i < fieldMatches.Count; i++)
             {
-                var field = new TemplateField{Order = i, Value = fieldMatches[i]};
-
-                var sub = fieldMatches[i].Substring(1, 3).ToLower();
-
-                switch (sub)
-                {
-                    case "rng":
-                        field.FieldType = TemplateFieldType.RandomNumber;
-                        break;
-                    case "tbl":
-                        field.FieldType = TemplateFieldType.RandomTable;
-                        break;
-                    case "die":
-                        field.FieldType = TemplateFieldType.DieRoll;
-                        break;
-                    case "tmp":
-                        field.FieldType = TemplateFieldType.Template;
-                        break;
-                    case "lst":
-                        field.FieldType = TemplateFieldType.List;
-                        break;
-                    case "var":
-                        field.FieldType = TemplateFieldType.Variable;
-                        break;
-                    default:
-                        field.FieldType = TemplateFieldType.Error;
-                        break;
-                }
-
+                var field = AssignFieldType(fieldMatches[i], i);
+                
                 result.Add(field);
             }
 
             return result;
+        }
+
+        internal TemplateField AssignFieldType(string val, int order)
+        {
+            var field = new TemplateField { Order = order, Value = val };
+
+            var sub = val.Substring(1, 3).ToLower();
+
+            switch (sub)
+            {
+                case "rng":
+                    field.FieldType = TemplateFieldType.RandomNumber;
+                    break;
+                case "tbl":
+                    field.FieldType = TemplateFieldType.RandomTable;
+                    break;
+                case "die":
+                    field.FieldType = TemplateFieldType.DieRoll;
+                    break;
+                case "tmp":
+                    field.FieldType = TemplateFieldType.Template;
+                    break;
+                case "lst":
+                    field.FieldType = TemplateFieldType.List;
+                    break;
+                case "var":
+                    field.FieldType = TemplateFieldType.Variable;
+                    break;
+                default:
+                    field.FieldType = TemplateFieldType.Error;
+                    break;
+            }
+
+            return field;
         }
 
         internal async Task<(Dictionary<string, ValidationError> errors, List<TemplateField> fields)> ValidateFields(List<TemplateField> fields)
@@ -117,47 +125,39 @@ namespace Mytheme.Templating
             {
                 var field = fields[i];
                  
-                var match = validationRegexs[field.FieldType].Match(field.Value);
 
-                if (!match.Success)
-                {
-                    result[field.Value] = ValidationError.InvalidTag;
-                    field.Valid = false;
-                    fields[i] = field;
-                    continue;
-                }
 
                 var err = ValidationError.None;
 
                 switch (field.FieldType)
                 {
                     case TemplateFieldType.RandomNumber:
-                        var rng = SetRandomNumberField(field, match);
+                        var rng = SetRandomNumberField(field);
                         field = rng.field;
                         err = rng.error;
                         break;
                     case TemplateFieldType.RandomTable:
-                        var tbl = await SetRandomTableField(field, match);
+                        var tbl = await SetRandomTableField(field);
                         field = tbl.field;
                         err = tbl.error;
                         break;
                     case TemplateFieldType.Template:
-                        var tmp = await SetTemplateField(field, match);
+                        var tmp = await SetTemplateField(field);
                         field = tmp.field;
                         err = tmp.error;
                         break;
                     case TemplateFieldType.DieRoll:
-                        var die = SetDieRollField(field, match);
+                        var die = SetDieRollField(field);
                         field = die.field;
                         err = die.error;
                         break;
                     case TemplateFieldType.List:
-                        var lst = SetListField(field, match);
+                        var lst = SetListField(field);
                         field = lst.field;
                         err = lst.error;
                         break;
                     case TemplateFieldType.Variable:
-                        var var = SetVariableField(field, match);
+                        var var = SetVariableField(field);
                         field = var.field;
                         err = var.error;
                         break;
@@ -174,10 +174,18 @@ namespace Mytheme.Templating
             return (result, fields);
         }
 
-        internal (ValidationError error, TemplateField field) SetRandomNumberField(TemplateField field, Match match)
+        internal (ValidationError error, TemplateField field) SetRandomNumberField(TemplateField field)
         {
             try
             {
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
+                {
+                    field.Valid = false;
+                    return (ValidationError.InvalidTag, field);
+                }
+
                 var x = int.Parse(match.Groups[1].Value);
                 var y = int.Parse(match.Groups[2].Value);
 
@@ -207,8 +215,16 @@ namespace Mytheme.Templating
             }
         }
 
-        internal async Task<(ValidationError error, TemplateField field)> SetRandomTableField(TemplateField field, Match match)
+        internal async Task<(ValidationError error, TemplateField field)> SetRandomTableField(TemplateField field)
         {
+            var match = validationRegexs[field.FieldType].Match(field.Value);
+
+            if (!match.Success)
+            {
+                field.Valid = false;
+                return (ValidationError.InvalidTag, field);
+            }
+
             var table = match.Groups[1].Value;
 
             var result = await randomTableService.TableExists(table);
@@ -226,8 +242,16 @@ namespace Mytheme.Templating
             return (ValidationError.None, field);
         }
 
-        internal async Task<(ValidationError error, TemplateField field)> SetTemplateField(TemplateField field, Match match)
+        internal async Task<(ValidationError error, TemplateField field)> SetTemplateField(TemplateField field)
         {
+            var match = validationRegexs[field.FieldType].Match(field.Value);
+
+            if (!match.Success)
+            {
+                field.Valid = false;
+                return (ValidationError.InvalidTag, field);
+            }
+
             var template = match.Groups[1].Value;
 
             var result = await templateService.TemplateExists(template);
@@ -245,18 +269,31 @@ namespace Mytheme.Templating
             return (ValidationError.None, field);
         }
 
-        internal (ValidationError error, TemplateField field) SetDieRollField(TemplateField field, Match match)
+        internal (ValidationError error, TemplateField field) SetDieRollField(TemplateField field)
         {
             try
             {
-                var dieCount = 1;
-                if (!string.IsNullOrEmpty(match.Groups[1].Value))
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
                 {
-                    dieCount = int.Parse(match.Groups[1].Value);
+                    field.Valid = false;
+                    return (ValidationError.InvalidTag, field);
+                }
+
+                var dieCount = 1;
+                var modifier = 0;
+                if (!string.IsNullOrEmpty(match.Groups[2].Value))
+                {
+                    dieCount = int.Parse(match.Groups[2].Value);
                 }
                 
-                var dieSize = int.Parse(match.Groups[2].Value);
-                var modifier = int.Parse(match.Groups[2].Value);
+                var dieSize = int.Parse(match.Groups[3].Value);
+                
+                if (!string.IsNullOrEmpty(match.Groups[4].Value))
+                {
+                    modifier = int.Parse(match.Groups[4].Value);
+                }
 
                 var die = new TemplateDie
                 {
@@ -278,11 +315,19 @@ namespace Mytheme.Templating
             }
         }
 
-        internal (ValidationError error, TemplateField field) SetListField(TemplateField field, Match match)
+        internal (ValidationError error, TemplateField field) SetListField(TemplateField field)
         {
             try
             {
-                var lst = match.Groups[1].Value.Split(',').ToList();
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
+                {
+                    field.Valid = false;
+                    return (ValidationError.InvalidTag, field);
+                }
+
+                var lst = match.Groups[1].Value.Split(',').Select(x => x.TrimStart(' ').TrimEnd(' ')).ToList();
 
                 field.TemplateJson = JsonConvert.SerializeObject(lst);
                 field.Valid = true;
@@ -297,10 +342,18 @@ namespace Mytheme.Templating
             }
         }
 
-        internal (ValidationError error, TemplateField field) SetVariableField(TemplateField field, Match match)
+        internal (ValidationError error, TemplateField field) SetVariableField(TemplateField field)
         {
             try
             {
+                var match = validationRegexs[field.FieldType].Match(field.Value);
+
+                if (!match.Success)
+                {
+                    field.Valid = false;
+                    return (ValidationError.InvalidTag, field);
+                }
+
                 var var = JsonConvert.DeserializeObject<TemplateVar>(match.Groups[1].Value);
 
                 field.TemplateJson = match.Groups[1].Value;

@@ -8,6 +8,8 @@ namespace TemplatingTests.Mocks
 {
     class MockTemplateService : ITemplateService
     {
+        private readonly List<string> templates = new List<string> { "Test Template" };
+
         public Task<DalResult> AddTemplate(Template template)
         {
             throw new System.NotImplementedException();
@@ -48,9 +50,9 @@ namespace TemplatingTests.Mocks
             throw new System.NotImplementedException();
         }
 
-        public Task<DalResult<bool>> TemplateExists(string name)
+        public async Task<DalResult<bool>> TemplateExists(string name)
         {
-            throw new System.NotImplementedException();
+            return new DalResult<bool>(DalStatus.Success, templates.Contains(name));
         }
     }
 }
