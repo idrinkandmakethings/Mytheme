@@ -45,6 +45,7 @@ namespace Mytheme.Dal.Dto
         [Required] public TemplateFieldType FieldType { get; set; }
         
         [Required] public bool Valid { get; set; }
+        public string VariableName { get; set; }
         [Required] public string Value { get; set; }
         [Required] public string TemplateJson { get; set; }
 

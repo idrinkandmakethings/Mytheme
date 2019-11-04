@@ -8,7 +8,7 @@ namespace TemplatingTests.Mocks
 {
     class MockRandomTableService : IRandomTableService
     {
-        private readonly List<string> tables = new List<string>{"Test Table"};
+        private readonly List<string> tables = new List<string>{"Test Table","race", "Last Names"};
 
         public Task<DalResult> AddRandomTable(RandomTable table)
         {

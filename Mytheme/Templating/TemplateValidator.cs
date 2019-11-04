@@ -53,20 +53,28 @@ namespace Mytheme.Templating
 
         public async Task<ValidationResult> ValidateTemplate(Template template)
         {
-            var fieldText = fieldMatch.Match(template.TemplateBody).Groups.Values.Select(x => x.Value).ToList();
+            var matches = fieldMatch.Matches(template.TemplateBody);
 
-            var fields = GenerateFields(fieldText);
+            var matchList = new List<string>();
 
-            var result = await SetFields(fields);
+            foreach (Match match in matches)
+            {
+                matchList.Add(match.Groups[0].Value);
+            }
 
-            template.Fields = result.fields;
+            var fields = GenerateFields(matchList);
 
-            VerifyVariables();
+            var (errors, list) = await SetFields(fields);
+
+            var (templateFields, variables) = VerifyVariables(list);
+
+            template.Fields = templateFields;
+            template.TemplateVariables = variables;
 
             return new ValidationResult
             {
                 Template = template,
-                ValidationErrors = result.errors
+                ValidationErrors = errors
             };
         }
 
@@ -103,9 +111,31 @@ namespace Mytheme.Templating
             return (errors, fields);
         }
 
-        private void VerifyVariables()
+        private (List<TemplateField> fields, Dictionary<string, TemplateField> variables) VerifyVariables(List<TemplateField> fields)
         {
-            throw new NotImplementedException();
+            var variables = new Dictionary<string, TemplateField>();
+            var outFields = new List<TemplateField>();
+            foreach (var field in fields)
+            {
+                if (field.FieldType == TemplateFieldType.Variable && !string.IsNullOrEmpty(field.VariableName))
+                {
+                    variables[field.VariableName] = field;
+                }
+                else
+                {
+                    outFields.Add(field);
+                }
+            }
+
+            outFields.Sort();
+
+            // re-number fields
+            for (int i = 0; i < outFields.Count; i++)
+            {
+                outFields[i].Order = i;
+            }
+
+            return (outFields, variables);
         }
 
 
@@ -421,7 +451,8 @@ namespace Mytheme.Templating
 
                 var variable = JsonConvert.DeserializeObject<TemplateVar>(match.Groups[1].Value);
 
-                var childField = AssignFieldType(variable.Value, 0);
+                field.VariableName = variable.Name;
+                var childField = AssignFieldType($"[{variable.Value}]", 0);
                 var setResult = await SetFieldByType(childField);
 
                 variable.TemplateObjectJson = JsonConvert.SerializeObject(setResult.field);
