@@ -1,0 +1,73 @@
+﻿@page "/markdowntest"
+
+<Styled @bind-Classname="@row">
+    display:flex;
+</Styled>
+
+<Styled @bind-Classname="@column">
+    flex: 50%;
+</Styled>
+
+<Styled>
+    input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    }
+
+    label {
+    width: 100%;
+    margin: 8px 0;
+    display: block;
+    }
+
+    textarea {
+    flex: 50%;
+    padding: 12px 20px;
+    margin: 8px 0;
+
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    }
+</Styled>
+
+<Styled @bind-Classname="@form">
+    display:block;0
+    margin-bottom: 10px;
+</Styled>
+
+
+<div class="row">
+    <div class="column">
+            <label for="desc">Description: </label>
+            <textarea id="desc" @bind-value="Content" @bind-value:event="oninput"></textarea>
+    </div>
+    <div class="column">
+        <MythemeMarkdown Content="@Content">
+
+        </MythemeMarkdown>
+    </div>
+</div>
+
+@code {
+    private string row, column, form;
+
+    public string Content { get; set; }
+
+    protected async Task HandleValidSubmit()
+    {
+        await SaveTemplate();
+    }
+
+    protected async Task SaveTemplate()
+    {
+    //TODO: Add Template validation
+        
+      
+    }
+}

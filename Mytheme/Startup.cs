@@ -3,6 +3,7 @@ using Blazor.FileReader;
 using BlazorStyled;
 using BlazorTypography;
 using ElectronNET.API;
+using Ganss.XSS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,13 @@ namespace Mytheme
             services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
 
             services.AddMythemeModal();
+
+            services.AddScoped<IHtmlSanitizer, HtmlSanitizer>(x =>
+            {
+                var sanitizer = new HtmlSanitizer();
+                sanitizer.AllowedAttributes.Add("class");
+                return sanitizer;
+            });
 
             services.AddSingleton<BreadcrumbService>();
             services.AddSingleton<SvgHelperService>();

@@ -61,6 +61,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Mytheme.ButtonGroup\Mytheme.ButtonGroup.csproj" />
     <ProjectReference Include="..\Mytheme.Grid\Mytheme.Grid.csproj" />
+    <ProjectReference Include="..\Mytheme.MarkdownEditor\Mytheme.MarkdownEditor.csproj" />
     <ProjectReference Include="..\Mytheme.Modal\Mytheme.Modal.csproj" />
   </ItemGroup>
 </Project>
