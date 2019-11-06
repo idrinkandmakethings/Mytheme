@@ -17,6 +17,7 @@ namespace Mytheme.Data
             {
                 try
                 {
+                    template.SetVariables();
                     await using var db = new DataStorage();
                     var result = await db.Templates.AddAsync(template);
                     db.SaveChanges(true);
@@ -38,6 +39,7 @@ namespace Mytheme.Data
             {
                 try
                 {
+                    template.SaveVariables();
                     using var db = new DataStorage();
                     db.Templates.Update(template);
                     db.SaveChanges(true);
@@ -61,6 +63,7 @@ namespace Mytheme.Data
                 {
                     using var db = new DataStorage();
                     var result = db.Templates.First(t => t.Id == id);
+                    result.SetVariables();
                     return new DalResult<Template>(DalStatus.Success, result);
 
                 }
@@ -81,6 +84,7 @@ namespace Mytheme.Data
                 {
                     using var db = new DataStorage();
                     var result = db.Templates.First(t => t.Name == name);
+                    result.SetVariables();
                     return new DalResult<Template>(DalStatus.Success, result);
                 }
                 catch (Exception e)

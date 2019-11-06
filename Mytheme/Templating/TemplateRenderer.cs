@@ -28,9 +28,25 @@ namespace Mytheme.Templating
             var generatedVars = new Dictionary<string, string>();
             var templateBody = template.TemplateBody;
              
-            foreach (var templateVariable in template.TemplateVariables)
+            foreach (var key in template.TemplateVariables.Keys)
             {
+                var field = template.TemplateVariables[key];
+                var json = JsonConvert.DeserializeObject<TemplateVar>(field.TemplateJson);
+
+                var subField = JsonConvert.DeserializeObject<TemplateField>(json.TemplateObjectJson);
                 
+                var result = await RenderTemplateField(subField, generatedVars);
+                
+                generatedVars[field.VariableName] = result;
+
+                if (json.Display)
+                {
+                    templateBody = templateBody.Replace(field.Value, result);
+                }
+                else
+                {
+                    templateBody = templateBody.Replace(field.Value, "");
+                }
             }
 
             foreach (var field in template.Fields)

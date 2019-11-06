@@ -47,6 +47,7 @@ namespace Mytheme
             services.AddSingleton<BreadcrumbService>();
             services.AddSingleton<SvgHelperService>();
             services.AddSingleton<RandomTableService>();
+            services.AddSingleton<TemplateService>();
             services.AddSingleton<FileHandlerService>();
         }
 

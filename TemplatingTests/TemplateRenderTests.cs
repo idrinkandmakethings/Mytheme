@@ -43,7 +43,8 @@ namespace TemplatingTests
 
             Assert.AreEqual(0, errors.Count, $"Validation errors incorrect : {errors.Count}");
             Assert.AreEqual(4, outTemplate.Fields.Count, $"Fields incorrect : {outTemplate.Fields.Count}");
-            Assert.AreEqual(0, outTemplate.TemplateVariables.Count, $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
+            Assert.AreEqual(0, outTemplate.TemplateVariables.Count,
+                $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
 
             var renderer = new TemplateRenderer(new MockRandomTableService(), new MockTemplateService());
 
@@ -106,7 +107,8 @@ namespace TemplatingTests
 
             Assert.AreEqual(0, errors.Count, $"Validation errors incorrect : {errors.Count}");
             Assert.AreEqual(4, outTemplate.Fields.Count, $"Fields incorrect : {outTemplate.Fields.Count}");
-            Assert.AreEqual(0, outTemplate.TemplateVariables.Count, $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
+            Assert.AreEqual(0, outTemplate.TemplateVariables.Count,
+                $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
 
             var renderer = new TemplateRenderer(new MockRandomTableService(), new MockTemplateService());
 
@@ -140,8 +142,8 @@ namespace TemplatingTests
         [TestMethod]
         public void ListRenderTest()
         {
-            var list1 = new List<string> { "item1", "item2", "item3" };
-            var list2 = new List<string> { "thing one", "thing two", "thing three" };
+            var list1 = new List<string> {"item1", "item2", "item3"};
+            var list2 = new List<string> {"thing one", "thing two", "thing three"};
 
 
             var templateBody =
@@ -171,7 +173,8 @@ list2=[lst:thing one, thing two, thing three]
 
             Assert.AreEqual(0, errors.Count, $"Validation errors incorrect : {errors.Count}");
             Assert.AreEqual(2, outTemplate.Fields.Count, $"Fields incorrect : {outTemplate.Fields.Count}");
-            Assert.AreEqual(0, outTemplate.TemplateVariables.Count, $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
+            Assert.AreEqual(0, outTemplate.TemplateVariables.Count,
+                $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
 
             var renderer = new TemplateRenderer(new MockRandomTableService(), new MockTemplateService());
 
@@ -228,7 +231,8 @@ table=[tbl:Test Table ]
 
             Assert.AreEqual(0, errors.Count, $"Validation errors incorrect : {errors.Count}");
             Assert.AreEqual(1, outTemplate.Fields.Count, $"Fields incorrect : {outTemplate.Fields.Count}");
-            Assert.AreEqual(0, outTemplate.TemplateVariables.Count, $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
+            Assert.AreEqual(0, outTemplate.TemplateVariables.Count,
+                $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
 
             var renderer = new TemplateRenderer(new MockRandomTableService(), new MockTemplateService());
 
@@ -256,8 +260,8 @@ table=[tbl:Test Table ]
 
             var list = new List<string>
             {
-                "thing one", 
-                "thing two", 
+                "thing one",
+                "thing two",
                 "thing three"
             };
 
@@ -289,7 +293,8 @@ Eof
 
             Assert.AreEqual(0, errors.Count, $"Validation errors incorrect : {errors.Count}");
             Assert.AreEqual(1, outTemplate.Fields.Count, $"Fields incorrect : {outTemplate.Fields.Count}");
-            Assert.AreEqual(0, outTemplate.TemplateVariables.Count, $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
+            Assert.AreEqual(0, outTemplate.TemplateVariables.Count,
+                $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
 
             var renderer = new TemplateRenderer(new MockRandomTableService(), new MockTemplateService());
 
@@ -318,5 +323,73 @@ Eof
             Assert.IsTrue(table.Contains(match4.Groups[1].Value), "Table not valid");
         }
 
+
+
+        [TestMethod]
+        public void TableListVariableRenderTest()
+        {
+            var list = new List<string>
+            {
+                "Table entry 1",
+                "Table entry 2",
+                "Table entry 3",
+                "Table entry 4"
+            };
+
+
+            var templateBody =
+                @"Table Test
+
+var1=[var:{ ""name"":""test"",""display"":true,""value"":""lst: Test""}]
+var2=[var:{ ""name"":""table"",""display"":false,""value"":""lst:Table""}]
+
+table=[tbl:{test} {table} ]
+";
+
+
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var template = new Template
+            {
+                Id = 1,
+                Name = "Table Test",
+                Category = "Test",
+                Description = "Description here",
+                Enabled = true,
+                TemplateBody = templateBody
+            };
+
+            var result = validator.ValidateTemplate(template).Result;
+
+            var outTemplate = result.Template;
+            var errors = result.ValidationErrors;
+
+            Assert.AreEqual(0, errors.Count, $"Validation errors incorrect : {errors.Count}");
+            Assert.AreEqual(1, outTemplate.Fields.Count, $"Fields incorrect : {outTemplate.Fields.Count}");
+            Assert.AreEqual(2, outTemplate.TemplateVariables.Count,
+                $"Variable count incorrect : {outTemplate.TemplateVariables.Count}");
+
+            var renderer = new TemplateRenderer(new MockRandomTableService(), new MockTemplateService());
+
+            var render = renderer.RenderTemplateToMarkDown(outTemplate).Result;
+
+            var regex1 = new Regex(@"^var1=([\w]+)[\r]", RegexOptions.Multiline);
+            var regex2 = new Regex(@"^var2=[\r]", RegexOptions.Multiline);
+            var regex3 = new Regex(@"table=(Table entry \d)");
+
+            var match1 = regex1.Match(render);
+            var match2 = regex2.Match(render);
+            var match3 = regex3.Match(render);
+
+            Assert.IsTrue(match1.Success, "var1 was not found");
+            Assert.AreEqual("Test",match1.Groups[1].Value, "var not valid");
+
+            Assert.IsTrue(match2.Success, "var2 was not found");
+
+            Assert.IsTrue(match3.Success, "table was not found");
+            Assert.IsTrue(list.Contains(match3.Groups[1].Value), "list1 not valid");
+        }
     }
 }
+
+

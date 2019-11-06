@@ -8,6 +8,12 @@ namespace Mytheme.Dal.Dto
 {
     public class Template
     {
+        public Template()
+        {
+            Fields = new List<TemplateField>();
+            TemplateVariables = new Dictionary<string, TemplateField>();
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -24,7 +30,36 @@ namespace Mytheme.Dal.Dto
 
         public List<TemplateField> Fields { get; set; }
 
+        [NotMapped]
         public Dictionary<string, TemplateField> TemplateVariables { get; set; }
+
+        public void SetVariables()
+        {
+            var fields = new List<TemplateField>();
+
+            TemplateVariables.Clear();
+            foreach (var field in Fields)
+            {
+                if (field.FieldType == TemplateFieldType.Variable)
+                {
+                    TemplateVariables[field.VariableName] = field;
+                }
+                else
+                {
+                    fields.Add(field);
+                }
+            }
+
+            Fields = fields;
+        }
+
+        public void SaveVariables()
+        {
+            foreach (var key in TemplateVariables.Keys)
+            {
+                 Fields.Add(TemplateVariables[key]);
+            }
+        }
     }
 
    
