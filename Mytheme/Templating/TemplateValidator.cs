@@ -269,7 +269,7 @@ namespace Mytheme.Templating
                     return (ValidationError.InvalidTag, field);
                 }
 
-                var table = match.Groups[1].Value;
+                var table = match.Groups[1].Value.Trim();
 
                 var json = new TemplateTbl
                 {
@@ -324,7 +324,7 @@ namespace Mytheme.Templating
                     return (ValidationError.InvalidTag, field);
                 }
 
-                var template = match.Groups[1].Value;
+                var template = match.Groups[1].Value.Trim();
 
                 var json = new TemplateTmp{TemplateName = template};
 

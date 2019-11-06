@@ -194,7 +194,7 @@ namespace Mytheme.Templating
                     templateName = templateName.Replace($"{{{variable}}}", generatedVars[variable]);
                 }
 
-                var exists = await tableService.TableExists(templateName);
+                var exists = await templateService.TemplateExists(templateName);
 
                 if (!exists.Result)
                 {

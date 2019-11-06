@@ -80,6 +80,28 @@ namespace TemplatingTests
         }
 
         [TestMethod]
+        public void SetRandomTableExistsTrailingWhiteSpaceTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[tbl: Test Table ]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.RandomTable
+            };
+
+            var (error, result) = validator.SetRandomTableField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTbl>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("Test Table", json.TableName, $"Table value was incorrect: {json}");
+            Assert.AreEqual(0, json.Variables.Count, $"There should be no variables set");
+        }
+        [TestMethod]
         public void SetRandomTableDoesNotExistTest()
         {
             var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
@@ -177,6 +199,28 @@ namespace TemplatingTests
             var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
 
             var testVal = "[TMP:Test Template]";
+
+            var field = new TemplateField
+            {
+                Order = 1,
+                Value = testVal,
+                FieldType = TemplateFieldType.Template
+            };
+
+            var (error, result) = validator.SetTemplateField(field).Result;
+
+            var json = JsonConvert.DeserializeObject<TemplateTmp>(result.TemplateJson);
+
+            Assert.AreEqual(ValidationError.None, error, $"Validation error: {error.ToString()}");
+            Assert.AreEqual("Test Template", json.TemplateName, $"Template value was incorrect: {json}");
+        }
+
+        [TestMethod]
+        public void SetTemplateTmpExistsTrialingWhiteSpaceTest()
+        {
+            var validator = new TemplateValidator(new MockRandomTableService(), new MockTemplateService());
+
+            var testVal = "[TMP: Test Template ]";
 
             var field = new TemplateField
             {
