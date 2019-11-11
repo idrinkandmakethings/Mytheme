@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{82F795BC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemplatingTests", "TemplatingTests\TemplatingTests.csproj", "{58FB9C51-799B-42E6-A58C-B42723F3734B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mytheme.MarkdownEditor", "Mytheme.MarkdownEditor\Mytheme.MarkdownEditor.csproj", "{3912D627-E5BA-411E-9996-BB801AB31083}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mytheme.MarkdownEditor", "Mytheme.MarkdownEditor\Mytheme.MarkdownEditor.csproj", "{3912D627-E5BA-411E-9996-BB801AB31083}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

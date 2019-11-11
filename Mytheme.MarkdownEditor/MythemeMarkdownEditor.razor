@@ -1,0 +1,79 @@
+﻿@using Ganss.XSS
+@using Markdig
+
+@inject IHtmlSanitizer Sanitizer
+
+<Styled @bind-Classname="@row">
+    height: 100%:
+    padding-top: 20px;
+    display:flex;
+    flex-wrap: wrap;
+    @@media(max-width:1000px){
+    flex-direction: column;
+    }
+</Styled>
+
+<Styled @bind-Classname="@column">
+    flex: 50%;
+</Styled>
+
+<Styled @bind-Classname="@form">
+    display:block;0
+    margin-bottom: 10px;
+</Styled>
+
+<Styled @bind-Classname="@editArea">
+    & textarea {
+    resize: none;
+    width: 90%;
+    height: 90%;
+    }
+</Styled>
+
+<div id="editorRow" class="@row">
+    <div id="markdownEditor" class="@column">
+        <div class="@editArea">
+            <textarea id="desc" @bind-value="Content" @bind-value:event="oninput"></textarea>
+        </div>
+    </div>
+    <div id="markdownDisplay" class="@column">
+        @HtmlContent
+    </div>
+</div>
+
+@code {
+    private string row, column, form, editArea;
+
+    private string _content;
+
+    [Parameter]
+    public string Content
+    {
+        get => _content;
+        set
+        {
+            _content = value;
+            HtmlContent = ConvertStringToMarkupString(_content);
+        }
+    }
+
+    public MarkupString HtmlContent { get; private set; }
+
+    private MarkupString ConvertStringToMarkupString(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(_content))
+        {
+    // Convert markdown string to HTML
+            var html = Markdig.Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+
+    // Sanitize HTML before rendering
+            var sanitizedHtml = Sanitizer.Sanitize(html);
+
+    // Return sanitized HTML as a MarkupString that Blazor can render
+            return new MarkupString(sanitizedHtml);
+        }
+
+        return new MarkupString();
+    }
+}
+
