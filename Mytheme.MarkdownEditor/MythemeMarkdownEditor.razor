@@ -15,6 +15,7 @@
 
 <Styled @bind-Classname="@column">
     flex: 50%;
+    overflow-wrap: break-word;
 </Styled>
 
 <Styled @bind-Classname="@form">
@@ -26,9 +27,17 @@
     & textarea {
     resize: none;
     width: 90%;
-    height: 90%;
+    height: @($"{PercentHeight}vh");
     }
 </Styled>
+
+<Styled @bind-Classname="@displayArea">
+
+    resize: none;
+    width: 90%;
+    height: @($"{PercentHeight}vh");
+</Styled>
+
 
 <div id="editorRow" class="@row">
     <div id="markdownEditor" class="@column">
@@ -37,14 +46,29 @@
         </div>
     </div>
     <div id="markdownDisplay" class="@column">
-        @HtmlContent
+        <div class="displayArea">
+            @HtmlContent
+        </div> 
     </div>
 </div>
 
 @code {
-    private string row, column, form, editArea;
+    private string row, column, form, editArea, displayArea;
 
     private string _content;
+    private int percentHeight;
+
+    [Parameter]
+    public int PercentHeight
+    {
+        get
+        {
+            if (percentHeight == 0)
+                percentHeight = 25;
+            return percentHeight;
+        }
+        set => percentHeight = value;
+    }
 
     [Parameter]
     public string Content
@@ -63,13 +87,13 @@
     {
         if (!string.IsNullOrWhiteSpace(_content))
         {
-    // Convert markdown string to HTML
+            // Convert markdown string to HTML
             var html = Markdig.Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
-    // Sanitize HTML before rendering
+            // Sanitize HTML before rendering
             var sanitizedHtml = Sanitizer.Sanitize(html);
 
-    // Return sanitized HTML as a MarkupString that Blazor can render
+            // Return sanitized HTML as a MarkupString that Blazor can render
             return new MarkupString(sanitizedHtml);
         }
 

@@ -1,12 +1,8 @@
 ﻿@page "/markdowntest"
 @using System.ComponentModel.DataAnnotations
 
-    <Styled @bind-Classname="@test" >
-        height: 100vh;
-    </Styled>
-
 <div class="@test">
-<MythemeMarkdownEditor Content="@Content">
+<MythemeMarkdownEditor Content="@Content" PercentHeight="75">
 
 </MythemeMarkdownEditor>
 </div>
