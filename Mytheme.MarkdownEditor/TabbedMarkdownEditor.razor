@@ -1,0 +1,107 @@
+﻿@using Ganss.XSS
+@using Markdig
+
+@inject IHtmlSanitizer Sanitizer
+
+    <Styled @bind-Classname="@row">
+        width: 100%;
+        margin-top: 10px;
+        box-sizing: border-box;
+        height: @($"{PercentHeight}vh");
+    </Styled>
+
+<Styled @bind-Classname="@clear">
+    clear: both;
+</Styled>
+
+<Styled @bind-Classname="@column">
+    float: left;
+    padding: 10px;
+    height: 90%;
+</Styled>
+
+<Styled @bind-Classname="@editArea">
+    width: 50%;
+    background-color:#aaa;
+    @@media(max-width:1000px){
+    width: 100%;
+    }
+</Styled>
+
+<Styled @bind-Classname="@editField">
+    resize: none;
+    width: 100%;
+    height: 100%;
+</Styled>
+
+
+<Styled @bind-Classname="@displayArea">
+    width: 50%;
+    background-color:#b0b;
+    word-break: break-word;
+    @@media(max-width:1000px){
+    display: none;
+    }
+</Styled>
+
+
+
+<div id="editorRow" class="@row">
+    <div id="markdownEditor" class="@column @editArea">
+        <textarea id="desc" @bind-value="Content" @bind-value:event="oninput" class="@editField"></textarea>
+    </div>
+    <div id="markdownDisplay" class="@column @displayArea">
+        @HtmlContent
+    </div>
+    <div class="@clear"></div>
+</div>
+
+@code {
+    private string row, column, editArea, editField, displayArea, clear;
+
+    private string _content;
+    private int percentHeight;
+
+    [Parameter]
+    public int PercentHeight
+    {
+        get
+        {
+            if (percentHeight == 0)
+                percentHeight = 25;
+            return percentHeight;
+        }
+        set => percentHeight = value;
+    }
+
+    [Parameter]
+    public string Content
+    {
+        get => _content;
+        set
+        {
+            _content = value;
+            HtmlContent = ConvertStringToMarkupString(_content);
+        }
+    }
+
+    public MarkupString HtmlContent { get; private set; }
+
+    private MarkupString ConvertStringToMarkupString(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(_content))
+        {
+            // Convert markdown string to HTML
+            var html = Markdig.Markdown.ToHtml(value, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+
+            // Sanitize HTML before rendering
+            var sanitizedHtml = Sanitizer.Sanitize(html);
+
+            // Return sanitized HTML as a MarkupString that Blazor can render
+            return new MarkupString(sanitizedHtml);
+        }
+
+        return new MarkupString();
+    }
+}
+
