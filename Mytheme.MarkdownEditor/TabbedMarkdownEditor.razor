@@ -3,16 +3,17 @@
 
 @inject IHtmlSanitizer Sanitizer
 
-    <Styled @bind-Classname="@row">
-        width: 100%;
-        margin-top: 10px;
-        box-sizing: border-box;
-        height: @($"{PercentHeight}vh");
-    </Styled>
-
-<Styled @bind-Classname="@clear">
-    clear: both;
+<Styled @bind-Classname="@row">
+    width: 100%;
+    margin-top: 10px;
+    box-sizing: border-box;
+    height: @($"{PercentHeight}vh");
+    @@media(max-width:1000px){
+    display: none;
+    }
 </Styled>
+
+
 
 <Styled @bind-Classname="@column">
     float: left;
@@ -22,9 +23,15 @@
 
 <Styled @bind-Classname="@editArea">
     width: 50%;
-    background-color:#aaa;
+</Styled>
+
+<Styled @bind-Classname="viewArea">
+    width: 50%;
+    display: none;
+    background-color:#b0b;
+    word-break: break-word;
     @@media(max-width:1000px){
-    width: 100%;
+    display: none;
     }
 </Styled>
 
@@ -34,33 +41,78 @@
     height: 100%;
 </Styled>
 
-
 <Styled @bind-Classname="@displayArea">
     width: 50%;
-    background-color:#b0b;
     word-break: break-word;
-    @@media(max-width:1000px){
+</Styled>
+
+<Styled @bind-Classname="@clear">
+    clear: both;
+</Styled>
+
+<Styled @bind-Classname="@tabbedEdit">
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
     display: none;
+    height: @($"{PercentHeight}vh");
+    position: relative;
+    & a {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index:95;
+    }
+
+    @@media(max-width:1000px){
+    display: inline-block;
     }
 </Styled>
+
+<Styled @bind-Classname="@editAreaTab">
+    display: @editTabVisibility ;
+    width: 100%;
+</Styled>
+
+<Styled @bind-Classname="@displayAreaTab">
+    display: @displayTabVisibility ;
+    width: 100%;
+    word-break: break-word;
+</Styled>
+
 
 
 
 <div id="editorRow" class="@row">
     <div id="markdownEditor" class="@column @editArea">
-        <textarea id="desc" @bind-value="Content" @bind-value:event="oninput" class="@editField"></textarea>
+        <textarea @bind-value="Content" @bind-value:event="oninput" class="@editField"></textarea>
     </div>
     <div id="markdownDisplay" class="@column @displayArea">
         @HtmlContent
     </div>
     <div class="@clear"></div>
 </div>
+<div id="tabbed-editor" class="@tabbedEdit">
+    <a @onclick="ChangeView" class="@modeButton">@ModeButton</a>
+    <textarea @bind-value="Content" @bind-value:event="oninput" class="@editField @editAreaTab"></textarea>
+    <div class="@displayAreaTab">
+        @HtmlContent
+    </div>
+</div>
 
 @code {
-    private string row, column, editArea, editField, displayArea, clear;
+    private string row, column, editArea, editField, displayArea, viewArea, clear, modeButton, tabbedEdit,
+        editAreaTab, displayAreaTab;
+
+    private string editTabVisibility;
+    private string displayTabVisibility;
+    
 
     private string _content;
     private int percentHeight;
+
+    private bool showPreview;
 
     [Parameter]
     public int PercentHeight
@@ -87,6 +139,18 @@
 
     public MarkupString HtmlContent { get; private set; }
 
+    public MarkupString ModeButton { get; private set; }
+
+
+    protected override void OnInitialized()
+    {
+        ModeButton = SetSvgToView();
+
+        editTabVisibility = "block";
+        displayTabVisibility = "none";
+        showPreview = false;
+    }
+
     private MarkupString ConvertStringToMarkupString(string value)
     {
         if (!string.IsNullOrWhiteSpace(_content))
@@ -102,6 +166,40 @@
         }
 
         return new MarkupString();
+    }
+
+    private void ChangeView()
+    {
+        if (showPreview)
+        {
+            showPreview = false;
+            editTabVisibility = "block";
+            displayTabVisibility = "none";
+            ModeButton = SetSvgToView();
+        }
+        else
+        {
+            showPreview = true;
+            editTabVisibility = "none";
+            displayTabVisibility = "block";
+            ModeButton = SetSvgToEdit();
+        }
+    }
+
+
+    private MarkupString SetSvgToView()
+    {
+        return new MarkupString(@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""24"" height=""24"" viewBox=""0 0 8 8"">
+<path d=""M4.03 0c-2.53 0-4.03 3-4.03 3s1.5 3 4.03 3c2.47 0 3.97-3 3.97-3s-1.5-3-3.97-3zm-.03 1c1.11 0 2 .9 2 2 0 1.11-.89 2-2 2-1.1 0-2-.89-2-2 0-1.1.9-2 2-2zm0 1c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1c0-.1-.04-.19-.06-.28-.08.16-.24.28-.44.28-.28 0-.5-.22-.5-.5 0-.2.12-.36.28-.44-.09-.03-.18-.06-.28-.06z""
+transform=""translate(0 1)"" />
+</svg>");
+    }
+
+    private MarkupString SetSvgToEdit()
+    {
+        return new MarkupString(@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""24"" height=""24"" viewBox=""0 0 8 8"">
+<path d=""M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z"" />
+</svg>");
     }
 }
 
