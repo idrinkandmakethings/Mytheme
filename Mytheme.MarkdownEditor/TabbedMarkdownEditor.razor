@@ -5,7 +5,6 @@
 
 <Styled @bind-Classname="@row">
     width: 100%;
-    margin-top: 10px;
     box-sizing: border-box;
     height: @($"{PercentHeight}vh");
     @@media(max-width:1000px){
@@ -13,12 +12,9 @@
     }
 </Styled>
 
-
-
 <Styled @bind-Classname="@column">
     float: left;
-    padding: 10px;
-    height: 90%;
+    height: 100%;
 </Styled>
 
 <Styled @bind-Classname="@editArea">
@@ -39,11 +35,13 @@
     resize: none;
     width: 100%;
     height: 100%;
+    margin: 0;
 </Styled>
 
 <Styled @bind-Classname="@displayArea">
     width: 50%;
     word-break: break-word;
+    border: 1px solid lightgrey;
 </Styled>
 
 <Styled @bind-Classname="@clear">
@@ -52,17 +50,15 @@
 
 <Styled @bind-Classname="@tabbedEdit">
     width: 100%;
-    margin-top: 10px;
-    padding: 10px;
     box-sizing: border-box;
     display: none;
     height: @($"{PercentHeight}vh");
     position: relative;
     & a {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index:95;
+        top: 18px;
+        right: 18px;
+        z-index:10;
     }
 
     @@media(max-width:1000px){
@@ -78,7 +74,9 @@
 <Styled @bind-Classname="@displayAreaTab">
     display: @displayTabVisibility ;
     width: 100%;
+    height: 100%;
     word-break: break-word;
+    border: 1px solid lightgrey;
 </Styled>
 
 
