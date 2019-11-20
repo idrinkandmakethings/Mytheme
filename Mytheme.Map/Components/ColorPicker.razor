@@ -1,0 +1,76 @@
+﻿<Styled @bind-Classname="colors">
+    height: 50px;
+    width: 50px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: none;
+    & :first-child {
+    background-color: #F4908E
+    }
+
+    & :nth-child(2) {
+    background-color: #F2F097
+    }
+
+    & :nth-child(3) {
+    background-color: #88B0DC
+    }
+
+    & :nth-child(4) {
+    background-color: #F7B5D1
+    }
+
+    & :nth-child(5) {
+    background-color: #53C4AF
+    }
+
+    & :nth-child(6) {
+    background-color: #FDE38C
+    }
+</Styled>
+
+<Styled @bind-Classname="colors">
+    z-index: 2;
+    margin: 0 40px;
+    text-align: center;
+    position: absolute;
+    top: 10px;
+    left: 35%;
+</Styled>
+
+<div class="@colors">
+    @foreach (var color in Colors)
+    {
+        <button class="@color"
+                @onclick="@OnClickWrapper(color)"
+                @key="@color">
+        </button>
+    }
+</div>
+
+@code {
+
+    private string color, colors;
+
+    [Parameter]
+    public Func<string, Action<MouseEventArgs>> OnClick { get; set; }
+
+    [Parameter]
+    public IEnumerable<string> Colors { get; set; }
+
+    public string CurrentColor { get; set; }
+
+    private Action<MouseEventArgs> OnClickWrapper(string color)
+    {
+        return e =>
+        {
+            CurrentColor = color;
+            OnClick(color)(e);
+        };
+    }
+
+    protected override void OnParametersSet()
+    {
+        CurrentColor = Colors.First();
+    }
+}

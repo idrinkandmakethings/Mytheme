@@ -1,0 +1,66 @@
+﻿@using Microsoft.JSInterop
+@using Mytheme.Map.Components
+@inject IJSRuntime JsRuntime
+
+<ColorPicker OnClick="@SetStrokeColor"
+              Colors="@(new[] { "#F4908E", "#F2F097", "#88B0DC", "#F7B5D1", "#53C4AF", "#FDE38C" })"
+              @ref="@colorPicker" />
+
+<canvas height="@WindowSize.Height"
+        width="@WindowSize.Width"
+        @onmousedown="@StartPaint"
+        @onmousemove="@Paint"
+        @onmouseup="@StopPaint"
+        @onmouseout="@StopPaint"
+        @ref="@canvas"></canvas>
+
+@code {
+    [CascadingParameter] WindowSize WindowSize { get; set; }
+
+    ElementReference canvas;
+    Canvas2DContext ctx;
+    ColorPicker colorPicker;
+
+    bool isPainting = false;
+    double x;
+    double y;
+
+    protected override void OnParametersSet()
+    {
+        ctx = new Canvas2DContext(JsRuntime, canvas);
+    }
+
+    private void StartPaint(MouseEventArgs e)
+    {
+        
+        x = e.ClientX;
+        y = e.ClientY;
+        isPainting = true;
+    }
+
+    private async Task Paint(MouseEventArgs e)
+    {
+        if (isPainting)
+        {
+            var eX = e.ClientX;
+            var eY = e.ClientY;
+
+            await ctx.DrawLine((long)x, (long)y, (long)eX, (long)eY);
+            x = eX;
+            y = eY;
+        }
+    }
+
+    private void StopPaint(MouseEventArgs e)
+    {
+        isPainting = false;
+    }
+
+    private Action<MouseEventArgs> SetStrokeColor(string color)
+    {
+        return async _ =>
+        {
+            await ctx.SetStrokeStyleAsync(color);
+        };
+    }
+}
