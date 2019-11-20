@@ -86,6 +86,7 @@ Colors
     overflow: auto;
     position: fixed;
     top: 0;
+    z-index: 90;
 </Styled>
 
 <Styled @bind-Classname="@topNavComponents">
@@ -116,7 +117,7 @@ Colors
 <MythemeModal/>
 
 <div class="@sideNav">
-    <span class="closeBtn" @onclick="@CloseNav">&times;</span>
+    <span class="closeBtn">&times;</span>
     <a href="#">Home</a>
     <a href="tables">Tables</a>
     <a href="templates">Templates</a> 
@@ -124,7 +125,7 @@ Colors
 </div>
 
 <div class="@topNav">
-    <a @onclick="OpenNav" class="@topNavComponents">@SvgHelperService.GetMenu(26, "fill: white")</a>
+    <a @onclick="ToggleNav" class="@topNavComponents">@SvgHelperService.GetMenu(26, "fill: white")</a>
     <p class="@topNavComponents">@breadCrumb</p>
 </div>
 
@@ -139,7 +140,7 @@ Colors
     private string navWidth = "0px";
     private string breadCrumb = "";
 
-
+    private bool navOpen;
 
     protected override void OnInitialized()
     {
@@ -165,21 +166,26 @@ Colors
         breadCrumb = text;
     }
 
-    protected void OpenNav()
+    protected void ToggleNav()
     {
-        navWidth = "260px";
-        StateHasChanged();
+        if (navOpen)
+        {
+            navWidth = "0px";
+            navOpen = false;
+        }
+        else
+        {
+            navWidth = "260px";
+            navOpen = true;
+        }
+        //StateHasChanged();
     }
 
-    protected void CloseNav()
-    {
-        navWidth = "0px";
-        StateHasChanged();
-    }
-
+    
     private void LocationChanged(object sender, LocationChangedEventArgs e)
     {
         navWidth = "0px";
+        navOpen = false;
         StateHasChanged();
     }
 }

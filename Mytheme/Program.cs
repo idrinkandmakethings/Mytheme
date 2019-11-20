@@ -48,6 +48,7 @@ namespace Mytheme
                     Log.Information($"Mytheme version {Constants.APP_VERSION}");
                     Log.Information("Copyright 2019");
                     Log.Information($"===================================================================");
+                   
                     webBuilder.UseElectron(args).UseStartup<Startup>();
                    // webBuilder.UseStartup<Startup>();
 
