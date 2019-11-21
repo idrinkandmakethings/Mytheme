@@ -36,6 +36,16 @@
             context.stroke();
         },
 
+        drawImage: (canvas, source) => {
+            let context = getContext(canvas);
+
+            var img = new Image();
+            img.addEventListener('load', function () {
+                context.drawImage(img, 0, 0);
+            }, false);
+            img.src = source;
+        },
+
         setContextPropertyValue: (canvas, propertyName, propertyValue) => {
             let context = getContext(canvas);
 

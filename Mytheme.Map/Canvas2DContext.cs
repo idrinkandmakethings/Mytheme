@@ -29,10 +29,10 @@ namespace Mytheme.Map
             return await jsRuntime.InvokeAsync<ElementOffset>("__blazorCanvasInterop.getScrollOffset", canvasRef);
         }
 
-        //public async Task DrawImage(string path)
-        //{
-        //    await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.drawImage", canvasRef, path);
-        //}
+       public async Task DrawImage(string path)
+       {
+           await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.drawImage", canvasRef, path);
+       }
 
         public async Task DrawLine(long startX, long startY, long endX, long endY)
         {
