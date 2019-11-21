@@ -2,12 +2,10 @@
 @using Mytheme.Map.Components
 @inject IJSRuntime JsRuntime
 
-<ColorPicker OnClick="@SetStrokeColor"
-              Colors="@(new[] { "#F4908E", "#F2F097", "#88B0DC", "#F7B5D1", "#53C4AF", "#FDE38C" })"
-              @ref="@colorPicker" />
 
 <canvas height="@WindowSize.Height"
         width="@WindowSize.Width"
+        class="@canvasStyle"
         @onmousedown="@StartPaint"
         @onmousemove="@Paint"
         @onmouseup="@StopPaint"
@@ -15,7 +13,12 @@
         @ref="@canvas"></canvas>
 
 @code {
-    [CascadingParameter] WindowSize WindowSize { get; set; }
+
+    private string canvasStyle;
+
+    [Parameter]
+    public WindowSize WindowSize { get; set; }
+
 
     ElementReference canvas;
     Canvas2DContext ctx;
@@ -25,14 +28,22 @@
     double x;
     double y;
 
-    protected override void OnParametersSet()
+    protected override void OnAfterRender(bool firstRender)
     {
-        ctx = new Canvas2DContext(JsRuntime, canvas);
+        if (firstRender)
+        {
+            ctx = new Canvas2DContext(JsRuntime, canvas);
+        }
+    }
+
+    public async Task LoadImage(string path)
+    {
+        //await ctx.DrawImage(path);
     }
 
     private void StartPaint(MouseEventArgs e)
     {
-        
+
         x = e.ClientX;
         y = e.ClientY;
         isPainting = true;

@@ -1,7 +1,30 @@
 ﻿@page "/maptest"
+@using System.IO
 
-<TestMap></TestMap>
+<button @onclick="LoadImage">Load</button>
+
+<TestMap WindowSize="@windowSize"
+         @ref="mapView"></TestMap>
 
 @code {
+    WindowSize windowSize;
 
+    TestMap mapView;
+
+    protected override void OnInitialized()
+    {
+        windowSize = new WindowSize
+        {
+            Height = 800,
+            Width =  1200
+        };
+    }
+
+    protected async Task LoadImage()
+    {
+        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mytheme");
+        var imagePath = Path.Combine(appDataPath, "images");
+
+        await mapView.LoadImage(Path.Combine(imagePath, "9009f927-f03e-4cb7-b18f-43acd1d12091.png"));
+    }
 }

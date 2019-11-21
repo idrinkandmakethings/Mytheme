@@ -1,0 +1,115 @@
+﻿@page "/imageloader"
+
+@using System.IO
+@using Blazor.FileReader
+@using Mytheme.Data
+
+
+@inject FileHandlerService FileHandlerService
+@inject IFileReaderService FileReaderService
+@inject BreadcrumbService BreadcrumbService
+
+<Styled @bind-Classname="@dropTarget">
+    display: block;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 1px dashed black;
+    border-radius: 5px;
+</Styled>
+
+<Styled @bind-Classname="@dropTargetDrag">
+    border-color: orangered;
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@dropArea" Compose1="@dropTarget" Compose2="@dropTargetDrag" Compose2If="@dragging" />
+
+<div class="@dropArea"
+     @ref=dropTargetElement
+     @ondrop=OnDrop
+     @ondragenter=OnDragEnter
+     @ondragleave=OnDragLeave>
+    @fileName
+</div>
+
+
+@code {
+    // css class names
+    private string form, dropArea, dropTarget, dropTargetDrag, loading;
+
+    private string fileName = "Drop image here.";
+    private bool dragging;
+    List<IFileInfo> FileList { get; } = new List<IFileInfo>();
+
+    ElementReference dropTargetElement;
+    IFileReaderRef dropReference;
+
+    protected override async Task OnInitializedAsync()
+    {
+        BreadcrumbService.SetBreadCrumb("Add Image");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool isFirstRender)
+    {
+        if (isFirstRender)
+        {
+            dropReference = FileReaderService.CreateReference(dropTargetElement);
+            await dropReference.RegisterDropEventsAsync();
+        }
+    }
+
+    public void OnDragEnter(EventArgs e)
+    {
+        dragging = true;
+    }
+
+    public void OnDragLeave(EventArgs e)
+    {
+        dragging = false;
+    }
+
+    public async Task OnDrop(EventArgs e)
+    {
+
+        dragging = false;
+        this.StateHasChanged();
+        await this.RefreshFileList();
+        await TryParesFile();
+    }
+
+    private async Task RefreshFileList()
+    {
+        FileList.Clear();
+        foreach (var file in await dropReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+            FileList.Add(fileInfo);
+        }
+
+        fileName = FileList.FirstOrDefault()?.Name;
+
+        StateHasChanged();
+    }
+
+    private async Task TryParesFile()
+    {
+
+        foreach (var file in await dropReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+
+            var extension = Path.GetExtension(fileInfo.Name);
+
+            if (fileInfo.Name == fileName && (extension == ".png" || extension == ".jpg"))
+            {
+                await using var fs = await file.OpenReadAsync();
+                await using var ms = new MemoryStream();
+                await fs.CopyToAsync(ms);
+
+                await FileHandlerService.SaveFile(ms, Guid.NewGuid(), extension);
+
+            }
+        }
+    }
+
+}

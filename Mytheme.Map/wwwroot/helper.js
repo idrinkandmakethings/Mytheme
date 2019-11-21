@@ -13,6 +13,17 @@
     };
 
     window.__blazorCanvasInterop = {
+
+        getOffset: (canvas) => {
+            var viewport = canvas.getBoundingClientRect();
+            return { top: viewport.top, left: viewport.left};
+        },
+
+        getScrollOffset: (canvas) => {
+            var viewport = canvas.getBoundingClientRect();
+            return { top: window.scrollY, left: window.scrollX };
+        },
+
         drawLine: (canvas, sX, sY, eX, eY) => {
             let context = getContext(canvas);
 
