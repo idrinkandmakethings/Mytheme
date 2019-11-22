@@ -37,13 +37,15 @@
         },
 
         drawImage: (canvas, source) => {
-            let context = getContext(canvas);
-
             var img = new Image();
-            img.addEventListener('load', function () {
-                context.drawImage(img, 0, 0);
-            }, false);
             img.src = source;
+
+            img.onload = () => {
+                let context = getContext(canvas);
+                context.save();
+                context.drawImage(img, 0, 0);
+                context.restore();
+            };
         },
 
         setContextPropertyValue: (canvas, propertyName, propertyValue) => {

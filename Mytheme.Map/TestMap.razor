@@ -10,7 +10,23 @@
         @onmousemove="@Paint"
         @onmouseup="@StopPaint"
         @onmouseout="@StopPaint"
-        @ref="@canvas"></canvas>
+        @ref="@canvasTop"></canvas>
+<canvas height="@WindowSize.Height"
+        width="@WindowSize.Width"
+        class="@canvasStyle"
+        @onmousedown="@StartPaint"
+        @onmousemove="@Paint"
+        @onmouseup="@StopPaint"
+        @onmouseout="@StopPaint"
+        @ref="@canvasMid"></canvas>
+<canvas height="@WindowSize.Height"
+        width="@WindowSize.Width"
+        class="@canvasStyle"
+        @onmousedown="@StartPaint"
+        @onmousemove="@Paint"
+        @onmouseup="@StopPaint"
+        @onmouseout="@StopPaint"
+        @ref="@canvasBack"></canvas>
 
 @code {
 

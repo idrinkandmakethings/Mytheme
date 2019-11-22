@@ -1,8 +1,11 @@
 ﻿@page "/maptest"
 @using System.IO
+@using Mytheme.Data
+
+@inject FileHandlerService FileHandlerService
 
 <div>
-    <button @onclick="LoadImage">Load</button>
+    <button @onclick="@(async () => await LoadImage())">Load</button>
 </div>
 <div>
     <TestMap WindowSize="@windowSize"
@@ -22,12 +25,11 @@
         };
     }
 
-    protected void LoadImage()
+    protected async Task LoadImage()
     {
-        //https://stackoverflow.com/questions/55371811/asp-net-core-2-load-and-display-images-from-local-disk-drive
-        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mytheme");
-        var imagePath = Path.Combine(appDataPath, "images");
 
-        mapView.LoadImage(Path.Combine(imagePath, "9009f927-f03e-4cb7-b18f-43acd1d12091.png")).Wait();
+        var img = await FileHandlerService.GetBase64Image("9009f927-f03e-4cb7-b18f-43acd1d12091.png");
+
+        mapView.LoadImage(img).Wait();
     }
 }
