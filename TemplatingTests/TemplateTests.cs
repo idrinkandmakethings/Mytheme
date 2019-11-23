@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mytheme.Dal.Dto;
 using Mytheme.Templating;
 using Mytheme.Templating.TemplateTypes;
-using Newtonsoft.Json;
 using TemplatingTests.Mocks;
 
 namespace TemplatingTests

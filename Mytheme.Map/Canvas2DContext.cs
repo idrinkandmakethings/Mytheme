@@ -1,5 +1,4 @@
-﻿
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -29,9 +28,35 @@ namespace Mytheme.Map
             return await jsRuntime.InvokeAsync<ElementOffset>("__blazorCanvasInterop.getScrollOffset", canvasRef);
         }
 
-       public async Task DrawImage(string path)
+        public async Task<string> Preload_Image(string image)
+        {
+
+            return await jsRuntime.InvokeAsync<string>("__blazorCanvasInterop.preLoad_Image", image);
+        }
+
+        public async Task Redraw(bool ismap)
+        { 
+            await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.redraw", canvasRef, ismap);
+        }
+
+        public async Task StartPan(long x, long y)
+        {
+            await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.panStart", x, y);
+        }
+
+        public async Task Pan(long x, long y)
+        {
+            await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.pan", x, y);
+        }
+
+        public async Task StopPan(long x, long y)
+        {
+            await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.panStop", x, y);
+        }
+
+        public async Task<bool> DrawImage(string image)
        {
-           await jsRuntime.InvokeAsync<object>("__blazorCanvasInterop.drawImage", canvasRef, path);
+           return await jsRuntime.InvokeAsync<bool>("__blazorCanvasInterop.drawImage", canvasRef, image);
        }
 
         public async Task DrawLine(long startX, long startY, long endX, long endY)

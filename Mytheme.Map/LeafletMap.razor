@@ -1,0 +1,82 @@
+﻿@using System.Collections.ObjectModel
+@using System.Collections.Specialized
+@using System.Drawing
+@using Microsoft.JSInterop
+@using Mytheme.Map.Models
+@using Mytheme.Map.Utility
+@inject IJSRuntime JsRuntime
+
+    <Styled @bind-Classname="@mapStyle">
+        width: @(WindowSize.Width)px;
+        height: @(WindowSize.Height)px;
+    </Styled>
+
+<div id="@mapId" class="@mapStyle"></div>
+
+@code {
+
+    private string mapId, mapStyle;
+
+    [Parameter]
+    public WindowSize WindowSize { get; set; }
+
+    [Parameter]
+    public string MapImage { get; set; }
+
+    [Parameter] public PointF InitialPosition { get; set; } = PointF.Empty;
+    [Parameter] public float InitialZoom { get; set; } = 13f;
+
+    [Parameter] public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
+
+    protected override void OnInitialized()
+    {
+        mapId = StringHelper.GetRandomString(10);
+    }
+
+    [JSInvokable]
+    public static Task<>
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LeafletInterop.CreateImageMap(JsRuntime, mapId, "/mythemelocal/images/69776bd4-5b98-4201-8db7-7635b47da68d.png", 1600, 1174);
+            //await LeafletInterop.Create(JsRuntime, mapId, InitialPosition, InitialZoom);
+
+            Layers.CollectionChanged += OnLayersChanged;
+            foreach (var layer in Layers)
+            {
+                await LeafletInterop.AddLayer(JsRuntime, mapId, layer);
+            }
+        }
+    }
+
+    private void OnLayersChanged(object sender, NotifyCollectionChangedEventArgs args)
+    {
+        if (args.Action == NotifyCollectionChangedAction.Add)
+        {
+            foreach (var item in args.NewItems)
+                LeafletInterop.AddLayer(JsRuntime, mapId, item as Layer);
+        }
+        else if (args.Action == NotifyCollectionChangedAction.Remove)
+        {
+            foreach (var item in args.OldItems)
+            {
+                if (item is Layer layer)
+                {
+                    LeafletInterop.RemoveLayer(JsRuntime, mapId, layer.Id);
+                }
+            }
+        }
+        else if (args.Action == NotifyCollectionChangedAction.Replace
+                 || args.Action == NotifyCollectionChangedAction.Move)
+        {
+            foreach (var oldItem in args.OldItems)
+                if (oldItem is Layer layer)
+                    LeafletInterop.RemoveLayer(JsRuntime, mapId, layer.Id);
+
+            foreach (var newItem in args.NewItems)
+                LeafletInterop.AddLayer(JsRuntime, mapId, newItem as Layer);
+        }
+    }
+}

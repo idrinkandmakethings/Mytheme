@@ -1,60 +1,227 @@
 ﻿@using Microsoft.JSInterop
-@using Mytheme.Map.Components
+@using Mytheme.Map.Utility
 @inject IJSRuntime JsRuntime
 
+    <Styled @bind-Classname="@mapBody">
+        position: relative;
+    </Styled>
 
-<canvas height="@WindowSize.Height"
+<Styled @bind-Classname="@mouseCanvas">
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+</Styled>
+
+<Styled @bind-Classname="@iconCanvas">
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+</Styled>
+
+<Styled @bind-Classname="@mapCanvas">
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    border: 2px solid lightgrey;
+</Styled>
+
+
+<Styled @bind-Classname="@buttonBox">
+    position: absolute;
+    padding: 3px;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+</Styled>
+
+<Styled @bind-Classname="@panIcon">
+    margin: 3px;
+    background: @panIconBackground;
+    border: 2px solid darkgray;
+</Styled>
+
+<Styled @bind-Classname="@drawIcon">
+    margin: 3px;
+    background: @drawIconBackground;
+    border: 2px solid darkgray;
+</Styled>
+
+<Styled @bind-Classname="@markerIcon">
+    margin: 3px;
+    background: @markerIconBackground;
+    border: 2px solid darkgray;
+</Styled>
+
+<Styled @bind-Classname="@zoomInIcon">
+    margin: 3px;
+    background: white;
+    border: 2px solid darkgray;
+</Styled>
+
+<Styled @bind-Classname="@zoomOutIcon">
+    margin: 3px;
+    background: white;
+    border: 2px solid darkgray;
+</Styled>
+
+<div class="@mapBody">
+    <div class="@buttonBox">
+        <a @onclick="TogglePan" class="@panIcon">@svgHelper.GetPan()</a>
+        <a @onclick="ToggleDraw" class="@drawIcon">@svgHelper.GetDraw()</a>
+        <a @onclick="ToggleMarker" class="@markerIcon">@svgHelper.GetMarker()</a>
+        <a @onclick="ZoomIn" class="@zoomInIcon">@svgHelper.GetZoomIn()</a>
+        <a @onclick="ZoomOut" class="@zoomOutIcon">@svgHelper.GetZoomOut()</a>
+    </div>
+<canvas id="mouseLayer"
+        height="@WindowSize.Height"
         width="@WindowSize.Width"
-        class="@canvasStyle"
-        @onmousedown="@StartPaint"
-        @onmousemove="@Paint"
-        @onmouseup="@StopPaint"
-        @onmouseout="@StopPaint"
-        @ref="@canvasTop"></canvas>
-<canvas height="@WindowSize.Height"
+        class="@mouseCanvas"
+        @onmousedown="@OnMouseDown"
+        @onmousemove="@OnMouseMove"
+        @onmouseup="@OnMouseUp"
+        @onmouseout="@OnMouseUp"
+        @onmousewheel="@OnMouseWheel"
+        @ref="@canvasMouseLayer"></canvas>
+<canvas id="iconLayer"
+        height="@WindowSize.Height"
         width="@WindowSize.Width"
-        class="@canvasStyle"
-        @onmousedown="@StartPaint"
-        @onmousemove="@Paint"
-        @onmouseup="@StopPaint"
-        @onmouseout="@StopPaint"
-        @ref="@canvasMid"></canvas>
-<canvas height="@WindowSize.Height"
+        class="@iconCanvas"
+        @ref="@canvasIconLayer"></canvas>
+<canvas id="mapLayer"
+        height="@WindowSize.Height"
         width="@WindowSize.Width"
-        class="@canvasStyle"
-        @onmousedown="@StartPaint"
-        @onmousemove="@Paint"
-        @onmouseup="@StopPaint"
-        @onmouseout="@StopPaint"
-        @ref="@canvasBack"></canvas>
+        class="@mapCanvas"
+        @ref="@canvasMapLayer"></canvas>
+</div>
 
 @code {
 
-    private string canvasStyle;
+    private string mapBody, iconCanvas, mapCanvas, mouseCanvas;
+    private string buttonBox, panIcon, drawIcon, markerIcon, zoomInIcon, zoomOutIcon;
+    private string panIconBackground, drawIconBackground, markerIconBackground;
 
     [Parameter]
     public WindowSize WindowSize { get; set; }
 
+    [Parameter]
+    public string MapImage { get; set; }
 
-    ElementReference canvas;
-    Canvas2DContext ctx;
-    ColorPicker colorPicker;
+    ElementReference canvasMouseLayer;
+    ElementReference canvasIconLayer;
+    ElementReference canvasMapLayer;
+
+    Canvas2DContext mouseCtx;
+    Canvas2DContext iconCtx;
+    Canvas2DContext mapCtx;
+
+    MapMode mapMode;
 
     bool isPainting = false;
     double x;
     double y;
 
-    protected override void OnAfterRender(bool firstRender)
+    bool isPanning = false;
+    long lastX;
+    long lastY;
+
+    bool dragStart, dragged;
+
+    private string fill = "black";
+    private string selected = "lightblue";
+    private string unselected = "white";
+
+    private SvgHelper svgHelper;
+
+    protected override void OnInitialized()
+    {
+        svgHelper = new SvgHelper("black", 14);
+        panIconBackground = selected;
+        mapMode = MapMode.PanZoom;
+        drawIconBackground = unselected;
+        markerIconBackground = unselected;
+
+        lastX = WindowSize.Width / 2;
+        lastY = WindowSize.Height / 2;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            ctx = new Canvas2DContext(JsRuntime, canvas);
+            mouseCtx = new Canvas2DContext(JsRuntime, canvasMouseLayer);
+            iconCtx = new Canvas2DContext(JsRuntime, canvasIconLayer);
+            mapCtx = new Canvas2DContext(JsRuntime, canvasMapLayer);
+            await mapCtx.Preload_Image(MapImage);
+
+            await mapCtx.Redraw(true);
+            await iconCtx.Redraw(false);
+            await mouseCtx.Redraw(false);
         }
     }
 
-    public async Task LoadImage(string path)
+
+    private void OnMouseDown(MouseEventArgs e)
     {
-        await ctx.DrawImage(path);
+        switch (mapMode)
+        {
+            case MapMode.PanZoom:
+                StartPan(e);
+                break;
+            case MapMode.Draw:
+                StartPaint(e);
+                break;
+            case MapMode.Marker:
+                break;
+        }
+    }
+
+    private void OnMouseMove(MouseEventArgs e)
+    {
+        switch (mapMode)
+        {
+            case MapMode.PanZoom:
+                Pan(e);
+                break;
+            case MapMode.Draw:
+                Paint(e);
+                break;
+            case MapMode.Marker:
+                break;
+        }
+    }
+
+    private void OnMouseUp(MouseEventArgs e)
+    {
+        switch (mapMode)
+        {
+            case MapMode.PanZoom:
+                StopPan(e);
+                break;
+            case MapMode.Draw:
+                StopPaint(e);
+                break;
+            case MapMode.Marker:
+                break;
+        }
+    }
+
+    private void OnMouseWheel(MouseEventArgs e)
+    {
+        switch (mapMode)
+        {
+            case MapMode.PanZoom:
+                break;
+            case MapMode.Draw:
+                StopPaint(e);
+                break;
+            case MapMode.Marker:
+                break;
+        }
     }
 
     private void StartPaint(MouseEventArgs e)
@@ -72,7 +239,7 @@
             var eX = e.ClientX;
             var eY = e.ClientY;
 
-            await ctx.DrawLine((long)x, (long)y, (long)eX, (long)eY);
+            await mouseCtx.DrawLine((long)x, (long)y, (long)eX, (long)eY);
             x = eX;
             y = eY;
         }
@@ -83,11 +250,75 @@
         isPainting = false;
     }
 
+    private async Task StartPan(MouseEventArgs e)
+    {
+        isPanning = true;
+        await mapCtx.StartPan((long) e.ClientX, (long) e.ClientY);
+    }
+
+    private async Task Pan(MouseEventArgs e)
+    {
+        if (isPanning)
+        {
+            await mapCtx.Pan((long) e.ClientX, (long) e.ClientY);
+        }
+    }
+
+    private async Task StopPan(MouseEventArgs e)
+    {
+        isPanning = false;
+        await mapCtx.StopPan((long) e.ClientX, (long) e.ClientY);
+    }
+
     private Action<MouseEventArgs> SetStrokeColor(string color)
     {
         return async _ =>
         {
-            await ctx.SetStrokeStyleAsync(color);
+            await mouseCtx.SetStrokeStyleAsync(color);
         };
     }
+
+    private void TogglePan()
+    {
+        if (mapMode != MapMode.PanZoom)
+        {
+            mapMode = MapMode.PanZoom;
+            panIconBackground = selected;
+            drawIconBackground = unselected;
+            markerIconBackground = unselected;
+        }
+    }
+
+    private void ToggleDraw()
+    {
+        if (mapMode != MapMode.Draw)
+        {
+            mapMode = MapMode.Draw;
+            panIconBackground = unselected;
+            drawIconBackground = selected;
+            markerIconBackground = unselected;
+        }
+    }
+
+    private void ToggleMarker()
+    {
+        if (mapMode != MapMode.Marker)
+        {
+            mapMode = MapMode.Marker;
+            panIconBackground = unselected;
+            drawIconBackground = unselected;
+            markerIconBackground = selected;
+        }
+    }
+
+    private void ZoomIn()
+    {
+
+    }
+
+    private void ZoomOut()
+    {
+
+    }
+
 }
