@@ -9,8 +9,8 @@ namespace Mytheme.Data.Interfaces
     {
         Task<DalResult> AddTemplate(Template template);
         Task<DalResult> UpdateTemplate(Template template);
-        Task<DalResult<Template>> GetTemplate(int id);
-        Task<DalResult<Template>> GetTemplate(string name);
+        Task<DalResult<Template>> GetTemplate(string id);
+        Task<DalResult<Template>> GetTemplateByName(string name);
         Task<DalResult<Template[]>> GetAllTemplates();
         Task<DalResult<List<string>>> GetCategories();
         Task<DalResult> AddCategory(string category);

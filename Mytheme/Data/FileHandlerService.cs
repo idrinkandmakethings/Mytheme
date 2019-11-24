@@ -3,20 +3,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Mytheme.Dal.Dto;
 using Serilog;
 
 namespace Mytheme.Data
 {
     public class FileHandlerService
     {
+        private const string MAP_FOLDER = "maps";
+        private const string IMAGE_FOLDER = "images";
+        private const string FILE_FOLDER = "files";
 
         private readonly string appDataPath;
         private readonly string imagePath;
+        private readonly string mapPath;
+        private readonly string filePath;
 
         public FileHandlerService()
         {
             appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mytheme");
-            imagePath = Path.Combine(appDataPath, "images");
+            imagePath = Path.Combine(appDataPath, IMAGE_FOLDER);
+            Directory.CreateDirectory(imagePath);
+            mapPath = Path.Combine(appDataPath, MAP_FOLDER);
+            Directory.CreateDirectory(imagePath);
+            filePath = Path.Combine(appDataPath, FILE_FOLDER);
             Directory.CreateDirectory(imagePath);
         }
 
@@ -39,17 +49,49 @@ namespace Mytheme.Data
             });
         }
 
-        public async Task SaveFile(MemoryStream stream, Guid imageId, string fileExtension)
+        public async Task SaveFile(MemoryStream stream, Guid imageId, string fileExtension, FileType type)
         {
             stream.Position = 0;
 
-            await using var fs = new FileStream(Path.Combine(imagePath, $"{imageId}{fileExtension}"), FileMode.Create);
+            var savePath = string.Empty;
+
+            switch (type)
+            {
+                case FileType.Map:
+                    savePath = mapPath;
+                    break;
+                case FileType.Image:
+                    savePath = imagePath;
+                    break;
+                default:
+                    savePath = filePath;
+                    break;
+            }
+
+            await using var fs = new FileStream(Path.Combine(savePath, $"{imageId}{fileExtension}"), FileMode.Create);
             stream.CopyTo(fs);
             await fs.FlushAsync();
         }
 
-        // maybe look into this? https://stackoverflow.com/questions/55371811/asp-net-core-2-load-and-display-images-from-local-disk-drive
-        public async Task<string> GetBase64Image(string img)
+        //public async Task<string> GetImageData(string id, FileType type)
+        //{
+        //    var savePath = string.Empty;
+
+        //    switch (type)
+        //    {
+        //        case FileType.Map:
+        //            savePath = mapPath;
+        //            break;
+        //        case FileType.Image:
+        //            savePath = imagePath;
+        //            break;
+        //        default:
+        //            savePath = filePath;
+        //            break;
+        //    }
+        //}
+
+        public string GetBase64Image(string img)
         {
             try
             {

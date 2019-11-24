@@ -15,8 +15,7 @@ namespace Mytheme.Dal.Dto
         }
 
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required] 
         public string Name { get; set; }
@@ -66,16 +65,16 @@ namespace Mytheme.Dal.Dto
     public class TemplateCategory
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required] public string Name { get; set; }
     }
 
     public class TemplateField : IComparable<TemplateField>
     {
+        [Key]
         public int Id { get; set; }
-        public int TemplateForeignKey { get; set; }
+        public string FK_Template { get; set; }
         [Required] public int Order { get; set; }
         [Required] public TemplateFieldType FieldType { get; set; }
         
@@ -84,7 +83,7 @@ namespace Mytheme.Dal.Dto
         [Required] public string Value { get; set; }
         [Required] public string TemplateJson { get; set; }
 
-        [ForeignKey("TemplateForeignKey")]
+        [ForeignKey(nameof(FK_Template))]
         public Template Template { get; set; }
 
         public int CompareTo(TemplateField other)

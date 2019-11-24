@@ -148,7 +148,7 @@ namespace Mytheme.Templating
                     return $"({tableName} table doesn't exist!)";
                 }
 
-                var tableVals = await tableService.GetRandomTable(tableName);
+                var tableVals = await tableService.GetRandomTableByName(tableName);
 
                 var valsToSelectFrom = new List<string>();
 
@@ -217,7 +217,7 @@ namespace Mytheme.Templating
                     return $"({templateName} template doesn't exist!)";
                 }
 
-                var template = await templateService.GetTemplate(templateName);
+                var template = await templateService.GetTemplateByName(templateName);
 
                 var result = await RenderTemplateToMarkDown(template.Result);
 

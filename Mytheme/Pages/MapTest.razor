@@ -1,45 +1,35 @@
 ﻿@page "/maptest"
-@using System.Collections.ObjectModel
-@using System.Drawing
+
 @using Mytheme.Data
 @using Mytheme.Map.Models
 
 @inject FileHandlerService FileHandlerService
 
-<div>
-    <LeafletMap WindowSize="@windowSize"
-             Layers="@layers"
-             InitialPosition="_startAt"
-             InitialZoom="4.8f" 
-             MapImage="@map"
-             @ref="@mapView"></LeafletMap>
-</div>
-@code {
-    WindowSize windowSize;
-    private string map;
+    <Styled @bind-Classname="@mapStyle">
+        position: relative;
+        width: 100%;
+        height: 100%;
+    </Styled>
 
-    private PointF _startAt = new PointF(47.5574007f, 16.3918687f);
+<div class="@mapStyle">
+    <LeafletMap MapImage="@map" @ref="@mapView"></LeafletMap>
+</div>
+
+@code {
+
+    private string mapStyle;
+    
+    MapImage map;
     LeafletMap mapView;
 
-    private ObservableCollection<Layer> layers = new ObservableCollection<Layer>
+    protected override void OnInitialized()
     {
-        //new TileLayer
-        //{
-        //    UrlTemplate = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        //    Attribution = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
-        //}
-    };
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        windowSize = new WindowSize
+        map = new MapImage
         {
-            Height = 800,
-            Width =  1200
+            Url = "/mythemelocal/images/69776bd4-5b98-4201-8db7-7635b47da68d.png", 
+            Height = 1600, 
+            Width = 1174
         };
-
-        map = await FileHandlerService.GetBase64Image("69776bd4-5b98-4201-8db7-7635b47da68d.png");
     }
 
 }

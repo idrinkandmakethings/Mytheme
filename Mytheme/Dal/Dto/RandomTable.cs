@@ -7,8 +7,7 @@ namespace Mytheme.Dal.Dto
     public class RandomTable
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -25,20 +24,19 @@ namespace Mytheme.Dal.Dto
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int RandomTableForeignKey { get; set; }
+        public string FK_RandomTable { get; set; }
         public string Entry { get; set; }
         public int LowerBound { get; set; }
         public int UpperBound { get; set; }
         
-        [ForeignKey("RandomTableForeignKey")]
+        [ForeignKey(nameof(FK_RandomTable))]
         public RandomTable RandomTable { get; set; }
     }
 
     public class TableCategory
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string Name { get; set; }

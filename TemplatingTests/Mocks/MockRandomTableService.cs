@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
@@ -28,16 +29,18 @@ namespace TemplatingTests.Mocks
             throw new System.NotImplementedException();
         }
 
-        public Task<DalResult<RandomTable>> GetRandomTable(int id)
+        public Task<DalResult<RandomTable>> GetRandomTable(string id)
         {
            throw new System.NotImplementedException();
         }
 
-        public async Task<DalResult<RandomTable>> GetRandomTable(string name)
+#pragma warning disable 1998
+        public async Task<DalResult<RandomTable>> GetRandomTableByName(string name)
         {
             var result = tables[name];
             return new DalResult<RandomTable>(DalStatus.Success, result);
         }
+#pragma warning restore 1998
 
         public Task<DalResult<RandomTable[]>> GetAllRandomTables()
         {
@@ -59,16 +62,18 @@ namespace TemplatingTests.Mocks
             throw new System.NotImplementedException();
         }
 
+#pragma warning disable 1998
         public async Task<DalResult<bool>> TableExists(string name)
         {
             return new DalResult<bool>(DalStatus.Success, tables.ContainsKey(name));
         }
+#pragma warning restore 1998
 
         private void SetUpTables()
         {
             var testTable = new RandomTable
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Test Table",
                 Category = "Test",
                 Description = "Test",
@@ -78,7 +83,7 @@ namespace TemplatingTests.Mocks
                     new TableEntry
                     {
                         Id = 1,
-                        RandomTableForeignKey = 1,
+                        FK_RandomTable = Guid.Empty.ToString(),
                         Entry = "Table entry 1",
                         UpperBound = 1,
                         LowerBound = 1,
@@ -86,7 +91,7 @@ namespace TemplatingTests.Mocks
                     new TableEntry
                     {
                         Id = 2,
-                        RandomTableForeignKey = 1,
+                        FK_RandomTable = Guid.Empty.ToString(),
                         Entry = "Table entry 2",
                         UpperBound = 5,
                         LowerBound = 2,
@@ -94,7 +99,7 @@ namespace TemplatingTests.Mocks
                     new TableEntry
                     {
                         Id = 3,
-                        RandomTableForeignKey = 1,
+                        FK_RandomTable = Guid.Empty.ToString(),
                         Entry = "Table entry 3",
                         UpperBound = 6,
                         LowerBound = 6,
@@ -102,7 +107,7 @@ namespace TemplatingTests.Mocks
                     new TableEntry
                     {
                         Id = 4,
-                        RandomTableForeignKey = 1,
+                        FK_RandomTable = Guid.Empty.ToString(),
                         Entry = "Table entry 4",
                         UpperBound = 7,
                         LowerBound = 7,
@@ -114,7 +119,7 @@ namespace TemplatingTests.Mocks
 
             var raceTable = new RandomTable
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "race",
                 Category = "Test",
                 Description = "Test",
@@ -127,7 +132,7 @@ namespace TemplatingTests.Mocks
 
             var lastNamesTable = new RandomTable
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Last Names",
                 Category = "Test",
                 Description = "Test",

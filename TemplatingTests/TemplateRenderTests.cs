@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mytheme.Dal.Dto;
@@ -28,7 +29,7 @@ namespace TemplatingTests
 
             var template = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Die Roll Test",
                 Category = "Test",
                 Description = "Description here",
@@ -92,7 +93,7 @@ namespace TemplatingTests
 
             var template = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Random Test",
                 Category = "Test",
                 Description = "Description here",
@@ -158,7 +159,7 @@ list2=[lst:thing one, thing two, thing three]
 
             var template = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "List Test",
                 Category = "Test",
                 Description = "Description here",
@@ -216,7 +217,7 @@ table=[tbl:Test Table ]
 
             var template = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Table Test",
                 Category = "Test",
                 Description = "Description here",
@@ -278,7 +279,7 @@ Eof
 
             var template = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Template Test",
                 Category = "Test",
                 Description = "Description here",
@@ -351,7 +352,7 @@ table=[tbl:{test} {table} ]
 
             var template = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Table Test",
                 Category = "Test",
                 Description = "Description here",

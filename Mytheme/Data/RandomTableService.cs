@@ -54,7 +54,7 @@ namespace Mytheme.Data
             });
         }
 
-        public async Task<DalResult<RandomTable>> GetRandomTable(int id)
+        public async Task<DalResult<RandomTable>> GetRandomTable(string id)
         {
             return await Task.Run(() =>
             {
@@ -76,7 +76,7 @@ namespace Mytheme.Data
             });
         }
 
-        public async Task<DalResult<RandomTable>> GetRandomTable(string name)
+        public async Task<DalResult<RandomTable>> GetRandomTableByName(string name)
         {
             return await Task.Run(() =>
             {

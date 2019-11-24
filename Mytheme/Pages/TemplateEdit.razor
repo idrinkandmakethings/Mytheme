@@ -91,7 +91,7 @@
 @code {
 
     [Parameter]
-    public int TemplateId { get; set; }
+    public string TemplateId { get; set; }
 
     public string Content { get; set; }
 
@@ -109,7 +109,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (TemplateId == 0)
+        if (string.IsNullOrEmpty(TemplateId))
         {
             BreadcrumbService.SetBreadCrumb("Add Template");
             isUpdate = false;

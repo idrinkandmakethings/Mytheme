@@ -2,6 +2,7 @@
 
 @using System.IO
 @using Blazor.FileReader
+@using Mytheme.Dal.Dto
 @using Mytheme.Data
 
 
@@ -35,7 +36,7 @@
 
 @code {
     // css class names
-    private string form, dropArea, dropTarget, dropTargetDrag, loading;
+    private string dropArea, dropTarget, dropTargetDrag;
 
     private string fileName = "Drop image here.";
     private bool dragging;
@@ -44,7 +45,7 @@
     ElementReference dropTargetElement;
     IFileReaderRef dropReference;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         BreadcrumbService.SetBreadCrumb("Add Image");
     }
@@ -106,7 +107,7 @@
                 await using var ms = new MemoryStream();
                 await fs.CopyToAsync(ms);
 
-                await FileHandlerService.SaveFile(ms, Guid.NewGuid(), extension);
+                await FileHandlerService.SaveFile(ms, Guid.NewGuid(), extension, FileType.Image);
 
             }
         }

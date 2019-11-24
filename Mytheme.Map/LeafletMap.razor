@@ -1,82 +1,69 @@
-﻿@using System.Collections.ObjectModel
-@using System.Collections.Specialized
-@using System.Drawing
+﻿@using System.Text
 @using Microsoft.JSInterop
 @using Mytheme.Map.Models
 @using Mytheme.Map.Utility
 @inject IJSRuntime JsRuntime
 
-    <Styled @bind-Classname="@mapStyle">
-        width: @(WindowSize.Width)px;
-        height: @(WindowSize.Height)px;
-    </Styled>
+<Styled @bind-Classname="@mapStyle">
+    position: absolute;
+    height: 100%;
+    width: 100%;
+</Styled>
 
 <div id="@mapId" class="@mapStyle"></div>
 
 @code {
 
+    protected  delegate void OnMarkerAdd(double lat, double lng);
+
     private string mapId, mapStyle;
 
-    [Parameter]
-    public WindowSize WindowSize { get; set; }
 
     [Parameter]
-    public string MapImage { get; set; }
+    public MapImage MapImage { get; set; }
 
-    [Parameter] public PointF InitialPosition { get; set; } = PointF.Empty;
-    [Parameter] public float InitialZoom { get; set; } = 13f;
-
-    [Parameter] public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
+    private static event OnMarkerAdd OnMarkerAddOccured;
 
     protected override void OnInitialized()
     {
+#pragma warning disable 4014
+        OnMarkerAddOccured += delegate(double lat, double lng) { AddMarker(lat, lng); };
+#pragma warning restore 4014
         mapId = StringHelper.GetRandomString(10);
     }
 
     [JSInvokable]
-    public static Task<>
+    public static void AddMarkerInterop(double lat, double lng)
+    {
+        OnMarkerAddOccured?.Invoke(lat, lng);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await LeafletInterop.CreateImageMap(JsRuntime, mapId, "/mythemelocal/images/69776bd4-5b98-4201-8db7-7635b47da68d.png", 1600, 1174);
-            //await LeafletInterop.Create(JsRuntime, mapId, InitialPosition, InitialZoom);
-
-            Layers.CollectionChanged += OnLayersChanged;
-            foreach (var layer in Layers)
-            {
-                await LeafletInterop.AddLayer(JsRuntime, mapId, layer);
-            }
+            await LeafletInterop.CreateImageMap(JsRuntime, mapId, MapImage.Url, MapImage.Height, MapImage.Width);
         }
     }
 
-    private void OnLayersChanged(object sender, NotifyCollectionChangedEventArgs args)
+    private async Task AddMarker(double lat, double lng)
     {
-        if (args.Action == NotifyCollectionChangedAction.Add)
-        {
-            foreach (var item in args.NewItems)
-                LeafletInterop.AddLayer(JsRuntime, mapId, item as Layer);
-        }
-        else if (args.Action == NotifyCollectionChangedAction.Remove)
-        {
-            foreach (var item in args.OldItems)
-            {
-                if (item is Layer layer)
-                {
-                    LeafletInterop.RemoveLayer(JsRuntime, mapId, layer.Id);
-                }
-            }
-        }
-        else if (args.Action == NotifyCollectionChangedAction.Replace
-                 || args.Action == NotifyCollectionChangedAction.Move)
-        {
-            foreach (var oldItem in args.OldItems)
-                if (oldItem is Layer layer)
-                    LeafletInterop.RemoveLayer(JsRuntime, mapId, layer.Id);
+        // TODO: add to datastore
+        await LeafletInterop.AddMarker(JsRuntime,lat, lng, SetPopup(PopupType.Link));
+    }
 
-            foreach (var newItem in args.NewItems)
-                LeafletInterop.AddLayer(JsRuntime, mapId, newItem as Layer);
-        }
+
+    private MarkupString SetPopup(PopupType type)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append(@"<div><a href="""">Name</a></div>");
+        sb.Append("<hr/>");
+        sb.Append("<div>Description</div>");
+        sb.Append("<div><p>Blah blah blah</p></div>");
+
+        return new MarkupString(sb.ToString());
     }
 }
+
+

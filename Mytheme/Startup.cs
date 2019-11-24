@@ -60,6 +60,12 @@ namespace Mytheme
             services.AddSingleton<RandomTableService>();
             services.AddSingleton<TemplateService>();
             services.AddSingleton<FileHandlerService>();
+
+
+            services.AddServerSideBlazor().AddCircuitOptions(o =>
+            {
+                o.DetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -68,6 +74,7 @@ namespace Mytheme
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                
             }
             else
             {

@@ -55,7 +55,7 @@ namespace Mytheme.Data
             });
         }
 
-        public async Task<DalResult<Template>> GetTemplate(int id)
+        public async Task<DalResult<Template>> GetTemplate(string id)
         {
             return await Task.Run(() =>
             {
@@ -76,7 +76,7 @@ namespace Mytheme.Data
             });
         }
 
-        public async Task<DalResult<Template>> GetTemplate(string name)
+        public async Task<DalResult<Template>> GetTemplateByName(string name)
         {
             return await Task.Run(() =>
             {

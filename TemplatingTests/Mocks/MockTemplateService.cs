@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
@@ -31,16 +32,18 @@ namespace TemplatingTests.Mocks
             throw new System.NotImplementedException();
         }
 
-        public Task<DalResult<Template>> GetTemplate(int id)
+        public Task<DalResult<Template>> GetTemplate(string id)
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<DalResult<Template>> GetTemplate(string name)
+#pragma warning disable 1998
+        public async Task<DalResult<Template>> GetTemplateByName(string name)
         {
             var template = templates[name];
             return new DalResult<Template>(DalStatus.Success, template);
         }
+#pragma warning restore 1998
 
         public Task<DalResult<Template[]>> GetAllTemplates()
         {
@@ -61,11 +64,12 @@ namespace TemplatingTests.Mocks
         {
             throw new System.NotImplementedException();
         }
-
+#pragma warning disable 1998
         public async Task<DalResult<bool>> TemplateExists(string name)
         {
             return new DalResult<bool>(DalStatus.Success, templates.ContainsKey(name));
         }
+#pragma warning restore 1998
 
         private void SetUpTemplates()
         {
@@ -79,7 +83,7 @@ table=[tbl:Test Table]
 
             var testTemplate = new Template
             {
-                Id = 1,
+                Id = Guid.Empty.ToString(),
                 Name = "Test Template",
                 Category = "Test",
                 Description = "Test",
