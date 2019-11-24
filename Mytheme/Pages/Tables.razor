@@ -2,7 +2,7 @@
 @using Mytheme.ButtonGroup
 @using Mytheme.Dal
 @using Mytheme.Dal.Dto
-@using Mytheme.Data
+@using Mytheme.Services
 
 @inject RandomTableService RandomTableService
 @inject NavigationManager NavigationManager
@@ -17,7 +17,7 @@
 }
 else
 {
-    <MythemeGrid Items="tables" Context="table">
+    <Grid Items="tables" Context="table">
         <GridHeader>
             <th>Name</th>
             <th>Category</th>
@@ -30,7 +30,7 @@ else
                 <td>@table.Description</td>
             </tr>
         </GridRow>
-    </MythemeGrid>
+    </Grid>
 }
 
 @code {

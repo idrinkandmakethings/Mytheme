@@ -14,8 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Mytheme.Dal;
-using Mytheme.Data;
 using Mytheme.Modal;
+using Mytheme.Services;
 
 
 namespace Mytheme

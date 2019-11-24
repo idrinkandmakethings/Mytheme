@@ -12,8 +12,10 @@ namespace Mytheme.Dal.Dto
 
         [Required]
         public string Name { get; set; }
+        public string Icon { get; set; }
         public string Description { get; set; }
         
+
         [Required] 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime DateCreated { get; set; }
@@ -35,6 +37,7 @@ namespace Mytheme.Dal.Dto
 
         [Required]
         public string Name { get; set; }
+        public string Icon { get; set; }
         public string Description { get; set; }
 
         [Required]

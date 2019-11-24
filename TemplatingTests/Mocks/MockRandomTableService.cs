@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
-using Mytheme.Data.Interfaces;
+using Mytheme.Services.Interfaces;
 
 namespace TemplatingTests.Mocks
 {

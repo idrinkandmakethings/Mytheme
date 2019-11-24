@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace Mytheme.Data
+namespace Mytheme.Services
 {
     public class SvgHelperService
     {

@@ -3,9 +3,9 @@
 
 <Styled @bind-Classname="@gridStyle">
     & th, td{
-        padding: 15px;
-        border: 1px solid #d1d1d1;
-        text-align: center;
+    padding: 15px;
+    border: 1px solid #d1d1d1;
+    text-align: center;
     }
 </Styled>
 
@@ -36,13 +36,13 @@
 
 <table class="@gridStyle">
     <thead>
-    <tr class="@gridHeader">@GridHeader</tr>
+        <tr class="@gridHeader">@GridHeader</tr>
     </thead>
     <tbody class="@gridBody">
-    @foreach (var item in ItemList)
-    {
-        @GridRow(item)
-    }
+        @foreach (var item in ItemList)
+        {
+            @GridRow(item)
+        }
     </tbody>
 </table>
 <div class="pagination">
@@ -63,7 +63,7 @@
 
     <span class="pagebutton btn btn-link disabled">Page @curPage of @totalPages</span>
 
-</div>  
+</div>
 
 @code {
     // css class names

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
 
-namespace Mytheme.Data.Interfaces
+namespace Mytheme.Services.Interfaces
 {
     public interface IRandomTableService
     {

@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
-using Mytheme.Data.Interfaces;
+using Mytheme.Services.Interfaces;
 using Serilog;
 
-namespace Mytheme.Data
+namespace Mytheme.Services
 {
     public class RandomTableService : IRandomTableService
     {

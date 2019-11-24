@@ -11,6 +11,8 @@ namespace Mytheme.Dal.Dto
         [Required]
         public string FileName { get; set; }
         [Required]
+        public string DisplayName { get; set; }
+        [Required]
         public FileType FileType { get; set; }
     }
 
@@ -18,5 +20,7 @@ namespace Mytheme.Dal.Dto
     {
         Map,
         Image,
+        Icon,
+        File
     }
 }

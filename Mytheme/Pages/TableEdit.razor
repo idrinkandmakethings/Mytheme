@@ -4,8 +4,8 @@
 @using System.IO
 @using Blazor.FileReader
 @using Mytheme.Dal.Dto
-@using Mytheme.Data
 @using Mytheme.Modals
+@using Mytheme.Services
 
 @inject RandomTableService RandomTableService
 @inject FileHandlerService FileHandlerService
@@ -108,7 +108,7 @@
 }
 else
 {
-    <MythemeGrid Items="entries">
+    <Grid Items="entries">
         <GridHeader>
             <th>Value</th>
         </GridHeader>
@@ -117,7 +117,7 @@ else
                 <td>@context</td>
             </tr>
         </GridRow>
-    </MythemeGrid>
+    </Grid>
 }
 
 

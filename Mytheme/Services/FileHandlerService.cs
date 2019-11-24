@@ -6,21 +6,27 @@ using System.Threading.Tasks;
 using Mytheme.Dal.Dto;
 using Serilog;
 
-namespace Mytheme.Data
+namespace Mytheme.Services
 {
     public class FileHandlerService
     {
         private const string MAP_FOLDER = "maps";
         private const string IMAGE_FOLDER = "images";
         private const string FILE_FOLDER = "files";
+        private const string ICON_FOLDER = "icons";
 
         private readonly string appDataPath;
         private readonly string imagePath;
         private readonly string mapPath;
         private readonly string filePath;
+        private readonly string iconPath;
+
+        private Dictionary<FileType, string> filePaths;
 
         public FileHandlerService()
         {
+            filePaths = new Dictionary<FileType, string>();
+
             appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mytheme");
             imagePath = Path.Combine(appDataPath, IMAGE_FOLDER);
             Directory.CreateDirectory(imagePath);
@@ -28,6 +34,16 @@ namespace Mytheme.Data
             Directory.CreateDirectory(imagePath);
             filePath = Path.Combine(appDataPath, FILE_FOLDER);
             Directory.CreateDirectory(imagePath);
+            filePath = Path.Combine(appDataPath, ICON_FOLDER);
+            Directory.CreateDirectory(iconPath);
+
+            filePaths = new Dictionary<FileType, string>
+            {
+                {FileType.Image, imagePath },
+                {FileType.Map, mapPath },
+                {FileType.Icon, iconPath },
+                {FileType.File , filePath },
+            };
         }
 
         public async Task<string[]> ParseTableFile(MemoryStream stream)
@@ -53,43 +69,18 @@ namespace Mytheme.Data
         {
             stream.Position = 0;
 
-            var savePath = string.Empty;
-
-            switch (type)
-            {
-                case FileType.Map:
-                    savePath = mapPath;
-                    break;
-                case FileType.Image:
-                    savePath = imagePath;
-                    break;
-                default:
-                    savePath = filePath;
-                    break;
-            }
-
+            var savePath = filePaths[type];
+            
             await using var fs = new FileStream(Path.Combine(savePath, $"{imageId}{fileExtension}"), FileMode.Create);
             stream.CopyTo(fs);
             await fs.FlushAsync();
         }
 
-        //public async Task<string> GetImageData(string id, FileType type)
-        //{
-        //    var savePath = string.Empty;
+        public async Task<string> GetMapImage(string id)
+        {
+            
 
-        //    switch (type)
-        //    {
-        //        case FileType.Map:
-        //            savePath = mapPath;
-        //            break;
-        //        case FileType.Image:
-        //            savePath = imagePath;
-        //            break;
-        //        default:
-        //            savePath = filePath;
-        //            break;
-        //    }
-        //}
+        }
 
         public string GetBase64Image(string img)
         {

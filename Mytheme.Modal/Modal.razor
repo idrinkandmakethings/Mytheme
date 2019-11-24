@@ -41,11 +41,11 @@
 
 <Styled @bind-Classname="@animateTop" IsKeyframes="true">
     from {
-    top:-300px; 
+    top:-300px;
     opacity:0;
     }
     to {
-    top:0; 
+    top:0;
     opacity:1;
     }
 </Styled>
@@ -118,8 +118,8 @@
     private string titleBackground = "white";
     private string titleColor = "black";
     private string modalWidth = "80%";
-    
-    
+
+
     protected bool ComponentDisableBackgroundCancel { get; set; }
     protected bool ComponentHideCloseButton { get; set; }
     protected string ComponentPosition { get; set; }
@@ -150,7 +150,7 @@
 
     internal void CloseModal(ModalResult modalResult)
     {
-        
+
         Title = "";
         Content = null;
         ComponentStyle = "";

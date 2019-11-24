@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
-using Mytheme.Data.Interfaces;
+using Mytheme.Services.Interfaces;
 using Serilog;
 
-namespace Mytheme.Data
+namespace Mytheme.Services
 {
     public class TemplateService : ITemplateService
     {
