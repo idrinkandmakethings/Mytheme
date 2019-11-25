@@ -1,17 +1,117 @@
 ﻿@page "/"
 @using Mytheme.Services
+@using Mytheme.Slider.Models
 
 @inject BreadcrumbService BreadcrumbService
 
-<h1>Mytheme</h1>
-/ˈmɪθiːm/ (noun) a set of fundamental generic units of narrative structure from which myths are thought to be constructed.
+<Styled @bind-Classname="@body">
+    position: relative;
+    width: 100%;
+    height: 100%;
+</Styled>
 
+<Styled @bind-Classname="@campaignSelector">
+    background: lightblue;
+    position: absolute;
+    height: 70%;
+    width: 100%;
+    bottom: 0;
+</Styled>
+
+<Styled @bind-Classname="@row">
+    display: flex;
+    height: 100%;
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+</Styled>
+
+<Styled @bind-Classname="@columnLeft">
+    flex: 20%;
+    height: 100%;
+    @@media(max-height:600px){
+    flex: 30%;
+    }
+</Styled>
+
+<Styled @bind-Classname="@columnRight">
+    flex: 80%;
+    height: 100%;
+    @@media(max-height:600px){
+    flex: 70%;
+    }
+</Styled>
+
+<Styled @bind-Classname="@subRow">
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-direction: column;
+    &:after {
+    content: "";
+    display: table;
+    clear: both;
+    }
+    @@media(max-height:400px){
+    flex-direction: row;
+    }
+</Styled>
+
+<Styled @bind-Classname="@subColumn">
+    flex: 50%;
+    margin: auto;
+    padding: 10px;
+    & img {
+    display: block;
+    margin: auto;
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    margin: auto;
+    }
+</Styled>
+
+<div class="@body">
+    <div>
+        <h1>Mytheme</h1>
+        /ˈmɪθiːm/ (noun) a set of fundamental generic units of narrative structure from which myths are thought to be constructed.
+    </div>
+    <div class="@campaignSelector">
+        <div class="@row">
+            <div class="@columnLeft" style="background-color:#aaa;">
+                <div class="@subRow">
+                    <div class="@subColumn" style="background-color:#aa0;">
+                        <a href=""><img src="images/new_campaign.png" /></a>
+                    </div>
+                    <div class="@subColumn" style="background-color:#0aa;">
+                        <a href=""><img src="images/new_campaign.png" /></a>
+                    </div>
+                </div>
+            </div>
+            <div class="@columnRight" style="background-color:#bbb;">right</div>
+        </div>
+    </div>
+</div>
 
 @code
 {
+    private string body, campaignSelector, row, columnLeft, columnRight, subRow, subColumn;
+
+    private List<SliderEntry> entries;
 
     protected override void OnInitialized()
     {
+        entries = new List<SliderEntry>
+    {
+            new SliderEntry
+            {
+                Name = "Test",
+                BackgroundImageUrl = "/images/new_campaign.png"
+            }
+        };
         BreadcrumbService.SetBreadCrumb("");
     }
 

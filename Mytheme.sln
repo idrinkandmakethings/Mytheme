@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mytheme.MarkdownEditor", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mytheme.Map", "Mytheme.Map\Mytheme.Map.csproj", "{12FBCD90-74CB-4453-8595-4FE9AB5CDA60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mytheme.Slider", "Mytheme.Slider\Mytheme.Slider.csproj", "{CBB71644-2BCE-4C39-BAED-E1B033417768}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{12FBCD90-74CB-4453-8595-4FE9AB5CDA60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12FBCD90-74CB-4453-8595-4FE9AB5CDA60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12FBCD90-74CB-4453-8595-4FE9AB5CDA60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBB71644-2BCE-4C39-BAED-E1B033417768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB71644-2BCE-4C39-BAED-E1B033417768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB71644-2BCE-4C39-BAED-E1B033417768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBB71644-2BCE-4C39-BAED-E1B033417768}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

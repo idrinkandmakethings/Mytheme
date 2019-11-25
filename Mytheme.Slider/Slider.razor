@@ -1,0 +1,34 @@
+﻿@using Microsoft.JSInterop
+@using Mytheme.Slider.Models
+
+@inject IJSRuntime JsRuntime
+
+<Styled @bind-Classname="@slide">
+    background: blue;
+</Styled>
+
+<div class="siema">
+    @foreach (var entry in SliderEntries)
+    {
+        <div class="@slide"><span>@entry.Name</span></div>
+    }
+</div>
+<a class="@arrowLeft" href="javascript:void(0);"></a>
+<a class="@arrowRight" href="javascript:void(0);"></a>
+<div class="@dotWrapper"></div>
+
+@code {
+
+    // https://medium.com/@fionnachan/how-to-write-a-slider-in-pure-javascript-838c0d98fd69
+
+    private string slider, slide, arrowLeft, arrowRight, dotWrapper;
+
+    [Parameter]
+    public List<SliderEntry> SliderEntries { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await SliderInterops.Initailize(JsRuntime);
+    }
+
+}

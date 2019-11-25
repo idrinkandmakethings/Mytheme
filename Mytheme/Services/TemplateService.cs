@@ -11,6 +11,13 @@ namespace Mytheme.Services
 {
     public class TemplateService : ITemplateService
     {
+        private readonly DataStorage db;
+
+        public TemplateService(DataStorage db)
+        {
+            this.db = db;
+        }
+
         public async Task<DalResult> AddTemplate(Template template)
         {
             return await Task.Run(async () =>
@@ -18,7 +25,6 @@ namespace Mytheme.Services
                 try
                 {
                     template.SetVariables();
-                    await using var db = new DataStorage();
                     var result = await db.Templates.AddAsync(template);
                     db.SaveChanges(true);
 
@@ -40,7 +46,6 @@ namespace Mytheme.Services
                 try
                 {
                     template.SaveVariables();
-                    using var db = new DataStorage();
                     db.Templates.Update(template);
                     db.SaveChanges(true);
 
@@ -61,7 +66,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.Templates.First(t => t.Id == id);
                     result.SetVariables();
                     return new DalResult<Template>(DalStatus.Success, result);
@@ -82,7 +86,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.Templates.First(t => t.Name == name);
                     result.SetVariables();
                     return new DalResult<Template>(DalStatus.Success, result);
@@ -102,7 +105,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.Templates.ToArray();
                     return new DalResult<Template[]>(DalStatus.Success, result);
                 }
@@ -121,7 +123,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.TemplateCategories.Select(x => x.Name).OrderBy(n => n).ToList();
                     return new DalResult<List<string>>(DalStatus.Success, result);
                 }
@@ -140,7 +141,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    await using var db = new DataStorage();
                     var result = await db.TemplateCategories.AddAsync(new TemplateCategory { Name = category });
                     db.SaveChanges(true);
                     return new DalResult(DalStatus.Success);
@@ -156,12 +156,11 @@ namespace Mytheme.Services
 
         public async Task<DalResult<bool>> CategoryExists(string name)
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 try
                 {
-                    await using var db = new DataStorage();
-                    var exists = db.TemplateCategories.ToList().Any(x => x.Name == name);
+                    var exists = db.TemplateCategories.Any(x => x.Name == name);
                     return new DalResult<bool>(DalStatus.Success, exists);
                 }
                 catch (Exception e)
@@ -175,12 +174,11 @@ namespace Mytheme.Services
 
         public async Task<DalResult<bool>> TemplateExists(string name)
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 try
                 {
-                    await using var db = new DataStorage();
-                    var exists = db.Templates.ToList().Any(x => x.Name == name);
+                    var exists = db.Templates.Any(x => x.Name == name);
                     return new DalResult<bool>(DalStatus.Success, exists);
                 }
                 catch (Exception e)

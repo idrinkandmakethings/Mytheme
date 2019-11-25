@@ -12,13 +12,20 @@ namespace Mytheme.Services
 {
     public class RandomTableService : IRandomTableService
     {
+
+        private readonly DataStorage db;
+
+        public RandomTableService(DataStorage db)
+        {
+            this.db = db;
+        }
+
         public async Task<DalResult> AddRandomTable(RandomTable table)
         {
             return await Task.Run(async () =>
             {
                 try
                 {
-                    await using var db = new DataStorage();
                     var result = await db.RandomTables.AddAsync(table);
                     db.SaveChanges(true);
 
@@ -39,7 +46,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     db.RandomTables.Update(table);
                     db.SaveChanges(true);
 
@@ -60,7 +66,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.RandomTables
                         .Include(t => t.Entries)
                         .First(t => t.Id == id);
@@ -82,7 +87,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.RandomTables
                         .Include(t => t.Entries)
                         .First(t => t.Name == name);
@@ -103,7 +107,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.RandomTables.ToArray();
                     return new DalResult<RandomTable[]>(DalStatus.Success, result);
                 }
@@ -122,7 +125,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    using var db = new DataStorage();
                     var result = db.TableCategories.Select(x => x.Name).OrderBy(n => n).ToList();
                     return new DalResult<List<string>>(DalStatus.Success, result);
                 }
@@ -141,7 +143,6 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    await using var db = new DataStorage();
                     var result = await db.TableCategories.AddAsync(new TableCategory() {Name = category});
                     db.SaveChanges(true);
                     return new DalResult(DalStatus.Success);
@@ -157,11 +158,10 @@ namespace Mytheme.Services
 
         public async Task<DalResult<bool>> CategoryExists(string name)
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 try
                 {
-                    await using var db = new DataStorage();
                     var exists = db.TableCategories.ToList().Any(x => x.Name == name);
                     return new DalResult<bool>(DalStatus.Success, exists);
                 }
@@ -176,11 +176,10 @@ namespace Mytheme.Services
 
         public async Task<DalResult<bool>> TableExists(string name)
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 try
                 {
-                    await using var db = new DataStorage();
                     var exists = db.RandomTables.ToList().Any(x => x.Name == name);
                     return new DalResult<bool>(DalStatus.Success, exists);
                 }

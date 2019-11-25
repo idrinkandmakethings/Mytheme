@@ -57,9 +57,12 @@ namespace Mytheme
 
             services.AddSingleton<BreadcrumbService>();
             services.AddSingleton<SvgHelperService>();
-            services.AddSingleton<RandomTableService>();
-            services.AddSingleton<TemplateService>();
-            services.AddSingleton<FileHandlerService>();
+
+            services.AddSingleton<DataStorage>();
+
+            services.AddSingleton(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
+            services.AddSingleton(x => new TemplateService(x.GetRequiredService<DataStorage>()));
+            services.AddSingleton(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
 
 
             services.AddServerSideBlazor().AddCircuitOptions(o =>

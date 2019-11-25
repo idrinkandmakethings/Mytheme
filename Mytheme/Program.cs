@@ -1,9 +1,7 @@
 using System;
 using System.IO;
-using ElectronNET.API;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace Mytheme
