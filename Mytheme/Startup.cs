@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Mytheme.Dal;
 using Mytheme.Modal;
 using Mytheme.Services;
+using Mytheme.Services.Interfaces;
 
 
 namespace Mytheme
@@ -60,10 +61,10 @@ namespace Mytheme
 
             services.AddSingleton<DataStorage>();
 
-            services.AddSingleton(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
-            services.AddSingleton(x => new TemplateService(x.GetRequiredService<DataStorage>()));
-            services.AddSingleton(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
-
+            services.AddSingleton<IRandomTableService>(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
+            services.AddSingleton<ITemplateService>(x => new TemplateService(x.GetRequiredService<DataStorage>()));
+            services.AddSingleton<IFileHandlerService>(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
+            services.AddSingleton<ICampaignService>(x => new CampaignService(x.GetRequiredService<DataStorage>()));
 
             services.AddServerSideBlazor().AddCircuitOptions(o =>
             {

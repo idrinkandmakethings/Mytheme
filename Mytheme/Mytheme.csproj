@@ -58,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\Models\" />
-    <Folder Include="wwwroot\css\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mytheme.ButtonGroup\Mytheme.ButtonGroup.csproj" />

@@ -21,58 +21,40 @@
 <Styled @bind-Classname="@row">
     display: flex;
     height: 100%;
-    &:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
 </Styled>
 
 <Styled @bind-Classname="@columnLeft">
-    flex: 20%;
+    width: 120px;
     height: 100%;
-    @@media(max-height:600px){
-    flex: 30%;
-    }
 </Styled>
 
 <Styled @bind-Classname="@columnRight">
-    flex: 80%;
+    flex-grow: 1;
     height: 100%;
-    @@media(max-height:600px){
-    flex: 70%;
-    }
 </Styled>
 
 <Styled @bind-Classname="@subRow">
     display: flex;
-    justify-content: center;
-    align-items: center;
+    margin: auto;
+    width: 100%;
     height: 100%;
     flex-direction: column;
-    &:after {
-    content: "";
-    display: table;
-    clear: both;
-    }
-    @@media(max-height:400px){
-    flex-direction: row;
-    }
 </Styled>
 
 <Styled @bind-Classname="@subColumn">
+    margin: auto;
     flex: 50%;
-    margin: auto;
-    padding: 10px;
-    & img {
-    display: block;
-    margin: auto;
     width: 100%;
-    max-width: 180px;
-    height: auto;
-    margin: auto;
+    position: relative;
+    & img {
+        width: 100px;
+        height: 100px;
+        margin: auto;
     }
 </Styled>
+
+
+
 
 <div class="@body">
     <div>
@@ -84,10 +66,10 @@
             <div class="@columnLeft" style="background-color:#aaa;">
                 <div class="@subRow">
                     <div class="@subColumn" style="background-color:#aa0;">
-                        <a href=""><img src="images/new_campaign.png" /></a>
+                        <a href=""><img src="/images/new_campaign.png" /></a>
                     </div>
-                    <div class="@subColumn" style="background-color:#0aa;">
-                        <a href=""><img src="images/new_campaign.png" /></a>
+                    <div class="@subColumn" style="">
+                        <a href="campaign"><img src="/images/new_campaign.png" /></a>
                     </div>
                 </div>
             </div>
@@ -98,14 +80,14 @@
 
 @code
 {
-    private string body, campaignSelector, row, columnLeft, columnRight, subRow, subColumn;
+    private string body, campaignSelector, row, columnLeft, columnRight, subRow, subColumn, dummy, imgContainer, centerer;
 
     private List<SliderEntry> entries;
 
     protected override void OnInitialized()
     {
         entries = new List<SliderEntry>
-    {
+{
             new SliderEntry
             {
                 Name = "Test",
@@ -113,6 +95,7 @@
             }
         };
         BreadcrumbService.SetBreadCrumb("");
+        BreadcrumbService.NavBarButtons.Clear();
     }
 
 }

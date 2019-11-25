@@ -1,0 +1,33 @@
+﻿.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+    .tooltip .tooltiptext {
+        user-select: none;
+        visibility: hidden;
+        background: #000000;
+        font-size: 18px;
+        color: #fff;
+        text-shadow: 0px 0px 4px #000000;
+        text-align: center;
+        border-radius: 6px;
+        padding: 2px;
+        position: absolute;
+        z-index: 1;
+        top: 8px;
+        right: 105%;
+        /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+        opacity: 0;
+        transition: opacity 1s;
+    }
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip span:hover {
+    display: none;
+}

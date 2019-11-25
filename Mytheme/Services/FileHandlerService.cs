@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
 using Mytheme.Map.Models;
+using Mytheme.Services.Interfaces;
 using Serilog;
 
 namespace Mytheme.Services
 {
-    public class FileHandlerService
+    public class FileHandlerService : IFileHandlerService
     {
         private const string MAP_FOLDER = "maps";
         private const string IMAGE_FOLDER = "images";

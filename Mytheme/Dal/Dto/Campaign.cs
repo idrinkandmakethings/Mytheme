@@ -27,6 +27,14 @@ namespace Mytheme.Dal.Dto
         public bool Enabled { get; set; }
 
         public List<Adventure> Adventures { get; set; }
+
+        [NotMapped]
+        public Adventure CampaignPages { get; set; }
+
+        public Campaign()
+        {
+            Adventures = new List<Adventure>();
+        }
     }
 
     public class Adventure
@@ -55,6 +63,12 @@ namespace Mytheme.Dal.Dto
 
         public List<Page> Pages { get; set; }
         public List<MapPage> MapPages { get; set; }
+
+        public Adventure()
+        {
+            Pages = new List<Page>();
+            MapPages = new List<MapPage>();
+        }
     }
 
     public class Page
@@ -62,7 +76,7 @@ namespace Mytheme.Dal.Dto
         [Key]
         public string Id { get; set; }
         public string FK_Adventure { get; set; }
-
+        
         [Required]
         public string Name { get; set; }
         [Required]
@@ -108,6 +122,11 @@ namespace Mytheme.Dal.Dto
 
         [ForeignKey(nameof(FK_Adventure))]
         public Adventure Adventure { get; set; }
+
+        public MapPage()
+        {
+            MapMarkers = new List<MapMarker>();
+        }
     }
 
     public class MapMarker

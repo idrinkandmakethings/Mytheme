@@ -49,6 +49,7 @@ namespace Mytheme.Map.Utility
 
         private MarkupString GetSvgString(string dValue, string transform = "")
         {
-            return  new MarkupString($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{Size}\" height=\"{Size}\" viewBox=\"0 0 8 8\">\r\n  <path style=\"fill: {FillColor}\" d=\"{dValue}\" {transform} />\r\n</svg>");  }
+            return  new MarkupString($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{Size}\" height=\"{Size}\" viewBox=\"0 0 8 8\">\r\n  <path style=\"fill: {FillColor}\" d=\"{dValue}\" {transform} />\r\n</svg>");
+        }
     }
 }

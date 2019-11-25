@@ -8,7 +8,6 @@
 
 @inject IStyled Styled
 @inject ITypography Typography
-
 <!--
 Colors
     pale gold - #C0B283
@@ -89,6 +88,33 @@ Colors
     z-index: 2010;
 </Styled>
 
+<Styled @bind-Classname="@topNavBody">
+    height: 58px;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+</Styled>
+
+<Styled @bind-Classname="@topNavTitle">
+    margin: 0;
+    flex-grow: 1;
+    height: 100%;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+</Styled>
+
+<Styled @bind-Classname="@topNavButton">
+    width: 58px;
+    height: 100%;
+    padding: 12px;
+    & a:hover {
+        background-color: #111;
+    }
+</Styled>
+
+
 <Styled @bind-Classname="@topNavComponents">
     margin: 0;
     float: left;
@@ -116,7 +142,7 @@ Colors
     padding: 70px 20px 30px;
 </Styled>
 
-<Modal/>
+<Modal />
 
 <div class="@sideNav">
     <span class="closeBtn">&times;</span>
@@ -128,8 +154,15 @@ Colors
 </div>
 
 <div class="@topNav">
-    <a @onclick="ToggleNav" class="@topNavComponents">@SvgHelperService.GetMenu(26, "fill: white")</a>
-    <p class="@topNavComponents">@breadCrumb</p>
+    <div class="@topNavBody">
+        <a @onclick="ToggleNav" class="@topNavButton">@SvgHelperService.GetImage(SvgName.Menu, 26, "white")</a>
+        <p class="@topNavTitle">@breadCrumb</p>
+        @foreach (var btn in BreadcrumbService.NavBarButtons)
+        {
+            <a @onclick="@btn.CallBack" class="@topNavButton tooltip">@SvgHelperService.GetImage(btn.Image,26, "white")<span class="tooltiptext">@btn.Name</span></a>
+        }
+    </div>
+    
 </div>
 
 
@@ -139,7 +172,7 @@ Colors
 
 
 @code {
-    private string topNav, topNavComponents, sideNav, mainView;
+    private string topNav, topNavBody, topNavTitle, topNavButton, topNavComponents, sideNav, mainView;
     private string navWidth = "0px";
     private string breadCrumb = "";
 
@@ -184,7 +217,7 @@ Colors
         //StateHasChanged();
     }
 
-    
+
     private void LocationChanged(object sender, LocationChangedEventArgs e)
     {
         navWidth = "0px";

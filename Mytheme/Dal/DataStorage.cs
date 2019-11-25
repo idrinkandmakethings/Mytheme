@@ -49,7 +49,6 @@ namespace Mytheme.Dal
 
             modelBuilder.Entity<FileData>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
 
-            modelBuilder.Entity<Campaign>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<Adventure>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<Page>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<MapPage>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();

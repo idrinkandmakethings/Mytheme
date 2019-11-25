@@ -1,0 +1,73 @@
+﻿@page "/campaign"
+@page "/campaign/{id}"
+
+@using Mytheme.Dal.Dto
+@using Mytheme.Services
+@using Mytheme.Services.Interfaces
+
+@inject BreadcrumbService BreadcrumbService
+@inject ICampaignService CampaignService
+  
+<input type="text" id="name" placeholder="Name" @bind="@campaign.Name" />
+<input type="text" id="desc" placeholder="Description" @bind="@campaign.Description"/>
+<div>
+    <label for="created">Created: </label><span id="created">@campaign.DateCreated.ToShortDateString()</span>
+</div>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private Campaign campaign;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            Id = Guid.NewGuid().ToString();
+
+            BreadcrumbService.SetBreadCrumb("New Campaign");
+            campaign = new Campaign
+            {
+                Id = Id,
+                DateCreated = DateTime.Now,
+                CampaignPages =  new Adventure
+                {
+                    Id = Id
+                }
+            };
+
+            campaign.Adventures.Add(campaign.CampaignPages);
+        }
+        else
+        {
+            var result = await CampaignService.GetCampaign(Id);
+
+            if (result.IsSuccess)
+            {
+                campaign = result.Result;
+            }
+        }
+
+        BreadcrumbService.NavBarButtons.Clear();
+        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Edit",SvgName.Edit, Edit));
+        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Import",SvgName.Bug, Bug));
+        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Export",SvgName.Bug, Bug));
+    }
+
+    private void Edit()
+    {
+        var test = "";
+    }
+
+    private void Save()
+    {
+
+    }
+
+    private void Bug()
+    {
+        var test = "";
+    }
+}
