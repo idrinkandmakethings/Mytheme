@@ -1,0 +1,78 @@
+﻿@page "/section/parent={parentId}&type={type}"
+@page "/section/id={id}"
+
+@using Mytheme.Dal.Dto
+@using Mytheme.Services
+@using Mytheme.Services.Interfaces
+
+@inject BreadcrumbService BreadcrumbService
+@inject ISectionService SectionService
+  
+<input type="text" id="name" placeholder="Name" @bind="@_section.Name" />
+       <input type="text" id="desc" placeholder="Description" @bind="@_section.Description"/>
+              <div>
+                  <label for="created">Created: </label><span id="created">@_section.DateCreated.ToShortDateString()</span>
+              </div>
+
+              @code {
+
+                  [Parameter]
+                  public string Id { get; set; }
+
+                  [Parameter]
+                  public string ParentId { get; set; }
+
+                  [Parameter]
+                  public SectionType SectionType { get; set; }
+
+
+                  private SectionType subsectionType;
+
+                  private Section _section;
+
+                  protected override async Task OnInitializedAsync()
+                  {
+                      if (string.IsNullOrEmpty(Id))
+                      {
+                          Id = Guid.NewGuid().ToString();
+
+                          BreadcrumbService.SetBreadCrumb($"New ");
+                          _section = new Section
+                          {
+                              Id = Id,
+                              DateCreated = DateTime.Now,
+                              SectionType = SectionType.Campaign
+                          };
+                      }
+                      else
+                      {
+                          var result = await SectionService.GetSection(Id);
+
+                          if (result.IsSuccess)
+                          {
+                              _section = result.Result;
+                          }
+                      }
+
+                      BreadcrumbService.NavBarButtons.Clear();
+                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Save",SvgName.Edit, Edit));
+                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page",SvgName.Bug, Bug));
+                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map",SvgName.Bug, Bug));
+                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Subsection",SvgName.Bug, Bug));
+                  }
+
+                  private void Edit()
+                  {
+                      var test = "";
+                  }
+
+                  private void Save()
+                  {
+
+                  }
+
+                  private void Bug()
+                  {
+                      var test = "";
+                  }
+              }

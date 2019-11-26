@@ -19,8 +19,8 @@ namespace Mytheme.Dal
 
         public DbSet<FileData> FileData { get; set; }
 
-        public DbSet<Campaign> Campaigns { get; set; }
-        public DbSet<Adventure> Adventures { get; set; }
+        public DbSet<Section> Sections { get; set; }
+        
         public DbSet<Page> Pages { get; set; }
         public DbSet<MapPage> MapPages { get; set; }
         public DbSet<MapMarker> MapMarkers { get; set; }
@@ -49,7 +49,8 @@ namespace Mytheme.Dal
 
             modelBuilder.Entity<FileData>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
 
-            modelBuilder.Entity<Adventure>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
+            modelBuilder.Entity<Section>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
+
             modelBuilder.Entity<Page>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<MapPage>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<MapMarker>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
