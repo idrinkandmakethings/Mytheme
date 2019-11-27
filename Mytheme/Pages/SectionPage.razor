@@ -1,78 +1,155 @@
-﻿@page "/section/parent={parentId}&type={type}"
-@page "/section/id={id}"
+﻿@page "/section/create/{parentId}/{type}"
+@page "/section/{id}"
+@page "/section"
 
 @using Mytheme.Dal.Dto
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
+@using Serilog
 
 @inject BreadcrumbService BreadcrumbService
 @inject ISectionService SectionService
-  
+@inject NavigationManager NavigationManager
+
 <input type="text" id="name" placeholder="Name" @bind="@_section.Name" />
-       <input type="text" id="desc" placeholder="Description" @bind="@_section.Description"/>
-              <div>
-                  <label for="created">Created: </label><span id="created">@_section.DateCreated.ToShortDateString()</span>
-              </div>
+<input type="text" id="desc" placeholder="Description" @bind="@_section.Description" />
+<div>
+    <label for="created">Created: </label><span id="created">@_section.DateCreated.ToShortDateString()</span>
+</div>
 
-              @code {
+@code {
 
-                  [Parameter]
-                  public string Id { get; set; }
+    [Parameter]
+    public string Id { get; set; }
 
-                  [Parameter]
-                  public string ParentId { get; set; }
+    [Parameter]
+    public string ParentId { get; set; }
 
-                  [Parameter]
-                  public SectionType SectionType { get; set; }
+    [Parameter]
+    public string Type { get; set; }
 
 
-                  private SectionType subsectionType;
+    private SectionType sectionType;
 
-                  private Section _section;
+    private SectionType subsectionType;
 
-                  protected override async Task OnInitializedAsync()
-                  {
-                      if (string.IsNullOrEmpty(Id))
-                      {
-                          Id = Guid.NewGuid().ToString();
+    private Section _section;
 
-                          BreadcrumbService.SetBreadCrumb($"New ");
-                          _section = new Section
-                          {
-                              Id = Id,
-                              DateCreated = DateTime.Now,
-                              SectionType = SectionType.Campaign
-                          };
-                      }
-                      else
-                      {
-                          var result = await SectionService.GetSection(Id);
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var result = await SectionService.GetSection(Id);
 
-                          if (result.IsSuccess)
-                          {
-                              _section = result.Result;
-                          }
-                      }
+            if (result.IsSuccess)
+            {
+                _section = result.Result;
+                sectionType = _section.SectionType;
+            }
+        }
+        else if (!string.IsNullOrEmpty(ParentId))
+        {
+            try
+            {
+                sectionType = (SectionType) Enum.Parse(typeof(SectionType), Type);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Error parsing route arg enum. ex:{e.Message}");
+                sectionType = SectionType.Campaign;
+            }
 
-                      BreadcrumbService.NavBarButtons.Clear();
-                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Save",SvgName.Edit, Edit));
-                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page",SvgName.Bug, Bug));
-                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map",SvgName.Bug, Bug));
-                      BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Subsection",SvgName.Bug, Bug));
-                  }
+            Id = Guid.NewGuid().ToString();
 
-                  private void Edit()
-                  {
-                      var test = "";
-                  }
+            BreadcrumbService.SetBreadCrumb($"New {sectionType.ToString()}");
 
-                  private void Save()
-                  {
+            _section = new Section
+            {
+                Id = Id,
+                DateCreated = DateTime.Now,
+                SectionType = sectionType,
+                Parent = ParentId,
+            };
+        }
+        else
+        {
+            sectionType = SectionType.Campaign;
 
-                  }
+            Id = Guid.NewGuid().ToString();
 
-                  private void Bug()
-                  {
-                      var test = "";
-                  }
-              }
+            BreadcrumbService.SetBreadCrumb($"New Campaign");
+
+            _section = new Section
+            {
+                Id = Id,
+                DateCreated = DateTime.Now,
+                SectionType = SectionType.Campaign,
+                Parent = Guid.Empty.ToString(),
+            };
+        }
+
+        BreadcrumbService.NavBarButtons.Clear();
+        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
+
+        if (sectionType != SectionType.Section)
+        {
+            var sub = string.Empty;
+
+            switch (subsectionType)
+            {
+                case SectionType.Campaign:
+                    sub= SectionType.Adventure.ToString();
+                    break;
+                case SectionType.Adventure:
+                    sub = SectionType.Chapter.ToString();
+                    break;
+                case SectionType.Chapter:
+                    sub = SectionType.Section.ToString();
+                    break;
+            }
+        
+            BreadcrumbService.NavBarButtons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
+        }
+        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page", SvgName.Page, AddPage));
+        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map", SvgName.Map, AddMapPage));
+
+    }
+
+    private void SaveSection()
+    {
+        var test = "";
+    }
+
+    private void AddSubsection()
+    {
+        SectionType newSection;
+
+        switch (sectionType)
+        {
+            case SectionType.Campaign:
+                newSection = SectionType.Adventure;
+                break;
+            case SectionType.Adventure:
+                newSection = SectionType.Chapter;
+                break;
+            case SectionType.Chapter:
+                newSection = SectionType.Section;
+                break;
+            default:
+                newSection = SectionType.Campaign;
+                break;
+        }
+
+        NavigationManager.NavigateTo($"/section/create/{_section.Id}/{newSection}", true);
+    }
+
+    private void AddPage()
+    {
+        var test = "";
+    }
+
+    private void AddMapPage()
+    {
+        var test = "";
+    }
+}
