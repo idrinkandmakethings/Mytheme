@@ -3,32 +3,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Mytheme.Migrations
 {
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Campaigns",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: true),
-                    DateCreated = table.Column<DateTime>(nullable: false),
-                    DateModified = table.Column<DateTime>(nullable: false),
-                    Enabled = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Campaigns", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "FileData",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
                     FileName = table.Column<string>(nullable: false),
+                    DisplayName = table.Column<string>(nullable: false),
                     FileType = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -50,6 +35,26 @@ namespace Mytheme.Migrations
                 {
                     table.PrimaryKey("PK_RandomTables", x => x.Id);
                     table.UniqueConstraint("AK_RandomTables_Name", x => x.Name);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Sections",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Parent = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
+                    SectionType = table.Column<int>(nullable: false),
+                    Order = table.Column<int>(nullable: false),
+                    Icon = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateModified = table.Column<DateTime>(nullable: false),
+                    Enabled = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sections", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,29 +102,6 @@ namespace Mytheme.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Adventures",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    FK_Campaign = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: true),
-                    DateCreated = table.Column<DateTime>(nullable: false),
-                    DateModified = table.Column<DateTime>(nullable: false),
-                    Enabled = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Adventures", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Adventures_Campaigns_FK_Campaign",
-                        column: x => x.FK_Campaign,
-                        principalTable: "Campaigns",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TableEntry",
                 columns: table => new
                 {
@@ -137,6 +119,54 @@ namespace Mytheme.Migrations
                         name: "FK_TableEntry_RandomTables_FK_RandomTable",
                         column: x => x.FK_RandomTable,
                         principalTable: "RandomTables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MapPages",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    FK_Section = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
+                    Link = table.Column<string>(nullable: false),
+                    Image = table.Column<string>(nullable: false),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateModified = table.Column<DateTime>(nullable: false),
+                    Enabled = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MapPages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MapPages_Sections_FK_Section",
+                        column: x => x.FK_Section,
+                        principalTable: "Sections",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Pages",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    FK_Section = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
+                    Link = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(nullable: false),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateModified = table.Column<DateTime>(nullable: false),
+                    Enabled = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Pages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Pages_Sections_FK_Section",
+                        column: x => x.FK_Section,
+                        principalTable: "Sections",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -167,52 +197,6 @@ namespace Mytheme.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MapPages",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    FK_Adventure = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: false),
-                    Image = table.Column<string>(nullable: false),
-                    DateCreated = table.Column<DateTime>(nullable: false),
-                    DateModified = table.Column<DateTime>(nullable: false),
-                    Enabled = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MapPages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MapPages_Adventures_FK_Adventure",
-                        column: x => x.FK_Adventure,
-                        principalTable: "Adventures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Pages",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    FK_Adventure = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: false),
-                    Content = table.Column<string>(nullable: false),
-                    DateCreated = table.Column<DateTime>(nullable: false),
-                    DateModified = table.Column<DateTime>(nullable: false),
-                    Enabled = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Pages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Pages_Adventures_FK_Adventure",
-                        column: x => x.FK_Adventure,
-                        principalTable: "Adventures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MapMarkers",
                 columns: table => new
                 {
@@ -236,24 +220,19 @@ namespace Mytheme.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Adventures_FK_Campaign",
-                table: "Adventures",
-                column: "FK_Campaign");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MapMarkers_FK_MapPage",
                 table: "MapMarkers",
                 column: "FK_MapPage");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MapPages_FK_Adventure",
+                name: "IX_MapPages_FK_Section",
                 table: "MapPages",
-                column: "FK_Adventure");
+                column: "FK_Section");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pages_FK_Adventure",
+                name: "IX_Pages_FK_Section",
                 table: "Pages",
-                column: "FK_Adventure");
+                column: "FK_Section");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TableEntry_FK_RandomTable",
@@ -299,10 +278,7 @@ namespace Mytheme.Migrations
                 name: "Templates");
 
             migrationBuilder.DropTable(
-                name: "Adventures");
-
-            migrationBuilder.DropTable(
-                name: "Campaigns");
+                name: "Sections");
         }
     }
 }

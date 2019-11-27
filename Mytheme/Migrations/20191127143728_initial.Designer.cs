@@ -9,8 +9,8 @@ using Mytheme.Dal;
 namespace Mytheme.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20191124193654_Initial")]
-    partial class Initial
+    [Migration("20191127143728_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -18,73 +18,14 @@ namespace Mytheme.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.0.0");
 
-            modelBuilder.Entity("Mytheme.Dal.Dto.Adventure", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("Enabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("FK_Campaign")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FK_Campaign");
-
-                    b.ToTable("Adventures");
-                });
-
-            modelBuilder.Entity("Mytheme.Dal.Dto.Campaign", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("Enabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Campaigns");
-                });
-
             modelBuilder.Entity("Mytheme.Dal.Dto.FileData", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FileName")
@@ -151,10 +92,14 @@ namespace Mytheme.Migrations
                     b.Property<bool>("Enabled")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("FK_Adventure")
+                    b.Property<string>("FK_Section")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Link")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -164,7 +109,7 @@ namespace Mytheme.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FK_Adventure");
+                    b.HasIndex("FK_Section");
 
                     b.ToTable("MapPages");
                 });
@@ -190,7 +135,11 @@ namespace Mytheme.Migrations
                     b.Property<bool>("Enabled")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("FK_Adventure")
+                    b.Property<string>("FK_Section")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Link")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -199,7 +148,7 @@ namespace Mytheme.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FK_Adventure");
+                    b.HasIndex("FK_Section");
 
                     b.ToTable("Pages");
                 });
@@ -228,6 +177,47 @@ namespace Mytheme.Migrations
                     b.HasAlternateKey("Name");
 
                     b.ToTable("RandomTables");
+                });
+
+            modelBuilder.Entity("Mytheme.Dal.Dto.Section", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateModified")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Parent")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SectionType")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("Mytheme.Dal.Dto.TableCategory", b =>
@@ -357,13 +347,6 @@ namespace Mytheme.Migrations
                     b.ToTable("TemplateField");
                 });
 
-            modelBuilder.Entity("Mytheme.Dal.Dto.Adventure", b =>
-                {
-                    b.HasOne("Mytheme.Dal.Dto.Campaign", "Campaign")
-                        .WithMany("Adventures")
-                        .HasForeignKey("FK_Campaign");
-                });
-
             modelBuilder.Entity("Mytheme.Dal.Dto.MapMarker", b =>
                 {
                     b.HasOne("Mytheme.Dal.Dto.MapPage", "MapPage")
@@ -373,16 +356,16 @@ namespace Mytheme.Migrations
 
             modelBuilder.Entity("Mytheme.Dal.Dto.MapPage", b =>
                 {
-                    b.HasOne("Mytheme.Dal.Dto.Adventure", "Adventure")
-                        .WithMany("MapPages")
-                        .HasForeignKey("FK_Adventure");
+                    b.HasOne("Mytheme.Dal.Dto.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("FK_Section");
                 });
 
             modelBuilder.Entity("Mytheme.Dal.Dto.Page", b =>
                 {
-                    b.HasOne("Mytheme.Dal.Dto.Adventure", "Adventure")
-                        .WithMany("Pages")
-                        .HasForeignKey("FK_Adventure");
+                    b.HasOne("Mytheme.Dal.Dto.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("FK_Section");
                 });
 
             modelBuilder.Entity("Mytheme.Dal.Dto.TableEntry", b =>
