@@ -15,7 +15,6 @@ Colors
     paper - #F4F4F4
     charcoal - #373737
 -->
-
     <Styled>
         html {
         color: {colors.text-color};
@@ -32,6 +31,28 @@ Colors
         background-color: {colors.hr};
         }
     </Styled>
+
+<Styled>
+    input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    }
+
+    textarea {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    }
+</Styled>
 
 
 <Styled @bind-Classname="@sideNav">
@@ -111,7 +132,7 @@ Colors
     height: 100%;
     padding: 12px;
     & a:hover {
-        background-color: #111;
+    background-color: #111;
     }
 </Styled>
 
@@ -160,10 +181,10 @@ Colors
         <p class="@topNavTitle">@breadCrumb</p>
         @foreach (var btn in BreadcrumbService.NavBarButtons)
         {
-            <a @onclick="@btn.CallBack" class="@topNavButton tooltip">@SvgHelperService.GetImage(btn.Image,26, "white")<span class="tooltiptext">@btn.Name</span></a>
+            <a @onclick="@btn.CallBack" class="@topNavButton tooltip">@SvgHelperService.GetImage(btn.Image, 26, "white")<span class="tooltiptext">@btn.Name</span></a>
         }
     </div>
-    
+
 </div>
 
 
