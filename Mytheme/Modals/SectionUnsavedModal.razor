@@ -1,0 +1,51 @@
+﻿
+@inject IModalService ModalService;
+
+<Styled @bind-Classname="@contentView">
+    display: block;
+</Styled>
+
+<Styled @bind-Classname="@validationError">
+    display: @validationDisplay;
+    color: #8b0000;
+</Styled>
+
+<div>
+    <span class="@validationError">@errorMessage</span>
+    <label for="name">Name: </label>
+    <input id="name" @bind="@Name" />
+    <div>
+        <button @onclick="@(() => {ModalService.Cancel();})">Cancel</button>
+        <button @onclick="@HandleSubmit">Add</button>
+    </div>
+</div>
+
+@code {
+    private string contentView, validationError;
+
+    private string validationDisplay = "none";
+
+    private string errorMessage;
+
+    [Parameter]
+    public string Name { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrEmpty(Name))
+        {
+            errorMessage = "Name cannot be blank";
+            validationDisplay = "block";
+            StateHasChanged();
+            return;
+        }
+
+
+
+        errorMessage = "Name already exists";
+        validationDisplay = "block";
+        StateHasChanged();
+
+        ModalService.Close(ModalResult.Ok<string>(Name));
+    }
+}

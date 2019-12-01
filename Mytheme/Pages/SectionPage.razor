@@ -6,10 +6,13 @@
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Serilog
+@using Serilog.Core
+@using Logger = Mytheme.Utility.Logger
 
 @inject BreadcrumbService BreadcrumbService
-@inject ISectionService SectionService
 @inject NavigationManager NavigationManager
+@inject IModalService ModalService
+@inject ISectionService SectionService
 
 <input type="text" id="name" placeholder="Name" @bind="@_section.Name" />
 <input type="text" id="desc" placeholder="Description" @bind="@_section.Description" />
@@ -51,7 +54,7 @@
         {
             try
             {
-                sectionType = (SectionType) Enum.Parse(typeof(SectionType), Type);
+                sectionType = (SectionType)Enum.Parse(typeof(SectionType), Type);
             }
             catch (Exception e)
             {
@@ -59,7 +62,7 @@
                 sectionType = SectionType.Campaign;
             }
 
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.Empty.ToString();
 
             BreadcrumbService.SetBreadCrumb($"New {sectionType.ToString()}");
 
@@ -75,7 +78,7 @@
         {
             sectionType = SectionType.Campaign;
 
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.Empty.ToString();
 
             BreadcrumbService.SetBreadCrumb($"New Campaign");
 
@@ -98,7 +101,7 @@
             switch (subsectionType)
             {
                 case SectionType.Campaign:
-                    sub= SectionType.Adventure.ToString();
+                    sub = SectionType.Adventure.ToString();
                     break;
                 case SectionType.Adventure:
                     sub = SectionType.Chapter.ToString();
@@ -107,7 +110,7 @@
                     sub = SectionType.Section.ToString();
                     break;
             }
-        
+
             BreadcrumbService.NavBarButtons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
         }
         BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page", SvgName.Page, AddPage));
@@ -117,11 +120,23 @@
 
     private void SaveSection()
     {
-        var test = "";
+        try
+        {
+            Id = Guid.NewGuid().ToString();
+            _section.Id = Id;
+            var result = SectionService.AddSection(_section);
+            BreadcrumbService.SetBreadCrumb(_section.Name);
+        }
+        catch (Exception e)
+        {
+            Logger.LogException(e, $"Exception saving section {_section.Name}");
+        }
     }
 
     private void AddSubsection()
     {
+        
+
         SectionType newSection;
 
         switch (sectionType)
@@ -140,6 +155,12 @@
                 break;
         }
 
+        if (!IsSaved())
+        {
+            ModalService.ShowInfoModal($"{sectionType} Not Saved", $"You must save this {sectionType} before adding {(newSection == SectionType.Adventure ? "an" : "a")} {newSection}");
+            return;
+        }
+
         NavigationManager.NavigateTo($"/section/create/{_section.Id}/{newSection}", true);
     }
 
@@ -151,5 +172,10 @@
     private void AddMapPage()
     {
         var test = "";
+    }
+
+    private bool IsSaved()
+    {
+        return _section.Id != Guid.Empty.ToString();
     }
 }

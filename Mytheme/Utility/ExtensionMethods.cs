@@ -1,9 +1,19 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using Serilog;
 
 namespace Mytheme.Utility
 {
+    public static class Logger
+    {
+        public static void LogException(Exception ex, string message)
+        {
+            Log.Error($"{message} ex: {ex.Message}");
+            Log.Debug(ex.StackTrace);
+        }
+    }
+
     public static class ExtensionMethods
     {
         public static string GetDescription<T>(this T enumerationValue)
@@ -31,5 +41,6 @@ namespace Mytheme.Utility
             //If we have no description attribute, just return the ToString of the enum
             return enumerationValue.ToString();
         }
+
     }
 }

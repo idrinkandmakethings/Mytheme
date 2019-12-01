@@ -133,7 +133,7 @@
     protected override void OnInitialized()
     {
         ((ModalService)ModalService).OnShow += ShowModal;
-        ModalService.OnClose += CloseModal;
+        ModalService.CloseWindow += CloseModal;
     }
 
     public void ShowModal(string title, RenderFragment content, ModalParameters parameters, ModalOptions options)
@@ -148,7 +148,7 @@
         StateHasChanged();
     }
 
-    internal void CloseModal(ModalResult modalResult)
+    internal void CloseModal()
     {
 
         Title = "";
@@ -168,7 +168,8 @@
     public void Dispose()
     {
         ((ModalService)ModalService).OnShow -= ShowModal;
-        ModalService.OnClose -= CloseModal;
+        ModalService.CloseWindow
+            -= CloseModal;
     }
 
     private void SetModalOptions(ModalOptions options)

@@ -1,0 +1,30 @@
+﻿@using System.Net.Http
+@using Mytheme.Modal.Services
+
+@inject IModalService ModalService;
+
+<Styled @bind-Classname="@contentView">
+    display: block;
+</Styled>
+
+<div>
+    <p>@message</p>
+<div>
+    <button @onclick="@(() => {ModalService.Cancel();})">OK</button>
+</div>
+</div>
+
+@code {
+    private string contentView, validationError;
+
+    private string message;
+
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+
+    protected override void OnInitialized()
+    {
+        message = Parameters?.Get<string>("message") ?? "Error";
+    }
+
+}

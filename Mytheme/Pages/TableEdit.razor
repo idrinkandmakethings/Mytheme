@@ -196,14 +196,13 @@ else
 
     protected void OpenCategoryModal()
     {
-        ModalService.OnClose += OnModalClosed;
         ModalService.Show<AddCategoryModal>("Add Category", null,
             new ModalOptions
             {
                 HeaderColor = "white",
                 HeaderBackgroundColor = "black",
                 PixelWidth = 360
-            });
+            }, OnModalClosed);
     }
 
     private void OnModalClosed(ModalResult result)
@@ -221,8 +220,6 @@ else
                 //nom nom
             }
         }
-
-        ModalService.OnClose -= OnModalClosed;
     }
 
     protected async Task HandleValidSubmit()
@@ -233,9 +230,6 @@ else
     protected async Task SaveTable()
     {
         table.Entries = entries.Select(e => new TableEntry() { Entry = e }).ToList();
-
-
-
 
         if (isUpdate)
         {
