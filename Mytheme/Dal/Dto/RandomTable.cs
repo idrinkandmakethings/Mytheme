@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mytheme.Dal.Dto
 {
-    public class RandomTable
+    public class RandomTable : DtoObject
     {
         [Key]
         public string Id { get; set; }
@@ -22,7 +22,6 @@ namespace Mytheme.Dal.Dto
     public class TableEntry
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string FK_RandomTable { get; set; }
         public string Entry { get; set; }

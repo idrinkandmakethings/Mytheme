@@ -37,7 +37,7 @@
         }
         else
         {
-            var result = await SectionService.GetSection(Id);
+            var result = await SectionService.GetSectionAsync(Id);
 
             if (result.IsSuccess)
             {

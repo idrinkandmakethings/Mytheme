@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Mytheme.Dal.Dto;
 
 namespace Mytheme.Dal
@@ -35,36 +33,13 @@ namespace Mytheme.Dal
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<RandomTable>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-            modelBuilder.Entity<RandomTable>().HasAlternateKey(t => t.Name);
+             modelBuilder.Entity<RandomTable>().HasAlternateKey(t => t.Name);
 
-            modelBuilder.Entity<TableCategory>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-            modelBuilder.Entity<TableCategory>().HasAlternateKey(t => t.Name);
+             modelBuilder.Entity<TableCategory>().HasAlternateKey(t => t.Name);
 
-            modelBuilder.Entity<Template>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<Template>().HasAlternateKey(t => t.Name);
 
-            modelBuilder.Entity<TableCategory>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
             modelBuilder.Entity<TemplateCategory>().HasAlternateKey(t => t.Name);
-
-            modelBuilder.Entity<FileData>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-
-            modelBuilder.Entity<Section>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-
-            modelBuilder.Entity<Page>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-            modelBuilder.Entity<MapPage>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-            modelBuilder.Entity<MapMarker>().Property(b => b.Id).ValueGeneratedOnAdd().HasValueGenerator<StringGuidValueGenerator>();
-
         }
-    }
-
-    public class StringGuidValueGenerator : ValueGenerator<string>
-    {
-        public override string Next(EntityEntry entry)
-        {
-            return Guid.NewGuid().ToString();
-        }
-
-        public override bool GeneratesTemporaryValues => false;
     }
 }

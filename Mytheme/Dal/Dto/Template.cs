@@ -6,7 +6,7 @@ using Mytheme.Templating.TemplateTypes;
 
 namespace Mytheme.Dal.Dto
 {
-    public class Template
+    public class Template : DtoObject
     {
         public Template()
         {

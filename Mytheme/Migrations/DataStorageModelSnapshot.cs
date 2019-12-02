@@ -19,7 +19,6 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.FileData", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DisplayName")
@@ -41,19 +40,10 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.MapMarker", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Enabled")
@@ -76,15 +66,12 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.MapPage", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Enabled")
@@ -115,7 +102,6 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.Page", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Content")
@@ -123,11 +109,9 @@ namespace Mytheme.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Enabled")
@@ -154,7 +138,6 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.RandomTable", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Category")
@@ -180,15 +163,12 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.Section", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -221,7 +201,6 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.TableCategory", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Enabled")
@@ -266,7 +245,6 @@ namespace Mytheme.Migrations
             modelBuilder.Entity("Mytheme.Dal.Dto.Template", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Category")

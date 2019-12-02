@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mytheme.Dal.Dto
 {
-    public class Section
+    public class Section : DtoObject
     {
         [Key]
         public string Id { get; set; }
@@ -21,10 +21,8 @@ namespace Mytheme.Dal.Dto
         public string Description { get; set; }
 
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime DateCreated { get; set; }
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateModified { get; set; }
 
         [Required]
@@ -80,10 +78,8 @@ namespace Mytheme.Dal.Dto
         public string Content { get; set; }
 
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime DateCreated { get; set; }
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateModified { get; set; }
 
         [Required]
@@ -108,10 +104,8 @@ namespace Mytheme.Dal.Dto
         public string Image { get; set; }
 
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime DateCreated { get; set; }
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateModified { get; set; }
 
         [Required]
@@ -138,13 +132,6 @@ namespace Mytheme.Dal.Dto
         public string Name { get; set; }
         [Required]
         public string Content { get; set; }
-
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public DateTime DateCreated { get; set; }
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime DateModified { get; set; }
 
         [Required]
         public bool Enabled { get; set; }

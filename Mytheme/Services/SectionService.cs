@@ -18,7 +18,7 @@ namespace Mytheme.Services
         }
 
 
-        public async Task<DalResult<Section[]>> GetAllCampaigns()
+        public async Task<DalResult<Section[]>> GetAllCampaignsAsync()
         {
             return await Task.Run( () =>
             {
@@ -37,16 +37,25 @@ namespace Mytheme.Services
             });
         }
 
-        public async Task<DalResult> AddSection(Section section)
+        public async Task<DalResult> AddSectionAsync(Section section)
         {
             return await Task.Run(async () =>
             {
                 try
                 {
+                    section.Id = Guid.NewGuid().ToString();
+                    section.DateCreated = DateTime.Now;
+                    section.DateModified = DateTime.Now;
+                    
+                    if (!section.TryValidate(out var errors))
+                    {
+                        return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
+                    }
+                    
                     var result = await db.Sections.AddAsync(section);
                     db.SaveChanges(true);
 
-                    return new DalResult(DalStatus.Success);
+                    return new DalResult(DalStatus.Success, section.Id);
                 }
                 catch (Exception e)
                 {
@@ -57,12 +66,14 @@ namespace Mytheme.Services
             });
         }
 
-        public async Task<DalResult> UpdateSection(Section section)
+        public async Task<DalResult> UpdateSectionAsync(Section section)
         {
             return await Task.Run(() =>
             {
                 try
                 {
+                    section.DateModified = DateTime.Now;
+
                     db.Sections.Update(section);
                     db.SaveChanges(true);
 
@@ -77,7 +88,7 @@ namespace Mytheme.Services
             });
         }
 
-        public async Task<DalResult<Section>> GetSection(string id)
+        public async Task<DalResult<Section>> GetSectionAsync(string id)
         {
             return await Task.Run(async () =>
             {
@@ -86,7 +97,7 @@ namespace Mytheme.Services
                     var result = db.Sections
                         .First(x=> x.Id == id);
 
-                    var childResult = await GetAllSectionsForParent(id);
+                    var childResult = await GetAllSectionsForParentAsync(id);
 
                     result.Children = childResult.Result.ToList();
 
@@ -107,7 +118,7 @@ namespace Mytheme.Services
             });
         }
 
-        public async Task<DalResult<Section[]>> GetAllSectionsForParent(string id)
+        public async Task<DalResult<Section[]>> GetAllSectionsForParentAsync(string id)
         {
             return await Task.Run(async () =>
             {
@@ -117,7 +128,7 @@ namespace Mytheme.Services
 
                     foreach (var section in result)
                     {
-                        var childResult = await GetAllSectionsForParent(section.Id);
+                        var childResult = await GetAllSectionsForParentAsync(section.Id);
 
                         section.Children = childResult.Result.ToList();
 

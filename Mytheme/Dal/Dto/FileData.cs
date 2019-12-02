@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mytheme.Dal.Dto
 {
-    public class FileData
+    public class FileData : DtoObject
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

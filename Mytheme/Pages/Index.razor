@@ -1,8 +1,11 @@
 ﻿@page "/"
+@using Mytheme.Dal.Dto
 @using Mytheme.Services
+@using Mytheme.Services.Interfaces
 @using Mytheme.Slider.Models
 
 @inject BreadcrumbService BreadcrumbService
+@inject ISectionService SectionService
 
 <Styled @bind-Classname="@body">
     position: relative;
@@ -24,7 +27,7 @@
 </Styled>
 
 <Styled @bind-Classname="@columnLeft">
-    width: 120px;
+    width: 256px;
     height: 100%;
 </Styled>
 
@@ -39,20 +42,48 @@
     width: 100%;
     height: 100%;
     flex-direction: column;
-</Styled>
-
-<Styled @bind-Classname="@subColumn">
-    margin: auto;
-    flex: 50%;
-    width: 100%;
-    position: relative;
     & img {
-        width: 100px;
-        height: 100px;
-        margin: auto;
+    width: 100px;
+    height: 100px;
+    margin: auto;
     }
 </Styled>
 
+<Styled @bind-Classname="@subColumnUpper">
+    margin: auto;
+    flex-grow: 1;
+    width: 100%;
+</Styled>
+
+<Styled @bind-Classname="@subColumnLower">
+    height: 100px;
+    width: 100%;
+</Styled>
+
+<Styled @bind-Classname="@button">
+    height: 100%;
+    width: 100%;
+    position: relative;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 28px;
+    cursor: pointer;
+</Styled>
+
+
+<Styled @bind-Classname="@buttonLabel">
+    margin: 0;
+    width: 100%;
+    text-align:center;
+    overflow-wrap: normal;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+</Styled>
 
 
 
@@ -65,35 +96,54 @@
         <div class="@row">
             <div class="@columnLeft" style="background-color:#aaa;">
                 <div class="@subRow">
-                    <div class="@subColumn" style="background-color:#aa0;">
+                    <div class="@subColumnUpper" style="background-color:#aa0;">
                         <a href=""><img src="/images/new_campaign.png" /></a>
                     </div>
-                    <div class="@subColumn" style="">
-                        <a href="section"><img src="/images/new_campaign.png" /></a>
+                    <div class="@subColumnLower" style="">
+                        <a class="@button" href="section">
+                            <div class="@buttonLabel">New Campaign</div>
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="@columnRight" style="background-color:#bbb;">right</div>
+            <div class="@columnRight" style="background-color:#bbb;">
+                <ul>
+                    @foreach (var campaign in campaigns)
+                    {
+                        <li>
+                            <div class="@campaignEntry">
+                                <div>
+                                    Icon
+                                </div>
+                                <div>
+                                    @campaign.Name
+                                    <span id="created">@campaign.DateCreated.ToShortDateString()</span>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
 @code
 {
-    private string body, campaignSelector, row, columnLeft, columnRight, subRow, subColumn, dummy, imgContainer, centerer;
+    private string body, campaignSelector, row, columnLeft, columnRight, subRow, subColumnUpper, subColumnLower, dummy, imgContainer, centerer;
 
-    private List<SliderEntry> entries;
+    private string campaignEntry, button, buttonLabel;
 
-    protected override void OnInitialized()
+    private List<Section> campaigns = new List<Section>();
+
+
+
+    protected override async Task OnInitializedAsync()
     {
-        entries = new List<SliderEntry>
-{
-            new SliderEntry
-            {
-                Name = "Test",
-                BackgroundImageUrl = "/images/new_campaign.png"
-            }
-        };
+        campaigns = (await SectionService.GetAllCampaignsAsync()).Result.ToList();
+
+        campaigns.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.Ordinal));
+
         BreadcrumbService.SetBreadCrumb("");
         BreadcrumbService.NavBarButtons.Clear();
     }

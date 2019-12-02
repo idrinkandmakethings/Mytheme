@@ -2,6 +2,7 @@
 @page "/section/{id}"
 @page "/section"
 
+@using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
@@ -42,7 +43,7 @@
     {
         if (!string.IsNullOrEmpty(Id))
         {
-            var result = await SectionService.GetSection(Id);
+            var result = await SectionService.GetSectionAsync(Id);
 
             if (result.IsSuccess)
             {
@@ -118,14 +119,31 @@
 
     }
 
-    private void SaveSection()
+    private async void SaveSection()
     {
         try
         {
-            Id = Guid.NewGuid().ToString();
-            _section.Id = Id;
-            var result = SectionService.AddSection(_section);
-            BreadcrumbService.SetBreadCrumb(_section.Name);
+            DalResult result;
+
+            if (_section.Id == Guid.Empty.ToString())
+            {
+                result = await SectionService.AddSectionAsync(_section);
+            }
+            else
+            {
+                result = await SectionService.UpdateSectionAsync(_section);
+            }
+            
+            if (result.IsSuccess)
+            {
+                _section.Id = result.Message;
+                Id = _section.Id;
+                BreadcrumbService.SetBreadCrumb(_section.Name);
+            }
+            else
+            {
+                ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
+            }
         }
         catch (Exception e)
         {
@@ -135,7 +153,7 @@
 
     private void AddSubsection()
     {
-        
+
 
         SectionType newSection;
 
