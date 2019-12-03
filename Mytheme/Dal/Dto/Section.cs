@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mytheme.Dal.Dto
 {
-    public class Section : DtoObject
+    public class Section //: DtoObject
     {
         [Key]
         public string Id { get; set; }
@@ -61,6 +61,11 @@ namespace Mytheme.Dal.Dto
         {
             Name = name;
             Link = link;
+        }
+
+        public PageLink()
+        {
+            
         }
     }
 

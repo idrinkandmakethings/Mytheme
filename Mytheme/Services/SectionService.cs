@@ -47,10 +47,11 @@ namespace Mytheme.Services
                     section.DateCreated = DateTime.Now;
                     section.DateModified = DateTime.Now;
                     
-                    if (!section.TryValidate(out var errors))
-                    {
-                        return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-                    }
+                    //if (!section.TryValidate(out var errors))
+                    //{
+                    //    section.Id = Guid.Empty.ToString();
+                    //    return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
+                    //}
                     
                     var result = await db.Sections.AddAsync(section);
                     db.SaveChanges(true);
@@ -74,6 +75,11 @@ namespace Mytheme.Services
                 {
                     section.DateModified = DateTime.Now;
 
+                    //if (!section.TryValidate(out var errors))
+                    //{
+                    //    return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
+                    //}
+
                     db.Sections.Update(section);
                     db.SaveChanges(true);
 
@@ -94,15 +100,15 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    var result = db.Sections
-                        .First(x=> x.Id == id);
+                    var result = db.Sections.Find(id);
+
 
                     var childResult = await GetAllSectionsForParentAsync(id);
 
                     result.Children = childResult.Result.ToList();
 
                     result.PageIds = db.Pages.Where(x => x.FK_Section == result.Id)
-                        .Select(x => new PageLink(x.Name, x.Link)).ToList();
+                       .Select(x => new PageLink(x.Name, x.Link)).ToList();
 
                     result.MapPageIds = db.MapPages.Where(x => x.FK_Section == result.Id)
                         .Select(x => new PageLink(x.Name, x.Link)).ToList();

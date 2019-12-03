@@ -1,10 +1,12 @@
 ﻿@page "/"
+@using Microsoft.EntityFrameworkCore.Diagnostics
 @using Mytheme.Dal.Dto
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Mytheme.Slider.Models
 
 @inject BreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager
 @inject ISectionService SectionService
 
 <Styled @bind-Classname="@body">
@@ -107,22 +109,29 @@
                 </div>
             </div>
             <div class="@columnRight" style="background-color:#bbb;">
-                <ul>
-                    @foreach (var campaign in campaigns)
-                    {
-                        <li>
-                            <div class="@campaignEntry">
-                                <div>
-                                    Icon
-                                </div>
-                                <div>
-                                    @campaign.Name
-                                    <span id="created">@campaign.DateCreated.ToShortDateString()</span>
-                                </div>
-                            </div>
-                        </li>
-                    }
-                </ul>
+                @if (campaigns != null)
+                {
+                    <Grid Items="campaigns" Context="campaign">
+                        <GridHeader>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                        </GridHeader>
+                        <GridRow>
+                            <tr @onclick="@(() => NavigationManager.NavigateTo($"section/{campaign.Id}"))">
+                                <td>@campaign.Name</td>
+                                <td>@campaign.Description</td>
+                                <td>@campaign.DateCreated.ToShortDateString()</td>
+                            </tr>
+                        </GridRow>
+                    </Grid>
+                }
+                else
+                {
+                    <div>
+                        Loading...
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -134,15 +143,14 @@
 
     private string campaignEntry, button, buttonLabel;
 
-    private List<Section> campaigns = new List<Section>();
+    private Section[] campaigns;
 
 
 
     protected override async Task OnInitializedAsync()
     {
-        campaigns = (await SectionService.GetAllCampaignsAsync()).Result.ToList();
+        campaigns = (await SectionService.GetAllCampaignsAsync()).Result;
 
-        campaigns.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.Ordinal));
 
         BreadcrumbService.SetBreadCrumb("");
         BreadcrumbService.NavBarButtons.Clear();

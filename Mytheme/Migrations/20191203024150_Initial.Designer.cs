@@ -9,7 +9,7 @@ using Mytheme.Dal;
 namespace Mytheme.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20191201181837_Initial")]
+    [Migration("20191203024150_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

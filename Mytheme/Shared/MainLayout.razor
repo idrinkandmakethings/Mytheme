@@ -222,6 +222,7 @@ Colors
     private void UpdateBreadCrumb(string text)
     {
         breadCrumb = text;
+        StateHasChanged();
     }
 
     protected void ToggleNav()

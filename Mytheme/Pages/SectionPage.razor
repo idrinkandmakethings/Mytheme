@@ -1,4 +1,4 @@
-﻿@page "/section/create/{parentId}/{type}"
+﻿@page "/section/create/{parentId}/{stype}"
 @page "/section/{id}"
 @page "/section"
 
@@ -7,19 +7,21 @@
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Serilog
-@using Serilog.Core
-@using Logger = Mytheme.Utility.Logger
+
 
 @inject BreadcrumbService BreadcrumbService
 @inject NavigationManager NavigationManager
 @inject IModalService ModalService
 @inject ISectionService SectionService
 
-<input type="text" id="name" placeholder="Name" @bind="@_section.Name" />
-<input type="text" id="desc" placeholder="Description" @bind="@_section.Description" />
-<div>
-    <label for="created">Created: </label><span id="created">@_section.DateCreated.ToShortDateString()</span>
-</div>
+@if (_section != null)
+{
+    <input type="text" id="name" placeholder="Name" @bind="@_section.Name"/>
+    <input type="text" id="desc" placeholder="Description" @bind="@_section.Description"/>
+    <div>
+        <label for="created">Created: </label><span id="created">@_section.DateCreated.ToShortDateString()</span>
+    </div>
+}
 
 @code {
 
@@ -30,12 +32,11 @@
     public string ParentId { get; set; }
 
     [Parameter]
-    public string Type { get; set; }
+    public string SType { get; set; }
 
 
     private SectionType sectionType;
 
-    private SectionType subsectionType;
 
     private Section _section;
 
@@ -48,14 +49,19 @@
             if (result.IsSuccess)
             {
                 _section = result.Result;
+                
+                Id = _section.Id;
+                
                 sectionType = _section.SectionType;
+
+                BreadcrumbService.SetBreadCrumb(_section.Name);
             }
         }
         else if (!string.IsNullOrEmpty(ParentId))
         {
             try
             {
-                sectionType = (SectionType)Enum.Parse(typeof(SectionType), Type);
+                sectionType = (SectionType)Enum.Parse(typeof(SectionType), SType);
             }
             catch (Exception e)
             {
@@ -70,6 +76,7 @@
             _section = new Section
             {
                 Id = Id,
+                Enabled = true,
                 DateCreated = DateTime.Now,
                 SectionType = sectionType,
                 Parent = ParentId,
@@ -86,6 +93,7 @@
             _section = new Section
             {
                 Id = Id,
+                Enabled = true,
                 DateCreated = DateTime.Now,
                 SectionType = SectionType.Campaign,
                 Parent = Guid.Empty.ToString(),
@@ -99,7 +107,7 @@
         {
             var sub = string.Empty;
 
-            switch (subsectionType)
+            switch (sectionType)
             {
                 case SectionType.Campaign:
                     sub = SectionType.Adventure.ToString();
@@ -116,13 +124,11 @@
         }
         BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page", SvgName.Page, AddPage));
         BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map", SvgName.Map, AddMapPage));
-
     }
 
     private async void SaveSection()
     {
-        try
-        {
+
             DalResult result;
 
             if (_section.Id == Guid.Empty.ToString())
@@ -133,7 +139,7 @@
             {
                 result = await SectionService.UpdateSectionAsync(_section);
             }
-            
+
             if (result.IsSuccess)
             {
                 _section.Id = result.Message;
@@ -145,11 +151,6 @@
                 ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
             }
         }
-        catch (Exception e)
-        {
-            Logger.LogException(e, $"Exception saving section {_section.Name}");
-        }
-    }
 
     private void AddSubsection()
     {
