@@ -56,7 +56,7 @@ namespace Mytheme
                 return sanitizer;
             });
 
-            services.AddSingleton<BreadcrumbService>();
+            services.AddScoped<BreadcrumbService>();
             services.AddSingleton<SvgHelperService>();
 
             services.AddSingleton<DataStorage>();

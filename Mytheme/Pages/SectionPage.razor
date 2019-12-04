@@ -100,8 +100,11 @@
             };
         }
 
-        BreadcrumbService.NavBarButtons.Clear();
-        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
+        var buttons = new List<NavBarButton>();
+       // BreadcrumbService.NavBarButtons.Clear();
+       // BreadcrumbService.NavBarButtons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
+
+        buttons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
 
         if (sectionType != SectionType.Section)
         {
@@ -120,10 +123,15 @@
                     break;
             }
 
-            BreadcrumbService.NavBarButtons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
+           // BreadcrumbService.NavBarButtons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
+            buttons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
         }
-        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page", SvgName.Page, AddPage));
-        BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map", SvgName.Map, AddMapPage));
+        buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPage));
+        buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPage));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+    // BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page", SvgName.Page, AddPage));
+    //  BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map", SvgName.Map, AddMapPage));
     }
 
     private async void SaveSection()

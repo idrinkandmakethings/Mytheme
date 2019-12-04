@@ -204,6 +204,7 @@ Colors
     {
         NavigationManager.LocationChanged += LocationChanged;
         BreadcrumbService.OnBreadCrumbChange += UpdateBreadCrumb;
+        BreadcrumbService.OnNavbarButtonChange += UpdateNavbarButtons;
 
         var theme = new BlazorTypography.Themes.Stardust();
         Typography.ApplyTypography(theme);
@@ -222,6 +223,11 @@ Colors
     private void UpdateBreadCrumb(string text)
     {
         breadCrumb = text;
+        StateHasChanged();
+    }
+
+    private void UpdateNavbarButtons()
+    {
         StateHasChanged();
     }
 

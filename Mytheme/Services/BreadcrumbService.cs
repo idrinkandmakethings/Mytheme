@@ -9,6 +9,7 @@ namespace Mytheme.Services
         public List<NavBarButton> NavBarButtons { get; set; }
         
         public event Action<string> OnBreadCrumbChange;
+        public event Action OnNavbarButtonChange;
 
         public BreadcrumbService()
         {
@@ -18,6 +19,13 @@ namespace Mytheme.Services
         public void SetBreadCrumb(string text)
         {
             OnBreadCrumbChange?.Invoke(text);
+        }
+
+        public void SetNavBarButtons(List<NavBarButton> buttons)
+        {
+            NavBarButtons.Clear();
+            NavBarButtons.AddRange(buttons);
+            OnNavbarButtonChange?.Invoke();
         }
     }
 
