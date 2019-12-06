@@ -11,19 +11,212 @@
 
 @inject BreadcrumbService BreadcrumbService
 @inject NavigationManager NavigationManager
+@inject SvgHelperService SvgHelperService
 @inject IModalService ModalService
 @inject ISectionService SectionService
 
+
+<Styled @bind-Classname="@detailSection">
+    height: 30%;
+    margin-bottom: 20px;
+    @@media screen and (max-height: 520px) {
+    height: 40px;
+    }
+</Styled>
+
+<Styled @bind-Classname="@nameDiv">
+    height: 30%;
+    @@media screen and (max-height: 520px) {
+    height: 100%;
+    }
+</Styled>
+
+<Styled @bind-Classname="@descriptionDiv">
+    height: 70%;
+    @@media screen and (max-height: 520px) {
+    display: None;
+    }
+</Styled>
+
+<Styled @bind-Classname="@description">
+    resize: none;
+    height: 100%;
+    overflow-y: visible;
+</Styled>
+
+
+
+<Styled @bind-Classname="@linkSection">
+    display: flex;
+    height:70%;
+    min-height: 280px;
+    padding-bottom: 20px;
+    @@media screen and (max-width: 900px){
+    flex-direction: column;
+    height:1600px;
+    }
+    @@media screen and (max-height: 520px) and (min-width: 900px) {
+    height: 90%;
+    }
+</Styled>
+
+<Styled @bind-Classname="@subSectionColumn">
+    display: @subSectionDisplay;
+    flex: 1;
+    border: 1px solid gray;
+    height: 100%;
+    @@media screen and (max-width: 900px) {
+    flex-direction: column;
+    height: 800px;
+    }
+</Styled>
+
+<Styled @bind-Classname="@column">
+    flex: 1;
+    border: 1px solid gray;
+    height: 100%;
+    @@media screen and (max-width: 900px) {
+    flex-direction: column;
+    height: 800px;
+    }
+</Styled>
+
+<Styled @bind-Classname="@subSectionHeader">
+    height: 60px;
+    background: black;
+    & h2{
+    color: white;
+    }
+    @@media screen and (min-width: 900px) {
+    pointer-events: none;
+    }
+</Styled>
+
+<Styled @bind-Classname="@pageHeader">
+    height: 60px;
+    background: black;
+    & h2{
+    color: white;
+    }
+    @@media screen and (min-width: 900px) {
+    pointer-events: none;
+    }
+</Styled>
+
+<Styled @bind-Classname="@mapHeader">
+    height: 60px;
+    background: black;
+    & h2{
+    color: white;
+    }
+    @@media screen and (min-width: 900px) {
+    pointer-events: none;
+    }
+</Styled>
+
+<Styled @bind-Classname="@subSectionLinks">
+    height: 100%;
+    display: @subLinkDisplay;
+    overflow-y: auto;
+</Styled>
+
+<Styled @bind-Classname="@pageLinks">
+    height: 100%;
+    display: @pageLinkDisplay;
+    overflow-y: auto;
+</Styled>
+
+<Styled @bind-Classname="@mapLinks">
+    height: 100%;
+    display: @mapLinksDisplay;
+    overflow-y: auto;
+</Styled>
+
+<Styled @bind-Classname="@linkTable">
+    border-collapse: collapse;
+    width: 100%;
+    
+        & th, td {
+    text-align: left;
+    padding: 8px;
+    }
+
+    & tr:nth-child(even) {background-color: #f2f2f2;}
+</Styled>
+
 @if (_section != null)
 {
-    <input type="text" id="name" placeholder="Name" @bind="@_section.Name"/>
-    <input type="text" id="desc" placeholder="Description" @bind="@_section.Description"/>
-    <div>
-        <label for="created">Created: </label><span id="created">@_section.DateCreated.ToShortDateString()</span>
+
+    <div id="details" class="@detailSection">
+        <div class="@nameDiv">
+            <input type="text" id="name" placeholder="Name" @bind="@_section.Name" />
+        </div>
+        <div class="@descriptionDiv">
+            <textarea id="desc" class="@description" placeholder="Description" @bind="@_section.Description"></textarea>
+        </div>
     </div>
+    <div id="linkSection" class="@linkSection">
+        <div class="@subSectionColumn" style="background-color:#aaa;">
+            <div class="@subSectionHeader">
+                <h2>@subSectionType</h2>
+            </div>
+            <div class="@subSectionLinks">
+                <table class="@linkTable">
+                    @foreach (var sub in _section.Children)
+                    {
+                        <tr>
+                            <td>
+                                @sub.Name
+                            </td>
+                            <td>
+                                <a @onclick="@( () => NavigateToSection(sub.Id))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        <div class="@column" style="background-color:#bbb;">
+            <div class="@pageHeader">
+                <h2>Pages</h2>
+            </div>
+            <div class="@pageLinks">
+                <table class="@linkTable">
+                    @foreach (var p in _section.PageIds)
+                    {
+                        <tr>
+                            @p.Name
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        <div class="@column" style="background-color:#ccc;">
+            <div class="@mapHeader">
+                <h2>Maps</h2>
+            </div>
+            <div class="@mapLinks">
+                <table class="@linkTable">
+                    @foreach (var m in _section.MapPageIds)
+                    {
+                        <tr>
+                            @m.Name
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        </div>
 }
 
 @code {
+
+    private string mainView, detailSection, nameDiv, descriptionDiv, linkSection, subSectionColumn, column;
+
+    private string description, subSectionHeader, subSectionLinks, pageHeader, pageLinks, mapHeader, mapLinks, linkTable;
+
+    private string subSectionDisplay, subLinkDisplay, pageLinkDisplay, mapLinksDisplay;
+
 
     [Parameter]
     public string Id { get; set; }
@@ -37,11 +230,17 @@
 
     private SectionType sectionType;
 
+    private string subSectionType;
 
     private Section _section;
 
     protected override async Task OnInitializedAsync()
     {
+        subLinkDisplay = "block";
+        pageLinkDisplay = "block";
+        mapLinksDisplay = "block";
+
+
         if (!string.IsNullOrEmpty(Id))
         {
             var result = await SectionService.GetSectionAsync(Id);
@@ -49,9 +248,9 @@
             if (result.IsSuccess)
             {
                 _section = result.Result;
-                
+
                 Id = _section.Id;
-                
+
                 sectionType = _section.SectionType;
 
                 BreadcrumbService.SetBreadCrumb(_section.Name);
@@ -100,65 +299,92 @@
             };
         }
 
+        SetAllTheThings();
+    }
+
+
+    private async void NavigateToSection(string id)
+    {
+        Id = id;
+
+        var result = await SectionService.GetSectionAsync(Id);
+
+        if (result.IsSuccess)
+        {
+            _section = result.Result;
+
+            Id = _section.Id;
+
+            sectionType = _section.SectionType;
+
+            BreadcrumbService.SetBreadCrumb(_section.Name);
+        }
+
+        SetAllTheThings();
+
+
+        StateHasChanged();
+    }
+
+    private void SetAllTheThings()
+    {
         var buttons = new List<NavBarButton>();
-       // BreadcrumbService.NavBarButtons.Clear();
-       // BreadcrumbService.NavBarButtons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
 
         buttons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
 
-        if (sectionType != SectionType.Section)
+        subSectionType = string.Empty;
+        subSectionDisplay = "block";
+
+        switch (sectionType)
         {
-            var sub = string.Empty;
-
-            switch (sectionType)
-            {
-                case SectionType.Campaign:
-                    sub = SectionType.Adventure.ToString();
-                    break;
-                case SectionType.Adventure:
-                    sub = SectionType.Chapter.ToString();
-                    break;
-                case SectionType.Chapter:
-                    sub = SectionType.Section.ToString();
-                    break;
-            }
-
-           // BreadcrumbService.NavBarButtons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
-            buttons.Add(new NavBarButton($"Add {sub}", SvgName.Folder, AddSubsection));
+            case SectionType.Campaign:
+                subSectionType = SectionType.Adventure.ToString();
+                buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
+                break;
+            case SectionType.Adventure:
+                subSectionType = SectionType.Chapter.ToString();
+                buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
+                break;
+            case SectionType.Chapter:
+                subSectionType = SectionType.Section.ToString();
+                buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
+                break;
+            default:
+                subSectionDisplay = "none";
+                break;
         }
+
         buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPage));
         buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPage));
 
         BreadcrumbService.SetNavBarButtons(buttons);
-    // BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Page", SvgName.Page, AddPage));
-    //  BreadcrumbService.NavBarButtons.Add(new NavBarButton("Add Map", SvgName.Map, AddMapPage));
     }
 
     private async void SaveSection()
     {
 
-            DalResult result;
+        DalResult result;
 
-            if (_section.Id == Guid.Empty.ToString())
-            {
-                result = await SectionService.AddSectionAsync(_section);
-            }
-            else
-            {
-                result = await SectionService.UpdateSectionAsync(_section);
-            }
-
-            if (result.IsSuccess)
-            {
-                _section.Id = result.Message;
-                Id = _section.Id;
-                BreadcrumbService.SetBreadCrumb(_section.Name);
-            }
-            else
-            {
-                ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
-            }
+        if (_section.Id == Guid.Empty.ToString())
+        {
+            result = await SectionService.AddSectionAsync(_section);
         }
+        else
+        {
+            result = await SectionService.UpdateSectionAsync(_section);
+        }
+
+        if (result.IsSuccess)
+        {
+            _section.Id = result.Message;
+            Id = _section.Id;
+            BreadcrumbService.SetBreadCrumb(_section.Name);
+        }
+        else
+        {
+            ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
+        }
+    }
 
     private void AddSubsection()
     {
