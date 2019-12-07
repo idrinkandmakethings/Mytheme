@@ -2,6 +2,8 @@
 @page "/section/{id}"
 @page "/section"
 
+@implements IDisposable
+
 @using Mytheme.Dal
 @using Mytheme.Dal.Dto
 @using Mytheme.Services
@@ -12,6 +14,8 @@
 @inject BreadcrumbService BreadcrumbService
 @inject NavigationManager NavigationManager
 @inject SvgHelperService SvgHelperService
+@inject BrowserResizeService BrowserResizeService
+@inject IJSRuntime JsRuntime
 @inject IModalService ModalService
 @inject ISectionService SectionService
 
@@ -19,21 +23,21 @@
 <Styled @bind-Classname="@detailSection">
     height: 30%;
     margin-bottom: 20px;
-    @@media screen and (max-height: 520px) {
+    @@media screen and (max-height: 640px) {
     height: 40px;
     }
 </Styled>
 
 <Styled @bind-Classname="@nameDiv">
     height: 30%;
-    @@media screen and (max-height: 520px) {
+    @@media screen and (max-height: 640px) {
     height: 100%;
     }
 </Styled>
 
 <Styled @bind-Classname="@descriptionDiv">
     height: 70%;
-    @@media screen and (max-height: 520px) {
+    @@media screen and (max-height: 640px) {
     display: None;
     }
 </Styled>
@@ -48,36 +52,45 @@
 
 <Styled @bind-Classname="@linkSection">
     display: flex;
-    height:70%;
+    height: 67%;
     min-height: 280px;
-    padding-bottom: 20px;
-    @@media screen and (max-width: 900px){
+    @@media screen and (max-width: 1100px){
     flex-direction: column;
-    height:1600px;
     }
-    @@media screen and (max-height: 520px) and (min-width: 900px) {
-    height: 90%;
+    @@media screen and (max-height: 640px){
+    height: 85%;
     }
 </Styled>
 
 <Styled @bind-Classname="@subSectionColumn">
     display: @subSectionDisplay;
-    flex: 1;
-    border: 1px solid gray;
-    height: 100%;
-    @@media screen and (max-width: 900px) {
+    flex: @subSectionColumnFlex;
     flex-direction: column;
-    height: 800px;
+    border: 1px solid gray;
+    @@media screen and (max-width: 1100px){
+    height: 70%;
     }
 </Styled>
 
-<Styled @bind-Classname="@column">
-    flex: 1;
+<Styled @bind-Classname="@pagesColumn">
+    flex: @pagesColumnFlex;
+    display: flex;
+    flex-direction: column;
     border: 1px solid gray;
     height: 100%;
-    @@media screen and (max-width: 900px) {
+    @@media screen and (max-width: 1100px){
+    height: 70%;
+    }
+</Styled>
+
+<Styled @bind-Classname="@mapsColumn">
+    flex: @mapsColumnFlex;
+    display: flex;
     flex-direction: column;
-    height: 800px;
+    border: 1px solid gray;
+    height: 100%;
+    @@media screen and (max-width: 1100px){
+    height: 70%;
     }
 </Styled>
 
@@ -87,7 +100,7 @@
     & h2{
     color: white;
     }
-    @@media screen and (min-width: 900px) {
+    @@media screen and (min-width: 1100px) {
     pointer-events: none;
     }
 </Styled>
@@ -98,7 +111,7 @@
     & h2{
     color: white;
     }
-    @@media screen and (min-width: 900px) {
+    @@media screen and (min-width: 1100px) {
     pointer-events: none;
     }
 </Styled>
@@ -109,34 +122,37 @@
     & h2{
     color: white;
     }
-    @@media screen and (min-width: 900px) {
+    @@media screen and (min-width: 1100px) {
     pointer-events: none;
     }
 </Styled>
 
 <Styled @bind-Classname="@subSectionLinks">
-    height: 100%;
     display: @subLinkDisplay;
+    flex-grow: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 </Styled>
 
 <Styled @bind-Classname="@pageLinks">
-    height: 100%;
     display: @pageLinkDisplay;
+    flex-grow: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 </Styled>
 
 <Styled @bind-Classname="@mapLinks">
-    height: 100%;
-    display: @mapLinksDisplay;
+    display: @mapLinkDisplay;
+    flex-grow: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 </Styled>
 
 <Styled @bind-Classname="@linkTable">
+    display: table;
     border-collapse: collapse;
     width: 100%;
-    
-        & th, td {
+    & th, td {
     text-align: left;
     padding: 8px;
     }
@@ -157,27 +173,29 @@
     </div>
     <div id="linkSection" class="@linkSection">
         <div class="@subSectionColumn" style="background-color:#aaa;">
-            <div class="@subSectionHeader">
+            <div @onclick="@( () => OpenAdventures())" class="@subSectionHeader">
                 <h2>@subSectionType</h2>
             </div>
             <div class="@subSectionLinks">
                 <table class="@linkTable">
-                    @foreach (var sub in _section.Children)
-                    {
-                        <tr>
-                            <td>
-                                @sub.Name
-                            </td>
-                            <td>
-                                <a @onclick="@( () => NavigateToSection(sub.Id))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
-                            </td>
-                        </tr>
-                    }
+                    <tbody>
+                        @foreach (var sub in _section.Children)
+                        {
+                            <tr>
+                                <td>
+                                    @sub.Name
+                                </td>
+                                <td>
+                                    <a @onclick="@( () => NavigateToSection(sub.Id))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
                 </table>
             </div>
         </div>
-        <div class="@column" style="background-color:#bbb;">
-            <div class="@pageHeader">
+        <div class="@pagesColumn" style="background-color:#bbb;">
+            <div @onclick="@( () => OpenPages())" class="@pageHeader">
                 <h2>Pages</h2>
             </div>
             <div class="@pageLinks">
@@ -191,8 +209,8 @@
                 </table>
             </div>
         </div>
-        <div class="@column" style="background-color:#ccc;">
-            <div class="@mapHeader">
+        <div class="@mapsColumn" style="background-color:#ccc;">
+            <div @onclick="@( () => OpenMaps())" class="@mapHeader">
                 <h2>Maps</h2>
             </div>
             <div class="@mapLinks">
@@ -206,17 +224,21 @@
                 </table>
             </div>
         </div>
-        </div>
+     </div>
 }
 
 @code {
 
-    private string mainView, detailSection, nameDiv, descriptionDiv, linkSection, subSectionColumn, column;
+    private string mainView, detailSection, nameDiv, descriptionDiv, linkSection, subSectionColumn, pagesColumn, mapsColumn;
 
     private string description, subSectionHeader, subSectionLinks, pageHeader, pageLinks, mapHeader, mapLinks, linkTable;
 
-    private string subSectionDisplay, subLinkDisplay, pageLinkDisplay, mapLinksDisplay;
+    private string subSectionDisplay, subLinkDisplay, pageLinkDisplay, mapLinkDisplay;
 
+    private int subSectionColumnFlex, pagesColumnFlex, mapsColumnFlex;
+
+
+    private bool accordionEngaged, accordionDisengaged;
 
     [Parameter]
     public string Id { get; set; }
@@ -236,10 +258,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        subLinkDisplay = "block";
-        pageLinkDisplay = "block";
-        mapLinksDisplay = "block";
 
+        BrowserResizeService.OnResize += OnResize;
+        await BrowserResizeService.RegisterForResize(JsRuntime);
+
+        var width = await BrowserResizeService.GetInnerWidth(JsRuntime);
+
+        SetLinkDisplay(width);
 
         if (!string.IsNullOrEmpty(Id))
         {
@@ -333,7 +358,7 @@
         buttons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
 
         subSectionType = string.Empty;
-        subSectionDisplay = "block";
+        subSectionDisplay = "flex";
 
         switch (sectionType)
         {
@@ -431,4 +456,88 @@
     {
         return _section.Id != Guid.Empty.ToString();
     }
+
+    private async Task OnResize()
+    {
+        var width = await BrowserResizeService.GetInnerWidth(JsRuntime);
+
+        SetLinkDisplay(width);
+    }
+
+    private void SetLinkDisplay(int width)
+    {
+        if (width < 1100 && accordionEngaged == false)
+        {
+            accordionEngaged = true;
+            subLinkDisplay = "block";
+            subSectionColumnFlex = 1;
+            pageLinkDisplay = "none";
+            pagesColumnFlex = 0;
+            mapLinkDisplay = "none";
+            mapsColumnFlex = 0;
+            accordionDisengaged = false;
+            StateHasChanged();
+
+        }
+        else if (width >= 1100 && accordionDisengaged == false)
+        {
+            accordionDisengaged = true;
+            subLinkDisplay = "block";
+            subSectionColumnFlex = 1;
+            pageLinkDisplay = "block";
+            pagesColumnFlex = 1;
+            mapLinkDisplay = "block";
+            mapsColumnFlex = 1;
+            accordionEngaged = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OpenAdventures()
+    {
+        if (accordionEngaged)
+        {
+            subLinkDisplay = subLinkDisplay == "block" ? "none" : "block";
+            subSectionColumnFlex = subLinkDisplay == "block" ? 1 : 0;
+            pageLinkDisplay = "none";
+            pagesColumnFlex = 0;
+            mapLinkDisplay = "none";
+            mapsColumnFlex = 0;
+            StateHasChanged();
+        }
+    }
+
+    private void OpenPages()
+    {
+        if (accordionEngaged)
+        {
+            subLinkDisplay = "none";
+            subSectionColumnFlex = 0;
+            pageLinkDisplay = pageLinkDisplay == "block" ? "none" : "block";
+            pagesColumnFlex = pageLinkDisplay == "block" ? 1 : 0;
+            mapLinkDisplay = "none";
+            mapsColumnFlex = 0;
+            StateHasChanged();
+        }
+    }
+
+    private void OpenMaps()
+    {
+        if (accordionEngaged)
+        {
+            subLinkDisplay = "none";
+            subSectionColumnFlex = 0;
+            pageLinkDisplay = "none";
+            pagesColumnFlex = 0;
+            mapLinkDisplay = mapLinkDisplay == "block" ? "none" : "block";
+            mapsColumnFlex = mapLinkDisplay == "block" ? 1 : 0;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        BrowserResizeService.OnResize -= OnResize;
+    }
+
 }

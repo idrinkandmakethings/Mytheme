@@ -15,21 +15,21 @@ Colors
     paper - #F4F4F4
     charcoal - #373737
 -->
-    <Styled>
-        html {
-        color: {colors.text-color};
-        }
-        body {
-        background-color: {colors.background-color};
-        color: {colors.text-color};
-        }
-        p {
-        color: {colors.text-color};
-        }
-        hr {
-        background-color: {colors.hr};
-        }
-    </Styled>
+<Styled>
+    html {
+    color: {colors.text-color};
+    }
+    body {
+    background-color: {colors.background-color};
+    color: {colors.text-color};
+    }
+    p {
+    color: {colors.text-color};
+    }
+    hr {
+    background-color: {colors.hr};
+    }
+</Styled>
 
 <Styled>
     input[type=text] {
@@ -157,10 +157,11 @@ Colors
 </Styled>
 
 <Styled @bind-Classname="@mainView">
+    box-sizing: border-box;
     position: relative;
     width: 100%;
-    height: 100vh;
-    padding: 70px 20px 30px;
+    height: 100%;
+    padding: 58px 20px 20px;
 </Styled>
 
 <Modal></Modal>
@@ -187,8 +188,9 @@ Colors
 </div>
 
 
+
 <div class="@mainView">
-    @Body
+        @Body
 </div>
 
 

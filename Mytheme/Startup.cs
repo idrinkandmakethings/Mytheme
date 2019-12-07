@@ -58,6 +58,7 @@ namespace Mytheme
 
             services.AddScoped<BreadcrumbService>();
             services.AddSingleton<SvgHelperService>();
+            services.AddScoped<BrowserResizeService>();
 
             services.AddSingleton<DataStorage>();
 
