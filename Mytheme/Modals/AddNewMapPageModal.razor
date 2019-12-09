@@ -1,0 +1,209 @@
+﻿@using System.IO
+@using Blazor.FileReader
+@using Mytheme.Dal.Dto
+@using Mytheme.Services.Interfaces
+
+
+@inject IFileHandlerService FileHandlerService
+@inject IFileReaderService FileReaderService
+@inject ISectionService SectionService
+@inject IModalService ModalService
+
+<Styled @bind-Classname="@contentView">
+    display: block;
+</Styled>
+
+<Styled @bind-Classname="@validationError">
+    display: @validationDisplay;
+    color: #8b0000;
+</Styled>
+
+<Styled @bind-Classname="@dropTarget">
+    display: block;
+    padding: 20px;
+    margin-bottom: 10px;
+    border: 1px dashed black;
+    border-radius: 5px;
+</Styled>
+
+<Styled @bind-Classname="@dropTargetDrag">
+    border-color: orangered;
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@dropArea" Compose1="@dropTarget" Compose2="@dropTargetDrag" Compose2If="@dragging" />
+
+<div>
+    <span class="@validationError">@errorMessage</span>
+    <input id="name" placeholder="Name" @bind="@Name" />
+           <div class="@dropArea"
+                @ref=dropTargetElement
+                @ondrop=OnDrop
+                @ondragenter=OnDragEnter
+                @ondragleave=OnDragLeave>
+               @fileName
+           </div>
+    <div>
+        <button @onclick="@(() => {ModalService.Cancel();})">Cancel</button>
+        <button @onclick="@HandleSubmit">Add</button>
+    </div>
+</div>
+
+
+
+@code {
+    // css class names
+    private string dropArea, dropTarget, dropTargetDrag;
+    private string contentView, validationError, addBtn;
+
+    private string validationDisplay = "none";
+
+    private string errorMessage;
+
+    ElementReference dropTargetElement;
+    IFileReaderRef dropReference;
+
+    private string fileName = "Drop image here.";
+
+    private IFileInfo imageFile;
+
+    private bool imageFormatValid;
+
+    private bool dragging;
+
+    List<IFileInfo> FileList { get; } = new List<IFileInfo>();
+
+    private List<string> supportedImageTypes = new List<string>
+    {
+        "image/jpeg",
+        "image/png",
+        "image/bmp",
+        "image/gif"
+    };
+
+    private string parentId;
+
+    [Parameter]
+    public string Name { get; set; }
+
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+
+    protected override void OnInitialized()
+    {
+        parentId = Parameters?.Get<string>("parent") ?? string.Empty;
+
+        if (string.IsNullOrEmpty(parentId))
+        {
+            var page = new MapPage()
+            {
+                Name = string.Empty,
+                FK_Section = parentId
+            };
+
+            ModalService.Close(ModalResult.Ok(page));
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrEmpty(Name))
+        {
+            errorMessage = "Name cannot be blank";
+            validationDisplay = "block";
+            StateHasChanged();
+            return;
+        }
+
+        var page = new MapPage()
+        {
+            Id = Guid.Empty.ToString(),
+            Name = Name,
+            FK_Section = parentId,
+            Enabled = true,
+
+            Link = $"{parentId}/{Name}"
+        };
+
+        ModalService.Close(ModalResult.Ok(page));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool isFirstRender)
+    {
+        if (isFirstRender)
+        {
+            dropReference = FileReaderService.CreateReference(dropTargetElement);
+            await dropReference.RegisterDropEventsAsync();
+        }
+    }
+
+    public void OnDragEnter(EventArgs e)
+    {
+        dragging = true;
+    }
+
+    public void OnDragLeave(EventArgs e)
+    {
+        dragging = false;
+    }
+
+    public async Task OnDrop(EventArgs e)
+    {
+
+        dragging = false;
+        StateHasChanged();
+        await RefreshFileList();
+        await TryParesFile();
+    }
+
+    private async Task RefreshFileList()
+    {
+        FileList.Clear();
+        foreach (var file in await dropReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+            FileList.Add(fileInfo);
+        }
+
+        imageFile = FileList.FirstOrDefault();
+
+        if (imageFile != null)
+        {
+            if (supportedImageTypes.Contains(imageFile.Type))
+            {
+                fileName = imageFile.Name;
+            }
+            else
+            {
+                errorMessage = "Not a valid image type. Must be a JPEG, PNG, BMP, or GIF";
+                validationDisplay = "block";
+            }
+        }
+        else
+        {
+            fileName = string.Empty;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task<string> TryParFile()
+    {
+
+        foreach (var file in await dropReference.EnumerateFilesAsync())
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+
+            var extension = Path.GetExtension(fileInfo.Name);
+
+            if (fileInfo.Name == fileName && (extension == ".png" || extension == ".jpg"))
+            {
+                await using var fs = await file.OpenReadAsync();
+                await using var ms = new MemoryStream();
+                await fs.CopyToAsync(ms);
+
+                await FileHandlerService.SaveFile(ms, Guid.NewGuid(), extension, FileType.Image);
+            }
+        }
+    }
+}

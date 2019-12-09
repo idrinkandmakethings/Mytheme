@@ -11,5 +11,17 @@ namespace Mytheme.Services.Interfaces
         Task<DalResult> UpdateSectionAsync(Section section);
         Task<DalResult<Section>> GetSectionAsync(string id);
         Task<DalResult<Section[]>> GetAllSectionsForParentAsync(string id);
+
+        Task<DalResult<Page[]>> GetAllPagesForSection(string id);
+        Task<DalResult> AddPageAsync(Page page);
+        Task<DalResult> UpdatePageAsync(Page page);
+        Task<DalResult<Page>> GetPageAsync(string id);
+        Task<DalResult<Page>> GetPageByNameAsync(string parent, string name);
+
+
+        Task<DalResult<MapPage[]>> GetAllMapPagesForSection(string id);
+        Task<DalResult> AddMapPageAsync(MapPage page);
+        Task<DalResult> UpdateMapPageAsync(MapPage page);
+        Task<DalResult<MapPage>> GetMapPageAsync(string id);
     }
 }

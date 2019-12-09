@@ -1,0 +1,146 @@
+﻿@page "/markdownpage/{parent}"
+@page "/markdownpage/{parent}/{name}"
+
+@using Mytheme.Dal
+@using Mytheme.Dal.Dto
+@using Mytheme.Modals
+@using Mytheme.Services
+@using Mytheme.Services.Interfaces
+
+
+@inject BreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager
+@inject SvgHelperService SvgHelperService
+@inject IJSRuntime JsRuntime
+@inject IModalService ModalService
+@inject ISectionService SectionService
+
+
+@if (_page != null)
+{
+    <TabbedMarkdownEditor Content="@_page.Content" PercentHeight="90"></TabbedMarkdownEditor>
+}
+
+@code {
+
+    [Parameter]
+    public string Parent { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    public string Content { get; set; }
+
+    private Page _page;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Name))
+        {
+            var result = await SectionService.GetPageByNameAsync(Parent, Name);
+
+            if (result.IsSuccess)
+            {
+                _page = result.Result;
+
+                BreadcrumbService.SetBreadCrumb(_page.Name);
+            }
+        }
+        else
+        {
+            BreadcrumbService.SetBreadCrumb($"New Page");
+
+            OpenNewPageModal();
+        }
+
+        SetNavBarButtons();
+    }
+
+
+    private async void NavigateToPage(string name)
+    {
+
+        var result = await SectionService.GetPageAsync(name);
+
+        if (result.IsSuccess)
+        {
+            _page = result.Result;
+
+            BreadcrumbService.SetBreadCrumb(_page.Name);
+        }
+
+        SetNavBarButtons();
+
+        StateHasChanged();
+    }
+
+    private void SetNavBarButtons()
+    {
+
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+    }
+
+    private async void SavePage()
+    {
+
+        DalResult result;
+
+        if (_page.Id == Guid.Empty.ToString())
+        {
+            result = await SectionService.AddPageAsync(_page);
+        }
+        else
+        {
+            result = await SectionService.UpdatePageAsync(_page);
+        }
+
+        if (result.IsSuccess)
+        {
+            _page.Id = result.Message;
+
+            BreadcrumbService.SetBreadCrumb(_page.Name);
+        }
+        else
+        {
+            ModalService.ShowInfoModal($"Error Saving Page", result.Message);
+        }
+    }
+
+    protected void OpenNewPageModal()
+    {
+        var p = new ModalParameters();
+        p.Add("parent", Parent);
+
+        ModalService.Show<AddNewPageModal>("Add New Page", p,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                PixelWidth = 360
+            }, OnModalClosed);
+    }
+
+    private void OnModalClosed(ModalResult result)
+    {
+        if (!result.Cancelled)
+        {
+            try
+            {
+                _page = (Page) result.Data;
+                SavePage();
+            }
+            catch (Exception e)
+            {
+                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+            }
+        }
+        else
+        {
+            // TODO: go back in navigation...
+        }
+    }
+}

@@ -173,7 +173,7 @@
     </div>
     <div id="linkSection" class="@linkSection">
         <div class="@subSectionColumn" style="background-color:#aaa;">
-            <div @onclick="@( () => OpenAdventures())" class="@subSectionHeader">
+            <div @onclick="@( () => OpenSubSections())" class="@subSectionHeader">
                 <h2>@subSectionType</h2>
             </div>
             <div class="@subSectionLinks">
@@ -202,9 +202,14 @@
                 <table class="@linkTable">
                     @foreach (var p in _section.PageIds)
                     {
-                        <tr>
+                    <tr>
+                        <td>
                             @p.Name
-                        </tr>
+                        </td>
+                        <td>
+                            <a @onclick="@( () =>  NavigationManager.NavigateTo($"/markdownpage/{p.Link}", true))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                        </td>
+                    </tr>
                     }
                 </table>
             </div>
@@ -218,9 +223,13 @@
                     @foreach (var m in _section.MapPageIds)
                     {
                         <tr>
-                            @m.Name
-                        </tr>
-                    }
+                            <td>
+                                @m.Name
+                            </td>
+                            <td>
+                                <a @onclick="@( () =>  NavigationManager.NavigateTo($"/mappage/{m.Link}", true))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                            </td>
+                        </tr>}
                 </table>
             </div>
         </div>
@@ -413,8 +422,6 @@
 
     private void AddSubsection()
     {
-
-
         SectionType newSection;
 
         switch (sectionType)
@@ -444,12 +451,12 @@
 
     private void AddPage()
     {
-        var test = "";
+        NavigationManager.NavigateTo($"/markdownpage/{_section.Id}", true);
     }
 
     private void AddMapPage()
     {
-        var test = "";
+        NavigationManager.NavigateTo($"/mappage/{_section.Id}", true);
     }
 
     private bool IsSaved()
@@ -493,7 +500,7 @@
         }
     }
 
-    private void OpenAdventures()
+    private void OpenSubSections()
     {
         if (accordionEngaged)
         {

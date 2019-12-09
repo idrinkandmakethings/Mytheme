@@ -1,26 +1,34 @@
-﻿@page "/maptest"
-@using Mytheme.Map
+﻿@page "/mappage/{parent}"
+@page "/mappage/{parent}/{id}"
+
+
 @using Mytheme.Map.Models
 @using Mytheme.Services.Interfaces
 
 @inject IFileHandlerService FileHandlerService
 
-    <Styled @bind-Classname="@mapStyle">
-        position: relative;
-        width: 100%;
-        height: 100%;
-    </Styled>
+<Styled @bind-Classname="@mapStyle">
+    position: relative;
+    width: 100%;
+    height: 100%;
+</Styled>
 
 <div class="@mapStyle">
     <LeafletMap MapImage="@map" @ref="@mapView"></LeafletMap>
-</div>
+                </div>
 
 @code {
 
     private string mapStyle;
-    
+
     MapImage map;
     LeafletMap mapView;
+
+    [Parameter]
+    public string Parent { get; set; }
+
+    [Parameter]
+    public string Id { get; set; }
 
     protected override void OnInitialized()
     {

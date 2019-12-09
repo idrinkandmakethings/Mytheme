@@ -14,6 +14,11 @@
     width: 100%;
 </Styled>
 
+<Styled @bind-Classname="@subTitle">
+    @@media screen and (max-height: 520px){
+     display: none;
+    }
+</Styled>
 
 <Styled @bind-Classname="@campaignSelector">
     background: lightblue;
@@ -90,7 +95,7 @@
 
 <div class="@title">
     <h1>Mytheme</h1>
-    /ˈmɪθiːm/ (noun) a set of fundamental generic units of narrative structure from which myths are thought to be constructed.
+    <p class="@subTitle">/ˈmɪθiːm/ (noun) a set of fundamental generic units of narrative structure from which myths are thought to be constructed.</p>
 </div>
 <div class="@campaignSelector">
     <div class="@row">
@@ -136,7 +141,7 @@
 
 @code
 {
-    private string title, campaignSelector, row, columnLeft, columnRight, subRow, subColumnUpper, subColumnLower, dummy, imgContainer, centerer;
+    private string title, subTitle, campaignSelector, row, columnLeft, columnRight, subRow, subColumnUpper, subColumnLower, dummy, imgContainer, centerer;
 
     private string campaignEntry, button, buttonLabel;
 
