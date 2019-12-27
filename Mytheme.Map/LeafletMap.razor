@@ -1,7 +1,7 @@
-﻿@using System.Text
-@using Microsoft.JSInterop
+﻿@using Microsoft.JSInterop
 @using Mytheme.Map.Models
 @using Mytheme.Map.Utility
+
 @inject IJSRuntime JsRuntime
 
 <Styled @bind-Classname="@mapStyle">
@@ -14,74 +14,50 @@
 
 @code {
 
-    protected  delegate void OnMarkerAdd(double lat, double lng);
+    protected  delegate void OnMarkerAdd(Coordinate coord);
+
+    private static event OnMarkerAdd OnMarkerAddOccured;
 
     private string mapId, mapStyle;
-
 
     [Parameter]
     public MapImage MapImage { get; set; }
 
     [Parameter]
-    public List<Marker> Markers { get; set; }
+    public EventCallback<Coordinate> OnMarkerAdded { get; set; }
 
-    private static event OnMarkerAdd OnMarkerAddOccured;
 
     protected override void OnInitialized()
     {
+
 #pragma warning disable 4014
-        OnMarkerAddOccured += delegate(double lat, double lng) { AddMarker(lat, lng); };
+
+        OnMarkerAddOccured += async delegate(Coordinate coord)
+        {
+            await OnMarkerAdded.InvokeAsync(coord);
+        };
+
 #pragma warning restore 4014
+
         mapId = StringHelper.GetRandomString(10);
     }
 
     [JSInvokable]
     public static void AddMarkerInterop(double lat, double lng)
     {
-        OnMarkerAddOccured?.Invoke(lat, lng);
+        OnMarkerAddOccured?.Invoke(new Coordinate{Latitude = lat, Longitude = lng});
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    public async Task InitializeMap(MapImage mapImage)
     {
-        if (firstRender)
-        {
-            await LeafletInterop.CreateImageMap(JsRuntime, mapId, MapImage.Url, MapImage.Height, MapImage.Width);
-
-            foreach (var marker in Markers)
-            {
-                await AddMarker(marker);
-            }
-        }
+        await LeafletInterop.CreateImageMap(JsRuntime, mapId, mapImage.Url, mapImage.Height, mapImage.Width);
     }
 
-    private async Task AddMarker(double lat, double lng)
+    public async Task AddMarker(LeafletMarker marker)
     {
-        var marker = new Marker{Id = Guid.NewGuid().ToString(), 
-            Content = SetPopup(PopupType.Link),
-            Lat = lat,
-            Lon = lng,
-        };
-
-        await LeafletInterop.AddMarker(JsRuntime,lat, lng, SetPopup(PopupType.Link));
+        await LeafletInterop.AddMarker(JsRuntime, marker.Lat, marker.Lon, marker.Content);
     }
 
-    private async Task AddMarker(Marker marker)
-    {
-        await LeafletInterop.AddMarker(JsRuntime, marker.Lat, marker.Lon, SetPopup(PopupType.Link));
-    }
-
-
-    private MarkupString SetPopup(PopupType type)
-    {
-        var sb = new StringBuilder();
-
-        sb.Append(@"<div><a href="""">Name</a></div>");
-        sb.Append("<hr/>");
-        sb.Append("<div>Description</div>");
-        sb.Append("<div><p>Blah blah blah</p></div>");
-
-        return new MarkupString(sb.ToString());
-    }
 }
 
 

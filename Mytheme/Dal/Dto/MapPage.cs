@@ -36,27 +36,4 @@ namespace Mytheme.Dal.Dto
             MapMarkers = new List<MapMarker>();
         }
     }
-
-    public class MapMarker : DtoObject
-    {
-        [Key]
-        public string Id { get; set; }
-        public string FK_MapPage { get; set; }
-
-        [Required]
-        public string Name { get; set; }
-        [Required]
-        public string Content { get; set; }
-
-        [Required] 
-        public long Lat { get; set; }
-        [Required] 
-        public long Lon { get; set; }
-
-        [Required]
-        public bool Enabled { get; set; }
-
-        [ForeignKey(nameof(FK_MapPage))]
-        public MapPage MapPage { get; set; }
-    }
 }

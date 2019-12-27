@@ -154,6 +154,7 @@ namespace Mytheme.Migrations
                     Id = table.Column<string>(nullable: false),
                     FK_Section = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: false),
+                    PageType = table.Column<int>(nullable: false),
                     Link = table.Column<string>(nullable: false),
                     Content = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false),
@@ -204,6 +205,8 @@ namespace Mytheme.Migrations
                     FK_MapPage = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: false),
                     Content = table.Column<string>(nullable: false),
+                    Lat = table.Column<double>(nullable: false),
+                    Lon = table.Column<double>(nullable: false),
                     Enabled = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>

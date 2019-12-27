@@ -9,8 +9,8 @@ using Mytheme.Dal;
 namespace Mytheme.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20191208144714_Add Page Type")]
-    partial class AddPageType
+    [Migration("20191227210949_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,6 +53,12 @@ namespace Mytheme.Migrations
 
                     b.Property<string>("FK_MapPage")
                         .HasColumnType("TEXT");
+
+                    b.Property<double>("Lat")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("Lon")
+                        .HasColumnType("REAL");
 
                     b.Property<string>("Name")
                         .IsRequired()

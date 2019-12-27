@@ -52,6 +52,12 @@ namespace Mytheme.Migrations
                     b.Property<string>("FK_MapPage")
                         .HasColumnType("TEXT");
 
+                    b.Property<double>("Lat")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("Lon")
+                        .HasColumnType("REAL");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");

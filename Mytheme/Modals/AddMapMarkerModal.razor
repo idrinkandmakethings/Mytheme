@@ -1,0 +1,77 @@
+﻿@using System.Text
+@using Mytheme.Dal.Dto
+@using Mytheme.Services.Interfaces
+
+@inject IModalService ModalService
+
+
+<Styled @bind-Classname="@validationError">
+    display: @validationDisplay;
+    color: #8b0000;
+</Styled>
+
+<div>
+    <span class="@validationError">@errorMessage</span>
+    <input id="name" placeholder="Name" @bind="@Name" />
+    <input id="link" placeholder="Link" @bind="@Link" />
+    <textarea placeholder="Description" @bind="@Description"></textarea>
+    <div>
+        <button @onclick="@(() => { ModalService.Cancel(); })">Cancel</button>
+        <button @onclick="@HandleSubmit">Add</button>
+    </div>
+</div>
+
+@code {
+
+        private string validationError;
+
+        private string validationDisplay;
+        private string errorMessage;
+
+        private double lat;
+        private double lon;
+
+        [Parameter]
+        public string Name { get; set; }
+        [Parameter]
+        public string Link { get; set; }
+        [Parameter]
+        public string Description { get; set; }
+
+        [CascadingParameter]
+        public ModalParameters Parameters { get; set; }
+
+        protected override void OnInitialized()
+        {
+            lat = Parameters?.Get<double>("lat") ?? 0;
+            lon = Parameters?.Get<double>("lon") ?? 0;
+        }
+
+        private async Task HandleSubmit()
+        {
+            var marker = new MapMarker
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Name,
+                Content = SetContent(),
+                Lat = lat,
+                Lon = lon
+            };
+
+            ModalService.Close(ModalResult.Ok(marker));
+        }
+
+        private string SetContent()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append($@"<div><a href=""{Link}"">{Name}</a></div>");
+            sb.Append("<hr/>");
+            sb.Append($"<div>{Description}</div>");
+
+
+            return sb.ToString();
+
+        }
+
+}
