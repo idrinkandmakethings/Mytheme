@@ -307,6 +307,7 @@ namespace Mytheme.Services
                     page.Id = Guid.NewGuid().ToString();
                     page.DateCreated = DateTime.Now;
                     page.DateModified = DateTime.Now;
+                    page.Link = $"{page.Link}{page.Id}";
 
                     if (!page.TryValidate(out var errors))
                     {

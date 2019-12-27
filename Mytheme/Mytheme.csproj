@@ -1609,6 +1609,7 @@
     <None Include="wwwroot\svgs\solid\yin-yang.svg" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BlazorInputFile\BlazorInputFile.csproj" />
     <ProjectReference Include="..\Mytheme.ButtonGroup\Mytheme.ButtonGroup.csproj" />
     <ProjectReference Include="..\Mytheme.Grid\Mytheme.Grid.csproj" />
     <ProjectReference Include="..\Mytheme.Map\Mytheme.Map.csproj" />

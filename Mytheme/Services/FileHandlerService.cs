@@ -76,10 +76,15 @@ namespace Mytheme.Services
             stream.Position = 0;
 
             var savePath = filePaths[type];
-            
+
+            Directory.CreateDirectory(savePath);
+
             await using var fs = new FileStream(Path.Combine(savePath, $"{imageId}{fileExtension}"), FileMode.Create);
             stream.CopyTo(fs);
             await fs.FlushAsync();
+
+            db.FileData.Add(new FileData {Id = imageId.ToString(), DisplayName = imageId.ToString(), FileType = type, FileName = $"{imageId}{fileExtension}"});
+            db.SaveChanges();
         }
 
         public async Task<MapImage> GetMapImage(string id)
@@ -94,7 +99,7 @@ namespace Mytheme.Services
 
                     using var image = Image.FromFile(path);
 
-                    return new MapImage(path, image.Height, image.Width);
+                    return new MapImage($"/mythemelocal/maps/{data.FileName}", image.Height, image.Width);
                 }
                 catch (Exception ex)
                 {

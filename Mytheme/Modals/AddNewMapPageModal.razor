@@ -19,30 +19,42 @@
 </Styled>
 
 <Styled @bind-Classname="@dropTarget">
-    display: block;
-    padding: 20px;
-    margin-bottom: 10px;
-    border: 1px dashed black;
-    border-radius: 5px;
+    border: 3px dashed #e68710;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+    color: #aeaeae;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin: 1.5rem 0 2rem 0;
+    position: relative;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    & input[type=file] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    }
+
+    &: hover{
+    background-color: #f5f5f5;
+    }
 </Styled>
 
-<Styled @bind-Classname="@dropTargetDrag">
-    border-color: orangered;
-    font-weight: bold;
-</Styled>
-
-<Styled @bind-Classname="@dropArea" Compose1="@dropTarget" Compose2="@dropTargetDrag" Compose2If="@dragging" />
 
 <div>
     <span class="@validationError">@errorMessage</span>
     <input id="name" placeholder="Name" @bind="@Name" />
-           <div class="@dropArea"
-                @ref=dropTargetElement
-                @ondrop=OnDrop
-                @ondragenter=OnDragEnter
-                @ondragleave=OnDragLeave>
-               @fileName
-           </div>
+    <div class="@dropTarget">
+        <InputFile OnChange="FileChosen" />
+        @status
+    </div>
     <div>
         <button @onclick="@(() => {ModalService.Cancel();})">Cancel</button>
         <button @onclick="@HandleSubmit">Add</button>
@@ -56,25 +68,24 @@
     private string dropArea, dropTarget, dropTargetDrag;
     private string contentView, validationError, addBtn;
 
+    const int MB = 20;
+
+    const int MaxFileSize = MB * 1024 * 1024; // 5MB
+
     private string validationDisplay = "none";
 
     private string errorMessage;
 
-    ElementReference dropTargetElement;
-    IFileReaderRef dropReference;
+    const string DefaultStatus = "Drop image here";
 
-    private string fileName = "Drop image here.";
+    private string status = DefaultStatus;
 
-    private IFileInfo imageFile;
+    private IFileListEntry selectedFile;
 
-    private bool imageFormatValid;
-
-    private bool dragging;
-
-    List<IFileInfo> FileList { get; } = new List<IFileInfo>();
+    private bool readyToSave;
 
     private List<string> supportedImageTypes = new List<string>
-    {
+{
         "image/jpeg",
         "image/png",
         "image/bmp",
@@ -91,6 +102,8 @@
 
     protected override void OnInitialized()
     {
+        readyToSave = false;
+
         parentId = Parameters?.Get<string>("parent") ?? string.Empty;
 
         if (string.IsNullOrEmpty(parentId))
@@ -115,95 +128,64 @@
             return;
         }
 
+        var imageId = Guid.NewGuid();
+
+        try
+        {
+            await TryParseFile(imageId);
+        }
+        catch (Exception e)
+        {
+            errorMessage = $"Error saving image file!{Environment.NewLine}{e.Message}";
+            validationDisplay = "block";
+            StateHasChanged();
+            return;
+        }
+
         var page = new MapPage()
         {
             Id = Guid.Empty.ToString(),
             Name = Name,
             FK_Section = parentId,
             Enabled = true,
-
-            Link = $"{parentId}/{Name}"
+            Image = imageId.ToString(),
+            Link = $"{parentId}/"
         };
 
         ModalService.Close(ModalResult.Ok(page));
     }
 
-    protected override async Task OnAfterRenderAsync(bool isFirstRender)
+    async Task FileChosen(IFileListEntry[] files)
     {
-        if (isFirstRender)
+        var file = files.FirstOrDefault();
+        if (file == null)
         {
-            dropReference = FileReaderService.CreateReference(dropTargetElement);
-            await dropReference.RegisterDropEventsAsync();
+            return;
         }
-    }
-
-    public void OnDragEnter(EventArgs e)
-    {
-        dragging = true;
-    }
-
-    public void OnDragLeave(EventArgs e)
-    {
-        dragging = false;
-    }
-
-    public async Task OnDrop(EventArgs e)
-    {
-
-        dragging = false;
-        StateHasChanged();
-        await RefreshFileList();
-        await TryParesFile();
-    }
-
-    private async Task RefreshFileList()
-    {
-        FileList.Clear();
-        foreach (var file in await dropReference.EnumerateFilesAsync())
+        else if (file.Size > MaxFileSize)
         {
-            var fileInfo = await file.ReadFileInfoAsync();
-            FileList.Add(fileInfo);
+            status = $"File too large. Max size: {MB} MB.";
         }
-
-        imageFile = FileList.FirstOrDefault();
-
-        if (imageFile != null)
+        else if (!supportedImageTypes.Contains(file.Type))
         {
-            if (supportedImageTypes.Contains(imageFile.Type))
-            {
-                fileName = imageFile.Name;
-            }
-            else
-            {
-                errorMessage = "Not a valid image type. Must be a JPEG, PNG, BMP, or GIF";
-                validationDisplay = "block";
-            }
+            status = $"{file.Type} is not a supported format.";
         }
         else
         {
-            fileName = string.Empty;
+            selectedFile = file;
+            status = selectedFile.Name;
         }
-
-        StateHasChanged();
     }
 
-    private async Task<string> TryParFile()
+    private async Task TryParseFile(Guid imageId)
     {
+        status = "Saving ...";
 
-        foreach (var file in await dropReference.EnumerateFilesAsync())
-        {
-            var fileInfo = await file.ReadFileInfoAsync();
+        var extension = $".{selectedFile.Type[Range.StartAt(6)]}";
 
-            var extension = Path.GetExtension(fileInfo.Name);
-
-            if (fileInfo.Name == fileName && (extension == ".png" || extension == ".jpg"))
-            {
-                await using var fs = await file.OpenReadAsync();
-                await using var ms = new MemoryStream();
-                await fs.CopyToAsync(ms);
-
-                await FileHandlerService.SaveFile(ms, Guid.NewGuid(), extension, FileType.Image);
-            }
-        }
+        using var reader = new StreamReader(selectedFile.Data);
+        await using var ms = new MemoryStream();
+        await reader.BaseStream.CopyToAsync(ms);
+        await FileHandlerService.SaveFile(ms, imageId, extension, FileType.Map);
     }
 }

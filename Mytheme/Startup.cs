@@ -43,7 +43,8 @@ namespace Mytheme
             services.AddTypography();
             services.AddServerSideBlazor().AddHubOptions(o =>
             {
-                o.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+              
+                o.MaximumReceiveMessageSize = 10485760; // 10MB
             });
             services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
 

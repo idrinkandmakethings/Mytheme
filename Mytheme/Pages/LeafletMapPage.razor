@@ -2,10 +2,21 @@
 @page "/mappage/{parent}/{id}"
 
 
+@using Mytheme.Dal
+@using Mytheme.Dal.Dto
 @using Mytheme.Map.Models
+@using Mytheme.Modals
+@using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
 @inject IFileHandlerService FileHandlerService
+
+@inject BreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager
+@inject SvgHelperService SvgHelperService
+@inject IJSRuntime JsRuntime
+@inject IModalService ModalService
+@inject ISectionService SectionService
 
 <Styled @bind-Classname="@mapStyle">
     position: relative;
@@ -13,14 +24,18 @@
     height: 100%;
 </Styled>
 
-<div class="@mapStyle">
-    <LeafletMap MapImage="@map" @ref="@mapView"></LeafletMap>
-                </div>
+@if (mapPage != null)
+{
+    <div class="@mapStyle">
+        <LeafletMap MapImage="@map"  @ref="@mapView"></LeafletMap>
+    </div>
+}
 
 @code {
 
     private string mapStyle;
 
+    private MapPage mapPage;
     MapImage map;
     LeafletMap mapView;
 
@@ -29,10 +44,109 @@
 
     [Parameter]
     public string Id { get; set; }
-
-    protected override void OnInitialized()
+    
+    protected override async Task OnInitializedAsync()
     {
-        map = new MapImage("/mythemelocal/images/69776bd4-5b98-4201-8db7-7635b47da68d.png", 1600, 1174);
+        
+
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var result = await SectionService.GetMapPageAsync(Id);
+
+            if (result.IsSuccess)
+            {
+                mapPage = result.Result;
+
+                BreadcrumbService.SetBreadCrumb(mapPage.Name);
+
+                await LoadMap();
+            }
+        }
+        else
+        {
+            BreadcrumbService.SetBreadCrumb($"New Map");
+
+            OpenNewMapPageModal();
+
+        }
     }
 
+    private async Task LoadMap()
+    {
+        var result = await FileHandlerService.GetMapImage(mapPage.Image);
+
+        map = result;
+    }
+
+    private void SetNavBarButtons()
+    {
+
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+    }
+
+    private async void SaveMapPage()
+    {
+
+        DalResult result;
+
+        if (mapPage.Id == Guid.Empty.ToString())
+        {
+            result = await SectionService.AddMapPageAsync(mapPage);
+        }
+        else
+        {
+            result = await SectionService.UpdateMapPageAsync(mapPage);
+        }
+
+        if (result.IsSuccess)
+        {
+            mapPage.Id = result.Message;
+
+            BreadcrumbService.SetBreadCrumb(mapPage.Name);
+        }
+        else
+        {
+            ModalService.ShowInfoModal($"Error Saving Page", result.Message);
+        }
+    }
+
+    protected void OpenNewMapPageModal()
+    {
+        var p = new ModalParameters();
+        p.Add("parent", Parent);
+
+        ModalService.Show<AddNewMapPageModal>("Add New Map", p,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                PixelWidth = 360,
+                DisableBackgroundCancel = true
+            }, OnModalClosed);
+    }
+
+    private void OnModalClosed(ModalResult result)
+    {
+        if (!result.Cancelled)
+        {
+            try
+            {
+                mapPage = (MapPage) result.Data;
+                SaveMapPage();
+                LoadMap().RunSynchronously();
+            }
+            catch (Exception e)
+            {
+                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+            }
+        }
+        else
+        {
+    // TODO: go back in navigation...
+        }
+    }
 }

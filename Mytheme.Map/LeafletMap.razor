@@ -22,6 +22,9 @@
     [Parameter]
     public MapImage MapImage { get; set; }
 
+    [Parameter]
+    public List<Marker> Markers { get; set; }
+
     private static event OnMarkerAdd OnMarkerAddOccured;
 
     protected override void OnInitialized()
@@ -43,13 +46,28 @@
         if (firstRender)
         {
             await LeafletInterop.CreateImageMap(JsRuntime, mapId, MapImage.Url, MapImage.Height, MapImage.Width);
+
+            foreach (var marker in Markers)
+            {
+                await AddMarker(marker);
+            }
         }
     }
 
     private async Task AddMarker(double lat, double lng)
     {
-        // TODO: add to datastore
+        var marker = new Marker{Id = Guid.NewGuid().ToString(), 
+            Content = SetPopup(PopupType.Link),
+            Lat = lat,
+            Lon = lng,
+        };
+
         await LeafletInterop.AddMarker(JsRuntime,lat, lng, SetPopup(PopupType.Link));
+    }
+
+    private async Task AddMarker(Marker marker)
+    {
+        await LeafletInterop.AddMarker(JsRuntime, marker.Lat, marker.Lon, SetPopup(PopupType.Link));
     }
 
 

@@ -48,6 +48,11 @@ namespace Mytheme.Dal.Dto
         [Required]
         public string Content { get; set; }
 
+        [Required] 
+        public long Lat { get; set; }
+        [Required] 
+        public long Lon { get; set; }
+
         [Required]
         public bool Enabled { get; set; }
 
