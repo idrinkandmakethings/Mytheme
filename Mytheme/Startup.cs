@@ -61,12 +61,12 @@ namespace Mytheme
             services.AddSingleton<SvgHelperService>();
             services.AddScoped<BrowserResizeService>();
 
-            services.AddSingleton<DataStorage>();
+            services.AddScoped<DataStorage>();
 
-            services.AddSingleton<IRandomTableService>(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
-            services.AddSingleton<ITemplateService>(x => new TemplateService(x.GetRequiredService<DataStorage>()));
-            services.AddSingleton<IFileHandlerService>(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
-            services.AddSingleton<ISectionService>(x => new SectionService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<IRandomTableService>(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<ITemplateService>(x => new TemplateService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<IFileHandlerService>(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<ISectionService>(x => new SectionService(x.GetRequiredService<DataStorage>()));
 
             services.AddServerSideBlazor().AddCircuitOptions(o =>
             {

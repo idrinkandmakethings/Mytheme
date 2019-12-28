@@ -35,4 +35,33 @@
     display: none;
 }
 
+.scroll-popup {
+    text-align: center;
+    padding: 10px;
+    min-width: 50px;
+    max-width: 200px;
+    background: #EEE5D5;
+    display: table;
+    word-break: break-word;
+    border: 1px solid darkgrey;
+}
+
+.scroll-popup p {
+    margin: 0;
+}
+
+.scroll-popup hr {
+    margin: 8px;
+    color: darkgrey;
+}
+
+
+.scroll-popup p {
+    margin: 0;
+}
+
+.scroll-popup a {
+    font-size: 18px;
+    color: #36464f;
+}
 

@@ -21,9 +21,6 @@
     private string mapId, mapStyle;
 
     [Parameter]
-    public MapImage MapImage { get; set; }
-
-    [Parameter]
     public EventCallback<Coordinate> OnMarkerAdded { get; set; }
 
 
@@ -34,7 +31,10 @@
 
         OnMarkerAddOccured += async delegate(Coordinate coord)
         {
-            await OnMarkerAdded.InvokeAsync(coord);
+            await InvokeAsync(async () =>
+            {
+                await OnMarkerAdded.InvokeAsync(coord);
+            });
         };
 
 #pragma warning restore 4014

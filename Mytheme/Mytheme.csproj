@@ -4,15 +4,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="logs\**" />
+    <Compile Remove="Services\Models\**" />
     <Compile Remove="wwwroot\css\bootstrap\**" />
     <Compile Remove="wwwroot\open-iconic\font\**" />
     <Content Remove="logs\**" />
+    <Content Remove="Services\Models\**" />
     <Content Remove="wwwroot\css\bootstrap\**" />
     <Content Remove="wwwroot\open-iconic\font\**" />
     <EmbeddedResource Remove="logs\**" />
+    <EmbeddedResource Remove="Services\Models\**" />
     <EmbeddedResource Remove="wwwroot\css\bootstrap\**" />
     <EmbeddedResource Remove="wwwroot\open-iconic\font\**" />
     <None Remove="logs\**" />
+    <None Remove="Services\Models\**" />
     <None Remove="wwwroot\css\bootstrap\**" />
     <None Remove="wwwroot\open-iconic\font\**" />
   </ItemGroup>
@@ -55,9 +59,6 @@
     <Content Update="electron.manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Models\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\svgs\brands\500px.svg" />

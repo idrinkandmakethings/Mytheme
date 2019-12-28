@@ -8,6 +8,7 @@
 @using Mytheme.Modals
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
+@using Serilog
 
 @inject IFileHandlerService FileHandlerService
 
@@ -24,12 +25,10 @@
     height: 100%;
 </Styled>
 
-@if (mapPage != null)
-{
     <div class="@mapStyle">
-        <LeafletMap MapImage="@map" OnMarkerAdded="MarkerAdded" @ref="@mapView"></LeafletMap>
+        <LeafletMap OnMarkerAdded="MarkerAdded" @ref="@mapView"></LeafletMap>
     </div>
-}
+
 
 @code {
 
@@ -71,18 +70,6 @@
         SetNavBarButtons();
     }
 
-   
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            if (mapPage != null)
-            {
-                await LoadMap();
-            }
-        }
-    }
-
 
     protected override async Task OnParametersSetAsync()
     {
@@ -116,7 +103,7 @@
         BreadcrumbService.SetNavBarButtons(buttons);
     }
 
-    private async Task MarkerAdded(Coordinate coord)
+    private async void MarkerAdded(Coordinate coord)
     {
         var p = new ModalParameters();
         p.Add("lat", coord.Latitude);
@@ -173,7 +160,7 @@
             }, OnModalClosed);
     }
 
-    private void OnModalClosed(ModalResult result)
+    private async void OnModalClosed(ModalResult result)
     {
         if (!result.Cancelled)
         {
@@ -181,11 +168,12 @@
             {
                 mapPage = (MapPage) result.Data;
                 SaveMapPage();
-                LoadMap().RunSynchronously();
+                await LoadMap();
             }
             catch (Exception e)
             {
                 ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+                Log.Error(e, "Exception initializing map page after modal creation");
             }
         }
         else
@@ -194,7 +182,7 @@
         }
     }
 
-    private void OnMapMarkerModalClosed(ModalResult result)
+    private async void OnMapMarkerModalClosed(ModalResult result)
     {
         if (!result.Cancelled)
         {
@@ -204,13 +192,14 @@
 
                 mapPage.MapMarkers.Add(marker);
 
-                mapView.AddMarker(marker.ToLeafletMarker());
+                await mapView.AddMarker(marker.ToLeafletMarker());
 
                 SaveMapPage();
             }
             catch (Exception e)
             {
                 ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+                Log.Error(e, "Exception adding map marker.");
             }
         }
     }

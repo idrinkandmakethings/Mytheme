@@ -343,8 +343,8 @@ namespace Mytheme.Services
                         return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
                     }
 
-                    var result = await db.MapPages.AddAsync(page);
-                    db.SaveChanges(true);
+                    var result = db.MapPages.Update(page);
+                    await db.SaveChangesAsync(true);
 
                     return new DalResult(DalStatus.Success, page.Id);
                 }
@@ -365,6 +365,8 @@ namespace Mytheme.Services
                 {
                     var result = await db.MapPages.FindAsync(id);
 
+                    db.Entry(result).Collection(r => r.MapMarkers).Load();
+                    
                     return new DalResult<MapPage>(DalStatus.Success, result);
                 }
                 catch (Exception e)

@@ -298,7 +298,7 @@
             }
             catch (Exception e)
             {
-                Log.Error($"Error parsing route arg enum. ex:{e.Message}");
+                Log.Error(e, $"Error parsing route arg enum.");
                 sectionType = SectionType.Campaign;
             }
 

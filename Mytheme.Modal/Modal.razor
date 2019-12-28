@@ -145,7 +145,9 @@
         SetModalOptions(options);
 
         modalDisplay = "flex";
-        StateHasChanged();
+
+        InvokeAsync(StateHasChanged);
+        
     }
 
     internal void CloseModal()
@@ -155,7 +157,7 @@
         Content = null;
         ComponentStyle = "";
         modalDisplay = "none";
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     protected void HandleBackgroundClick()

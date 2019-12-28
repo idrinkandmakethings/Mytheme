@@ -23,55 +23,55 @@
 
 @code {
 
-        private string validationError;
+private string validationError;
 
-        private string validationDisplay;
-        private string errorMessage;
+private string validationDisplay;
+private string errorMessage;
 
-        private double lat;
-        private double lon;
+private double lat;
+private double lon;
 
-        [Parameter]
-        public string Name { get; set; }
-        [Parameter]
-        public string Link { get; set; }
-        [Parameter]
-        public string Description { get; set; }
+[Parameter]
+public string Name { get; set; }
+[Parameter]
+public string Link { get; set; }
+[Parameter]
+public string Description { get; set; }
 
-        [CascadingParameter]
-        public ModalParameters Parameters { get; set; }
+[CascadingParameter]
+public ModalParameters Parameters { get; set; }
 
-        protected override void OnInitialized()
-        {
-            lat = Parameters?.Get<double>("lat") ?? 0;
-            lon = Parameters?.Get<double>("lon") ?? 0;
-        }
+protected override void OnInitialized()
+{
+    lat = Parameters?.Get<double>("lat") ?? 0;
+    lon = Parameters?.Get<double>("lon") ?? 0;
+}
 
-        private async Task HandleSubmit()
-        {
-            var marker = new MapMarker
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Name,
-                Content = SetContent(),
-                Lat = lat,
-                Lon = lon
-            };
+private async Task HandleSubmit()
+{
+    var marker = new MapMarker
+    {
+        Id = Guid.NewGuid().ToString(),
+        Name = Name,
+        Content = SetContent(),
+        Lat = lat,
+        Lon = lon
+    };
 
-            ModalService.Close(ModalResult.Ok(marker));
-        }
+    ModalService.Close(ModalResult.Ok(marker));
+}
 
-        private string SetContent()
-        {
-            var sb = new StringBuilder();
+private string SetContent()
+{
+    var sb = new StringBuilder();
 
-            sb.Append($@"<div><a href=""{Link}"">{Name}</a></div>");
-            sb.Append("<hr/>");
-            sb.Append($"<div>{Description}</div>");
+    sb.Append($@"<div class=""scroll-popup""><a href=""{Link}"">{Name}</a>");
+    sb.Append("<hr/>");
+    sb.Append($"<p>{Description}</p></div>");
 
 
-            return sb.ToString();
+    return sb.ToString();
 
-        }
+}
 
 }

@@ -6,6 +6,7 @@
 @using Mytheme.Modals
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
+@using Serilog
 
 
 @inject BreadcrumbService BreadcrumbService
@@ -137,6 +138,7 @@
             catch (Exception e)
             {
                 ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+                Log.Error(e, "Exception adding mark down page");
             }
         }
         else

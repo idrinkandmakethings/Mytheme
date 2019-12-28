@@ -2,6 +2,7 @@
 @using Blazor.FileReader
 @using Mytheme.Dal.Dto
 @using Mytheme.Services.Interfaces
+@using Serilog
 
 
 @inject IFileHandlerService FileHandlerService
@@ -139,6 +140,9 @@
             errorMessage = $"Error saving image file!{Environment.NewLine}{e.Message}";
             validationDisplay = "block";
             StateHasChanged();
+
+            Log.Error(e, "Exception adding new map page from modal");
+
             return;
         }
 
