@@ -1,9 +1,7 @@
 ﻿@page "/"
-@using Microsoft.EntityFrameworkCore.Diagnostics
 @using Mytheme.Dal.Dto
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
-@using Mytheme.Slider.Models
 
 @inject BreadcrumbService BreadcrumbService
 @inject NavigationManager NavigationManager
@@ -141,9 +139,9 @@
 
 @code
 {
-    private string title, subTitle, campaignSelector, row, columnLeft, columnRight, subRow, subColumnUpper, subColumnLower, dummy, imgContainer, centerer;
+    private string title, subTitle, campaignSelector, row, columnLeft, columnRight, subRow, subColumnUpper, subColumnLower;
 
-    private string campaignEntry, button, buttonLabel;
+    private string button, buttonLabel;
 
     private Section[] campaigns;
 
@@ -154,7 +152,8 @@
         campaigns = (await SectionService.GetAllCampaignsAsync()).Result;
 
 
-        BreadcrumbService.SetBreadCrumb("");
+        BreadcrumbService.SetBreadCrumb("", "", false);
+        BreadcrumbService.ClearHistory();
         BreadcrumbService.NavBarButtons.Clear();
     }
 

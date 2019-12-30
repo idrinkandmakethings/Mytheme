@@ -66,8 +66,8 @@
 
 @code {
     // css class names
-    private string dropArea, dropTarget, dropTargetDrag;
-    private string contentView, validationError, addBtn;
+    private string dropTarget;
+    private string contentView, validationError;
 
     const int MB = 20;
 
@@ -82,8 +82,6 @@
     private string status = DefaultStatus;
 
     private IFileListEntry selectedFile;
-
-    private bool readyToSave;
 
     private List<string> supportedImageTypes = new List<string>
 {
@@ -103,8 +101,6 @@
 
     protected override void OnInitialized()
     {
-        readyToSave = false;
-
         parentId = Parameters?.Get<string>("parent") ?? string.Empty;
 
         if (string.IsNullOrEmpty(parentId))

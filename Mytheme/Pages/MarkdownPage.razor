@@ -44,12 +44,12 @@
             {
                 _page = result.Result;
 
-                BreadcrumbService.SetBreadCrumb(_page.Name);
+                BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, true);
             }
         }
         else
         {
-            BreadcrumbService.SetBreadCrumb($"New Page");
+            BreadcrumbService.SetBreadCrumb($"New Page", "", true);
 
             OpenNewPageModal();
         }
@@ -67,7 +67,7 @@
         {
             _page = result.Result;
 
-            BreadcrumbService.SetBreadCrumb(_page.Name);
+            BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, true);
         }
 
         SetNavBarButtons();
@@ -93,19 +93,21 @@
         if (_page.Id == Guid.Empty.ToString())
         {
             result = await SectionService.AddPageAsync(_page);
+
+            if (result.IsSuccess)
+            {
+                _page.Id = result.Message;
+
+                BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, false);
+            }
         }
         else
         {
             result = await SectionService.UpdatePageAsync(_page);
         }
 
-        if (result.IsSuccess)
-        {
-            _page.Id = result.Message;
 
-            BreadcrumbService.SetBreadCrumb(_page.Name);
-        }
-        else
+        if (!result.IsSuccess)
         {
             ModalService.ShowInfoModal($"Error Saving Page", result.Message);
         }

@@ -57,12 +57,12 @@
             {
                 mapPage = result.Result;
 
-                BreadcrumbService.SetBreadCrumb(mapPage.Name);
+                BreadcrumbService.SetBreadCrumb(mapPage.Name, mapPage.Link, true);
             }
         }
         else
         {
-            BreadcrumbService.SetBreadCrumb($"New Map");
+            BreadcrumbService.SetBreadCrumb($"New Map", "", true);
 
             OpenNewMapPageModal();
         }
@@ -99,6 +99,7 @@
         var buttons = new List<NavBarButton>();
 
         buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
+        buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
 
         BreadcrumbService.SetNavBarButtons(buttons);
     }
@@ -127,22 +128,34 @@
         if (mapPage.Id == Guid.Empty.ToString())
         {
             result = await SectionService.AddMapPageAsync(mapPage);
+
+            if (result.IsSuccess)
+            {
+                mapPage.Id = result.Message;
+
+                BreadcrumbService.SetBreadCrumb(mapPage.Name, mapPage.Link, false);
+            }
         }
         else
         {
             result = await SectionService.UpdateMapPageAsync(mapPage);
         }
 
-        if (result.IsSuccess)
-        {
-            mapPage.Id = result.Message;
 
-            BreadcrumbService.SetBreadCrumb(mapPage.Name);
-        }
-        else
+        if (!result.IsSuccess)
         {
             ModalService.ShowInfoModal($"Error Saving Page", result.Message);
         }
+    }
+
+    private void ShowDeleteModal()
+    {
+
+    }
+
+    private async void DeleteMapPage()
+    {
+
     }
 
     protected void OpenNewMapPageModal()

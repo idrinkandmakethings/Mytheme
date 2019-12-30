@@ -238,7 +238,7 @@
 
 @code {
 
-    private string mainView, detailSection, nameDiv, descriptionDiv, linkSection, subSectionColumn, pagesColumn, mapsColumn;
+    private string  detailSection, nameDiv, descriptionDiv, linkSection, subSectionColumn, pagesColumn, mapsColumn;
 
     private string description, subSectionHeader, subSectionLinks, pageHeader, pageLinks, mapHeader, mapLinks, linkTable;
 
@@ -287,7 +287,7 @@
 
                 sectionType = _section.SectionType;
 
-                BreadcrumbService.SetBreadCrumb(_section.Name);
+                BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", true);
             }
         }
         else if (!string.IsNullOrEmpty(ParentId))
@@ -304,7 +304,7 @@
 
             Id = Guid.Empty.ToString();
 
-            BreadcrumbService.SetBreadCrumb($"New {sectionType.ToString()}");
+            BreadcrumbService.SetBreadCrumb($"New {sectionType.ToString()}", "", true);
 
             _section = new Section
             {
@@ -321,7 +321,7 @@
 
             Id = Guid.Empty.ToString();
 
-            BreadcrumbService.SetBreadCrumb($"New Campaign");
+            BreadcrumbService.SetBreadCrumb($"New Campaign", "", false);
 
             _section = new Section
             {
@@ -351,7 +351,7 @@
 
             sectionType = _section.SectionType;
 
-            BreadcrumbService.SetBreadCrumb(_section.Name);
+            BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", true);
         }
 
         SetAllTheThings();
@@ -402,19 +402,20 @@
         if (_section.Id == Guid.Empty.ToString())
         {
             result = await SectionService.AddSectionAsync(_section);
+
+            if (result.IsSuccess)
+            {
+                _section.Id = result.Message;
+                Id = _section.Id;
+                BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", false);
+            }
         }
         else
         {
             result = await SectionService.UpdateSectionAsync(_section);
         }
 
-        if (result.IsSuccess)
-        {
-            _section.Id = result.Message;
-            Id = _section.Id;
-            BreadcrumbService.SetBreadCrumb(_section.Name);
-        }
-        else
+        if (!result.IsSuccess)
         {
             ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
         }

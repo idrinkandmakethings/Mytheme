@@ -27,7 +27,7 @@
         {
             Id = Guid.NewGuid().ToString();
 
-            BreadcrumbService.SetBreadCrumb("New Campaign");
+            BreadcrumbService.SetBreadCrumb("New Campaign",  "", true);
             _section = new Section
             {
                 Id = Id,
@@ -53,16 +53,16 @@
 
     private void Edit()
     {
-        var test = "";
+        throw new NotImplementedException();
     }
 
     private void Save()
     {
-
+        throw new NotImplementedException();
     }
 
     private void Bug()
     {
-        var test = "";
+        throw new NotImplementedException();
     }
 }

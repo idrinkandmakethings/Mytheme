@@ -12,6 +12,7 @@ namespace Mytheme.Services
         private const string saveD = "viewBox=\"0 0 448 512\"><path d=\"M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM272 80v80H144V80h128zm122 352H54a6 6 0 0 1-6-6V86a6 6 0 0 1 6-6h42v104c0 13.255 10.745 24 24 24h176c13.255 0 24-10.745 24-24V83.882l78.243 78.243a6 6 0 0 1 1.757 4.243V426a6 6 0 0 1-6 6zM224 232c-48.523 0-88 39.477-88 88s39.477 88 88 88 88-39.477 88-88-39.477-88-88-88zm0 128c-22.056 0-40-17.944-40-40s17.944-40 40-40 40 17.944 40 40-17.944 40-40 40z\"";
         private const string folderD = "viewBox=\"0 0 576 512\"><path d=\"M527.9 224H480v-48c0-26.5-21.5-48-48-48H272l-64-64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h400c16.5 0 31.9-8.5 40.7-22.6l79.9-128c20-31.9-3-73.4-40.7-73.4zM48 118c0-3.3 2.7-6 6-6h134.1l64 64H426c3.3 0 6 2.7 6 6v42H152c-16.8 0-32.4 8.8-41.1 23.2L48 351.4zm400 282H72l77.2-128H528z\"";
         private const string arrowD = "viewBox=\"0 0 8 8\"><path d=\"M4 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 1l3 3-3 3v-2h-3v-2h3v-2z\"";
+        private const string deleteD = "viewBox=\"0 0 8 8\">\r\n  <path d=\"M2 0l-2 3 2 3h6v-6h-6zm1.5.78l1.5 1.5 1.5-1.5.72.72-1.5 1.5 1.5 1.5-.72.72-1.5-1.5-1.5 1.5-.72-.72 1.5-1.5-1.5-1.5.72-.72z\" transform=\"translate(0 1)\" ";
 
         public MarkupString GetImage(SvgName name, int size, string color)
         {
@@ -31,6 +32,8 @@ namespace Mytheme.Services
                     return GetSvgString(size, saveD, color);
                 case SvgName.Folder:
                     return GetSvgString(size, folderD, color);
+                case SvgName.Delete:
+                    return GetSvgString(size, deleteD, color);
                 default:
                     return GetSvgString(size, bugD, color);
             }
@@ -49,6 +52,7 @@ namespace Mytheme.Services
         CircleArrowRight,
         Edit,
         Save,
+        Delete,
         Map,
         Page,
         Folder,

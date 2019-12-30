@@ -34,7 +34,6 @@
 .tooltip span:hover {
     display: none;
 }
-
 .scroll-popup {
     text-align: center;
     padding: 10px;
@@ -65,3 +64,7 @@
     color: #36464f;
 }
 
+.scroll-popup .title p {
+    font-size: 18px;
+    color: #36464f;
+}

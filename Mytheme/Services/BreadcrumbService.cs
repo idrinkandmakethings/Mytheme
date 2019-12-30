@@ -11,14 +11,31 @@ namespace Mytheme.Services
         public event Action<string> OnBreadCrumbChange;
         public event Action OnNavbarButtonChange;
 
+        private Queue<string> history;
+        private string currentRoute;
+        
+
         public BreadcrumbService()
         {
             NavBarButtons = new List<NavBarButton>();
+            history = new Queue<string>();
         }
 
-        public void SetBreadCrumb(string text)
+        public void SetBreadCrumb(string text, string route, bool addNavBack)
         {
+            if (!string.IsNullOrEmpty(currentRoute) && addNavBack)
+            {
+                history.Enqueue(currentRoute);
+            }
+
+            currentRoute = route;
+            
             OnBreadCrumbChange?.Invoke(text);
+        }
+
+        public void ClearHistory()
+        {
+            history.Clear();
         }
 
         public void SetNavBarButtons(List<NavBarButton> buttons)
@@ -34,7 +51,6 @@ namespace Mytheme.Services
         public Action CallBack { get; set; }
 
         public SvgName Image { get; set; }
-
         public string Name { get; set; }
 
         public NavBarButton(string name, SvgName image, Action callBack)

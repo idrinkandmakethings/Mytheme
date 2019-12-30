@@ -43,7 +43,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        BreadcrumbService.SetBreadCrumb("Tables");
+        BreadcrumbService.SetBreadCrumb("Tables", "/tables", true);
       
         buttons = new List<ButtonOptions>
         {
