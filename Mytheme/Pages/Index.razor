@@ -119,7 +119,7 @@
                         <th>Created</th>
                     </GridHeader>
                     <GridRow>
-                        <tr @onclick="@(() => NavigationManager.NavigateTo($"section/{campaign.Id}"))">
+                        <tr @onclick="@(() => CampaignSelected(campaign.Id))">
                             <td>@campaign.Name</td>
                             <td>@campaign.Description</td>
                             <td>@campaign.DateCreated.ToShortDateString()</td>
@@ -155,6 +155,13 @@
         BreadcrumbService.SetBreadCrumb("", "", false);
         BreadcrumbService.ClearHistory();
         BreadcrumbService.NavBarButtons.Clear();
+    }
+
+    protected void CampaignSelected(string id)
+    {
+        BreadcrumbService.CampaignSelected(id);
+
+        NavigationManager.NavigateTo($"section/{id}");
     }
 
 }

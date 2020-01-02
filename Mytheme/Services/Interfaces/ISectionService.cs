@@ -1,12 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
+using Mytheme.Models;
 
 namespace Mytheme.Services.Interfaces
 {
     public interface ISectionService
     {
         Task<DalResult<Section[]>> GetAllCampaignsAsync();
+        Task<DalResult<IndexLevel>> GetCampaignIndex();
+
         Task<DalResult> AddSectionAsync(Section section);
         Task<DalResult> UpdateSectionAsync(Section section);
         Task<DalResult<Section>> GetSectionAsync(string id);

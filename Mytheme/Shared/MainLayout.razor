@@ -82,22 +82,38 @@ Colors
     & a:hover {
     color: #f1f1f1;
     }
+</Styled>
 
-    & .closeBtn{
+<Styled @bind-Classname="@searchPanel">
+
+    height: 100%;
+    width: @searchWidth;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    right: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 60px;
+    transition: 0.5s;
+
+    & a {
     padding: 8px 8px 8px 32px;
+    text-decoration: none;
     font-size: 25px;
     color: #818181;
     display: block;
     white-space: nowrap;
-    position: absolute;
-    font-weight: bold;
-    cursor: pointer;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    transition: 0.3s;
+    }
+
+    & a:hover {
+    color: #f1f1f1;
     }
 </Styled>
+
 
 
 <Styled @bind-Classname="@topNav">
@@ -164,15 +180,53 @@ Colors
     padding: 58px 20px 20px;
 </Styled>
 
+
+<Styled @bind-Classname="@navFlexRoot">
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+</Styled>
+
+<Styled @bind-Classname="@navHome">
+    height: 48px;
+</Styled>
+
+<Styled @bind-Classname="@navIndex">
+    flex-grow: 1;
+    background: cyan;
+</Styled>
+
+<Styled @bind-Classname="@mgmtHeader">
+    height: 48px;
+</Styled>
+
+
+<Styled @bind-Classname="@mgmtSection">
+    height: 200px;
+    display: @mgmtSectionDisplay;
+    background: cyan;
+</Styled>
+
+
 <Modal></Modal>
 
 <div class="@sideNav">
-    <span class="closeBtn">&times;</span>
-    <a href="#">Home</a>
-    <a href="tables">Tables</a>
-    <a href="templates">Templates</a>
-    <a href="maptest">Map Test</a>
-    <a href="imageloader">Image Loader</a>
+    <div class="@navFlexRoot">
+        <div class="@navHome">
+            <a href="#">Home</a>
+        </div>
+        <div class="@navIndex">
+
+        </div>
+        <div class="@mgmtHeader">
+            <a @onclick="ToggleAppManagement">App Management</a>
+        </div>
+        <div class="@mgmtSection">
+            <a href="tables">Tables</a>
+            <a href="templates">Templates</a>
+            <a href="imageloader">Image Loader</a>
+        </div>
+    </div>
 </div>
 
 <div class="@topNav">
@@ -183,30 +237,43 @@ Colors
         {
             <a @onclick="@btn.CallBack" class="@topNavButton tooltip">@SvgHelperService.GetImage(btn.Image, 26, "white")<span class="tooltiptext">@btn.Name</span></a>
         }
-        <a @onclick="@OpenSeachPanel" class="@topNavButton tooltip">@SvgHelperService.GetImage(SvgName.Search, 26, "white")<span class="tooltiptext">Search</span></a>
+        <a @onclick="ToggleSearchPanel" class="@topNavButton tooltip">@SvgHelperService.GetImage(SvgName.Search, 26, "white")<span class="tooltiptext">Search</span></a>
     </div>
+</div>
 
+<div class="@searchPanel">
+    <a href="#">Home</a>
 </div>
 
 
-
 <div class="@mainView">
-        @Body
+    @Body
 </div>
 
 
 @code {
-    private string topNav, topNavBody, topNavTitle, topNavButton, topNavComponents, sideNav, mainView;
+    private string topNav, topNavBody, topNavTitle, topNavButton, topNavComponents, sideNav, searchPanel, mainView;
+
+    private string navFlexRoot, navHome, navIndex;
+
+    private string mgmtHeader, mgmtSection;
+
+    private string mgmtSectionDisplay= "none";
+
     private string navWidth = "0px";
+    private string searchWidth = "0px";
     private string breadCrumb = "";
 
     private bool navOpen;
+    private bool searchOpen;
+    private bool mgmtSectionOpen;
 
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += LocationChanged;
         BreadcrumbService.OnBreadCrumbChange += UpdateBreadCrumb;
         BreadcrumbService.OnNavbarButtonChange += UpdateNavbarButtons;
+        BreadcrumbService.OnCampaignSelected += CampaignSelected;
 
         var theme = new BlazorTypography.Themes.Stardust();
         Typography.ApplyTypography(theme);
@@ -220,6 +287,11 @@ Colors
         Styled.SetThemeValue("colors.code-background", "#DCD0C0");
         Styled.SetThemeValue("colors.code-text", "#373737");
         Styled.SetThemeValue("colors.hr", "#974442");
+    }
+
+    private void CampaignSelected(string id)
+    {
+        throw new NotImplementedException();
     }
 
     private void UpdateBreadCrumb(string text)
@@ -239,20 +311,63 @@ Colors
         {
             navWidth = "0px";
             navOpen = false;
+
+            mgmtSectionDisplay = "none";
+            mgmtSectionOpen = false;
         }
         else
         {
-            navWidth = "260px";
+            navWidth = "280px";
             navOpen = true;
+
+            if (searchOpen)
+            {
+                searchWidth = "0px";
+                searchOpen = false;
+            }
         }
-        //StateHasChanged();
     }
 
+    protected void ToggleSearchPanel()
+    {
+        if (searchOpen)
+        {
+            searchWidth = "0px";
+            searchOpen = false;
+        }
+        else
+        {
+            searchWidth = "260px";
+            searchOpen = true;
+
+            if (navOpen)
+            {
+                navWidth = "0px";
+                navOpen = false;
+            }
+        }
+    }
+
+    protected void ToggleAppManagement()
+    {
+        if (mgmtSectionOpen)
+        {
+            mgmtSectionDisplay = "none";
+            mgmtSectionOpen = false;
+        }
+        else
+        {
+            mgmtSectionDisplay = "block";
+            mgmtSectionOpen = true;
+        }
+    }
 
     private void LocationChanged(object sender, LocationChangedEventArgs e)
     {
         navWidth = "0px";
         navOpen = false;
+        mgmtSectionDisplay = "none";
+        mgmtSectionOpen = false;
         StateHasChanged();
     }
 }

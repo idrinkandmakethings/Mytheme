@@ -13,6 +13,8 @@ namespace Mytheme.Services
         private const string folderD = "viewBox=\"0 0 576 512\"><path d=\"M527.9 224H480v-48c0-26.5-21.5-48-48-48H272l-64-64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h400c16.5 0 31.9-8.5 40.7-22.6l79.9-128c20-31.9-3-73.4-40.7-73.4zM48 118c0-3.3 2.7-6 6-6h134.1l64 64H426c3.3 0 6 2.7 6 6v42H152c-16.8 0-32.4 8.8-41.1 23.2L48 351.4zm400 282H72l77.2-128H528z\"";
         private const string arrowD = "viewBox=\"0 0 8 8\"><path d=\"M4 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 1l3 3-3 3v-2h-3v-2h3v-2z\"";
         private const string deleteD = "viewBox=\"0 0 8 8\">\r\n  <path d=\"M2 0l-2 3 2 3h6v-6h-6zm1.5.78l1.5 1.5 1.5-1.5.72.72-1.5 1.5 1.5 1.5-.72.72-1.5-1.5-1.5 1.5-.72-.72 1.5-1.5-1.5-1.5.72-.72z\" transform=\"translate(0 1)\" ";
+        private const string searchD = "viewBox=\"0 0 8 8\">\r\n  <path d=\"M3.5 0c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5c.59 0 1.17-.14 1.66-.41a1 1 0 0 0 .13.13l1 1a1.02 1.02 0 1 0 1.44-1.44l-1-1a1 1 0 0 0-.16-.13c.27-.49.44-1.06.44-1.66 0-1.93-1.57-3.5-3.5-3.5zm0 1c1.39 0 2.5 1.11 2.5 2.5 0 .66-.24 1.27-.66 1.72-.01.01-.02.02-.03.03a1 1 0 0 0-.13.13c-.44.4-1.04.63-1.69.63-1.39 0-2.5-1.11-2.5-2.5s1.11-2.5 2.5-2.5z\"\r\n ";
+
 
         public MarkupString GetImage(SvgName name, int size, string color)
         {
@@ -34,6 +36,8 @@ namespace Mytheme.Services
                     return GetSvgString(size, folderD, color);
                 case SvgName.Delete:
                     return GetSvgString(size, deleteD, color);
+                case SvgName.Search:
+                    return GetSvgString(size, searchD, color);
                 default:
                     return GetSvgString(size, bugD, color);
             }
@@ -57,7 +61,8 @@ namespace Mytheme.Services
         Page,
         Folder,
         Link,
-        Bug
+        Bug,
+        Search
     }
 }
 

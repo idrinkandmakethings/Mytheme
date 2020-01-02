@@ -9,6 +9,8 @@ namespace Mytheme.Services
         public List<NavBarButton> NavBarButtons { get; set; }
         
         public event Action<string> OnBreadCrumbChange;
+        public event Action<string> OnCampaignSelected; 
+
         public event Action OnNavbarButtonChange;
 
         private Queue<string> history;
@@ -31,6 +33,11 @@ namespace Mytheme.Services
             currentRoute = route;
             
             OnBreadCrumbChange?.Invoke(text);
+        }
+
+        public void CampaignSelected(string campaignId)
+        {
+            OnCampaignSelected?.Invoke(campaignId);
         }
 
         public void ClearHistory()
