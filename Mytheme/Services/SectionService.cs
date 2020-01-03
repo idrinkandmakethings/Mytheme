@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mytheme.Dal;
 using Mytheme.Dal.Dto;
+using Mytheme.Models;
 using Mytheme.Services.Interfaces;
+using Mytheme.Utility;
 using Serilog;
 
 namespace Mytheme.Services
@@ -35,6 +38,59 @@ namespace Mytheme.Services
                     return new DalResult<Section[]>(DalStatus.Unknown, null, "Error saving section");
                 }
             });
+        }
+
+        public async Task<DalResult<IndexLevel>> GetCampaignIndex(string id)
+        {
+            return await Task.Run(async () =>
+            {
+                var result = await GetIndexLevelForSection(id);
+                return new DalResult<IndexLevel>(DalStatus.Success, result);
+            }).ConfigureAwait(false);
+        }
+
+        private async Task<IndexLevel> GetIndexLevelForSection(string id)
+        {
+            try
+            {
+                var section = db.Sections.First(x => x.Id == id);
+
+                var result = new IndexLevel
+                {
+                    LevelHome = new LinkObject {Link = $"section/{section.Id}", Name = section.Name},
+                    Type = section.SectionType,
+                    SubSectionType = section.SectionType.GetSubSectionType()
+                };
+                
+                result.Maps = db.MapPages.Where(x => x.FK_Section == id)
+                    .Select(x => new LinkObject {Link = x.Link, Name = x.Name}).ToList();
+
+                result.Pages = db.Pages.Where(x => x.FK_Section == id)
+                    .Select(x => new LinkObject {Link = x.Link, Name = x.Name}).ToList();
+
+                result.SubLevels = new List<IndexLevel>();
+
+                if (result.SubSectionType == SectionType.None)
+                {
+                    return result;
+                }
+                else
+                {
+                    var subs = db.Sections.Where(x => x.Enabled).Where(x => x.Parent == id).ToArray();
+
+                    foreach (var sub in subs)
+                    {
+                        result.SubLevels.Add(await GetIndexLevelForSection(sub.Id));
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting index level for id {Id}.", id);
+                return null;
+            }
         }
 
         public async Task<DalResult> AddSectionAsync(Section section)

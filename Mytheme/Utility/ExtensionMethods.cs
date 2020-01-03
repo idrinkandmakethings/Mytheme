@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using Mytheme.Dal.Dto;
 using Serilog;
 
 namespace Mytheme.Utility
@@ -40,6 +41,21 @@ namespace Mytheme.Utility
             }
             //If we have no description attribute, just return the ToString of the enum
             return enumerationValue.ToString();
+        }
+
+        public static SectionType GetSubSectionType(this SectionType sectionType)
+        {
+            switch (sectionType)
+            {
+                case SectionType.Campaign:
+                    return SectionType.Adventure;
+                case SectionType.Adventure:
+                    return SectionType.Section;
+                case SectionType.Section:
+                    return SectionType.Chapter;
+                default:
+                    return SectionType.None;
+            }
         }
 
     }

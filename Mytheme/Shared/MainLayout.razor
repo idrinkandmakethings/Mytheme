@@ -1,5 +1,7 @@
 ﻿@using BlazorTypography
+@using Mytheme.Models
 @using Mytheme.Services
+@using Mytheme.Services.Interfaces
 @inherits LayoutComponentBase
 
 @inject SvgHelperService SvgHelperService
@@ -8,6 +10,7 @@
 
 @inject IStyled Styled
 @inject ITypography Typography
+@inject ISectionService SectionService
 <!--
 Colors
     pale gold - #C0B283
@@ -268,6 +271,8 @@ Colors
     private bool searchOpen;
     private bool mgmtSectionOpen;
 
+    private IndexLevel index = new IndexLevel();
+
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += LocationChanged;
@@ -289,9 +294,14 @@ Colors
         Styled.SetThemeValue("colors.hr", "#974442");
     }
 
-    private void CampaignSelected(string id)
+    private async void CampaignSelected(string id)
     {
-        throw new NotImplementedException();
+        var result = await SectionService.GetCampaignIndex(id);
+
+        if (result.IsSuccess)
+        {
+            index = result.Result;
+        }
     }
 
     private void UpdateBreadCrumb(string text)

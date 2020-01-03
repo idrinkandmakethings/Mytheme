@@ -11,6 +11,7 @@ namespace Mytheme.Dal.Dto
         Adventure,
         Section,
         Chapter,
+        None 
     }
 
     public class Section : DtoObject
