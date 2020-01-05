@@ -1,5 +1,5 @@
 ﻿@using System.Text
-@using Mytheme.Dal.Dto
+@using Mytheme.Data.Dto
 @using Mytheme.Services.Interfaces
 
 @inject IModalService ModalService
@@ -58,7 +58,7 @@
 
         var marker = new MapMarker
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             Name = Name,
             Content = SetContent(),
             Lat = lat,

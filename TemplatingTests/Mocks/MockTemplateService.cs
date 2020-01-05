@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Mytheme.Dal;
-using Mytheme.Dal.Dto;
+using Mytheme.Data;
+using Mytheme.Data.Dto;
 using Mytheme.Services.Interfaces;
 using Mytheme.Templating;
 
@@ -22,7 +22,7 @@ namespace TemplatingTests.Mocks
         }
 
 
-        public Task<DalResult> AddTemplate(Template template)
+        public Task<DalResult<Guid>> AddTemplate(Template template)
         {
             throw new System.NotImplementedException();
         }
@@ -83,7 +83,7 @@ table=[tbl:Test Table]
 
             var testTemplate = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Test Template",
                 Category = "Test",
                 Description = "Test",

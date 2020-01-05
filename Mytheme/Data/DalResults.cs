@@ -1,4 +1,4 @@
-﻿namespace Mytheme.Dal
+﻿namespace Mytheme.Data
 {
     public class DalResult 
     {

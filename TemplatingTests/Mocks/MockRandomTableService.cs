@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Mytheme.Dal;
-using Mytheme.Dal.Dto;
+using Mytheme.Data;
+using Mytheme.Data.Dto;
 using Mytheme.Services.Interfaces;
 
 namespace TemplatingTests.Mocks
@@ -19,7 +19,7 @@ namespace TemplatingTests.Mocks
         }
 
 
-        public Task<DalResult> AddRandomTable(RandomTable table)
+        public Task<DalResult<Guid>> AddRandomTable(RandomTable table)
         {
             throw new System.NotImplementedException();
         }
@@ -73,7 +73,7 @@ namespace TemplatingTests.Mocks
         {
             var testTable = new RandomTable
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Test Table",
                 Category = "Test",
                 Description = "Test",
@@ -82,32 +82,32 @@ namespace TemplatingTests.Mocks
                 {
                     new TableEntry
                     {
-                        Id = 1,
-                        FK_RandomTable = Guid.Empty.ToString(),
+                        Id = Guid.NewGuid(),
+                        FK_RandomTable = Guid.Empty,
                         Entry = "Table entry 1",
                         UpperBound = 1,
                         LowerBound = 1,
                     },
                     new TableEntry
                     {
-                        Id = 2,
-                        FK_RandomTable = Guid.Empty.ToString(),
+                        Id = Guid.NewGuid(),
+                        FK_RandomTable = Guid.Empty,
                         Entry = "Table entry 2",
                         UpperBound = 5,
                         LowerBound = 2,
                     },
                     new TableEntry
                     {
-                        Id = 3,
-                        FK_RandomTable = Guid.Empty.ToString(),
+                        Id = Guid.NewGuid(),
+                        FK_RandomTable = Guid.Empty,
                         Entry = "Table entry 3",
                         UpperBound = 6,
                         LowerBound = 6,
                     },
                     new TableEntry
                     {
-                        Id = 4,
-                        FK_RandomTable = Guid.Empty.ToString(),
+                        Id = Guid.NewGuid(),
+                        FK_RandomTable = Guid.Empty,
                         Entry = "Table entry 4",
                         UpperBound = 7,
                         LowerBound = 7,
@@ -119,7 +119,7 @@ namespace TemplatingTests.Mocks
 
             var raceTable = new RandomTable
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "race",
                 Category = "Test",
                 Description = "Test",
@@ -132,7 +132,7 @@ namespace TemplatingTests.Mocks
 
             var lastNamesTable = new RandomTable
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Last Names",
                 Category = "Test",
                 Description = "Test",

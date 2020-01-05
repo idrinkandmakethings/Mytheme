@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Mytheme.Dal.Dto
+namespace Mytheme.Data.Dto
 {
     public enum PageType
     {
@@ -16,28 +15,14 @@ namespace Mytheme.Dal.Dto
     public class Page : DtoObject
     {
         [Key]
-        public string Id { get; set; }
-        public string FK_Section { get; set; }
-
-        [Required]
+        public Guid Id { get; set; }
+        public Guid FK_Section { get; set; }
         public string Name { get; set; }
-        [Required] 
         public PageType PageType { get; set; }
-        [Required]
         public string Link { get; set; }
-        [Required(AllowEmptyStrings = true)]
         public string Content { get; set; }
-
-        [Required]
         public DateTime DateCreated { get; set; }
-        [Required]
         public DateTime DateModified { get; set; }
-
-        [Required]
         public bool Enabled { get; set; }
-
-        [ForeignKey(nameof(FK_Section))]
-        public Section Section { get; set; }
-
     }
 }

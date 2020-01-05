@@ -25,10 +25,6 @@
     <None Remove="wwwroot\svgs\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Migrations\20191026132636_InitialCreate.cs" />
-    <Compile Remove="Migrations\20191026132636_InitialCreate.Designer.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Remove="wwwroot\css\site.css" />
   </ItemGroup>
   <ItemGroup>
@@ -44,17 +40,13 @@
   <ItemGroup>
     <PackageReference Include="BlazorStyled" Version="1.0.0" />
     <PackageReference Include="BlazorTypography" Version="1.0.0" />
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="DapperExtensions.DotnetCore" Version="1.0.1" />
     <PackageReference Include="ElectronNET.API" Version="5.22.14" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="3.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.112" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.1" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="1.1.0.19274" />
   </ItemGroup>
@@ -70,5 +62,8 @@
     <ProjectReference Include="..\Mytheme.Map\Mytheme.Map.csproj" />
     <ProjectReference Include="..\Mytheme.MarkdownEditor\Mytheme.MarkdownEditor.csproj" />
     <ProjectReference Include="..\Mytheme.Modal\Mytheme.Modal.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\Interfaces\" />
   </ItemGroup>
 </Project>

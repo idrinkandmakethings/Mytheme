@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 using Serilog;
 
 namespace Mytheme.Utility

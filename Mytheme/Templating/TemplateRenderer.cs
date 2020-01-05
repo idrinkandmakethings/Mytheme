@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 using Mytheme.Services.Interfaces;
 using Mytheme.Templating.TemplateTypes;
 using Newtonsoft.Json;

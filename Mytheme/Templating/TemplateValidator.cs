@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 using Mytheme.Services.Interfaces;
 using Mytheme.Templating.TemplateTypes;
 using Newtonsoft.Json;
@@ -132,7 +132,7 @@ namespace Mytheme.Templating
             // re-number fields
             for (int i = 0; i < outFields.Count; i++)
             {
-                outFields[i].Order = i;
+                outFields[i].Sort = i;
             }
 
             return (outFields, variables);
@@ -141,7 +141,7 @@ namespace Mytheme.Templating
 
         internal TemplateField AssignFieldType(string val, int order)
         {
-            var field = new TemplateField { Order = order, Value = val };
+            var field = new TemplateField { Sort = order, Value = val };
 
             var sub = val.Substring(1, 3).ToLower();
 

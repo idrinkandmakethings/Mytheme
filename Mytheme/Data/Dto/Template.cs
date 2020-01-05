@@ -1,11 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using DapperExtensions.Mapper;
 using Mytheme.Templating.TemplateTypes;
 
-namespace Mytheme.Dal.Dto
+namespace Mytheme.Data.Dto
 {
+
+    public sealed class TemplateMapper : ClassMapper<Template>
+    {
+        public TemplateMapper()
+        {
+            Table("Template");
+            Map(r => r.Id).Column("Id").Key(KeyType.Guid);
+            Map(r => r.Name).Column("Name");
+            Map(r => r.Category).Column("Category");
+            Map(r => r.Description).Column("Description");
+            Map(r => r.Enabled).Column("Enabled");
+            Map(r => r.TemplateBody).Column("TemplateBody");
+            Map(r => r.Fields).Ignore();
+            Map(r => r.TemplateVariables).Ignore();
+        }
+    }
+
     public class Template : DtoObject
     {
         public Template()
@@ -15,21 +32,17 @@ namespace Mytheme.Dal.Dto
         }
 
         [Key]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
-        [Required] 
         public string Name { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
-        [Required]
         public bool Enabled { get; set; }
-
-        [Required]
         public string TemplateBody { get; set; }
 
         public List<TemplateField> Fields { get; set; }
 
-        [NotMapped]
+        // not pulled from DB
         public Dictionary<string, TemplateField> TemplateVariables { get; set; }
 
         public void SetVariables()
@@ -65,32 +78,29 @@ namespace Mytheme.Dal.Dto
     public class TemplateCategory
     {
         [Key]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
-        [Required] public string Name { get; set; }
+        public string Name { get; set; }
+        public bool Enabled { get; set; }
     }
 
     public class TemplateField : IComparable<TemplateField>
     {
         [Key]
-        public int Id { get; set; }
-        public string FK_Template { get; set; }
-        [Required] public int Order { get; set; }
-        [Required] public TemplateFieldType FieldType { get; set; }
-        
-        [Required] public bool Valid { get; set; }
+        public Guid Id { get; set; }
+        public Guid FK_Template { get; set; }
+        public int Sort { get; set; }
+        public TemplateFieldType FieldType { get; set; }
+        public bool Valid { get; set; }
         public string VariableName { get; set; }
-        [Required] public string Value { get; set; }
-        [Required] public string TemplateJson { get; set; }
-
-        [ForeignKey(nameof(FK_Template))]
-        public Template Template { get; set; }
-
+        public string Value { get; set; }
+        public string TemplateJson { get; set; }
+        
         public int CompareTo(TemplateField other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
-            return Order.CompareTo(other.Order);
+            return Sort.CompareTo(other.Sort);
         }
     }
 }

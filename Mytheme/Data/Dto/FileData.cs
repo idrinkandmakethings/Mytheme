@@ -1,13 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace Mytheme.Dal.Dto
+namespace Mytheme.Data.Dto
 {
     public class FileData : DtoObject
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         [Required]
         public string FileName { get; set; }
         [Required]

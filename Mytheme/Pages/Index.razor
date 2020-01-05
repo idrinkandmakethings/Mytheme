@@ -1,5 +1,5 @@
 ﻿@page "/"
-@using Mytheme.Dal.Dto
+@using Mytheme.Data.Dto
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
@@ -119,7 +119,7 @@
                         <th>Created</th>
                     </GridHeader>
                     <GridRow>
-                        <tr @onclick="@(() => CampaignSelected(campaign.Id))">
+                        <tr @onclick="@(() => CampaignSelected(campaign.Id.ToString()))">
                             <td>@campaign.Name</td>
                             <td>@campaign.Description</td>
                             <td>@campaign.DateCreated.ToShortDateString()</td>

@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 using Mytheme.Templating;
 using Mytheme.Templating.TemplateTypes;
 using TemplatingTests.Mocks;
@@ -38,7 +38,7 @@ In sed ante vitae diam sodales rhoncus vel eu libero. Nam hendrerit ipsum ac mag
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Valid Template",
                 Category = "Test",
                 Description = "Description here",
@@ -84,7 +84,7 @@ In sed ante vitae diam sodales rhoncus vel eu libero. Nam hendrerit ipsum ac mag
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Invalid Template",
                 Category = "Test",
                 Description = "Description here",

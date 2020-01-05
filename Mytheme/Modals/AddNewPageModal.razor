@@ -1,4 +1,4 @@
-﻿@using Mytheme.Dal.Dto
+﻿@using Mytheme.Data.Dto
 @using Mytheme.Services.Interfaces
 
 @inject ISectionService SectionService
@@ -57,7 +57,7 @@
             var page = new Page
             {
                 Name = string.Empty,
-                FK_Section = parentId
+                FK_Section = Guid.Parse(parentId)
             };
 
             ModalService.Close(ModalResult.Ok(page));
@@ -78,9 +78,9 @@
 
         var page = new Page
         {
-            Id = Guid.Empty.ToString(),
+            Id = Guid.Empty,
             Name = Name,
-            FK_Section = parentId,
+            FK_Section = Guid.Parse(parentId),
             PageType = Enum.Parse<PageType>(pageType,true),
             Enabled = true,
             Content = "",

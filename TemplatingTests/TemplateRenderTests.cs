@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 using Mytheme.Templating;
 using TemplatingTests.Mocks;
 
@@ -29,7 +29,7 @@ namespace TemplatingTests
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Die Roll Test",
                 Category = "Test",
                 Description = "Description here",
@@ -93,7 +93,7 @@ namespace TemplatingTests
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Random Test",
                 Category = "Test",
                 Description = "Description here",
@@ -159,7 +159,7 @@ list2=[lst:thing one, thing two, thing three]
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "List Test",
                 Category = "Test",
                 Description = "Description here",
@@ -217,7 +217,7 @@ table=[tbl:Test Table ]
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Table Test",
                 Category = "Test",
                 Description = "Description here",
@@ -279,7 +279,7 @@ Eof
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Template Test",
                 Category = "Test",
                 Description = "Description here",
@@ -352,7 +352,7 @@ table=[tbl:{test} {table} ]
 
             var template = new Template
             {
-                Id = Guid.Empty.ToString(),
+                Id = Guid.Empty,
                 Name = "Table Test",
                 Category = "Test",
                 Description = "Description here",

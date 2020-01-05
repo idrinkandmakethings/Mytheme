@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Mytheme.Dal;
-using Mytheme.Dal.Dto;
+using Mytheme.Data;
+using Mytheme.Data.Dto;
 using Mytheme.Map.Models;
 using Mytheme.Services.Interfaces;
 using Serilog;
@@ -83,17 +82,16 @@ namespace Mytheme.Services
             stream.CopyTo(fs);
             await fs.FlushAsync();
 
-            db.FileData.Add(new FileData {Id = imageId.ToString(), DisplayName = imageId.ToString(), FileType = type, FileName = $"{imageId}{fileExtension}"});
-            db.SaveChanges();
+             await db.FileData.Insert(new FileData {Id = imageId, DisplayName = imageId.ToString(), FileType = type, FileName = $"{imageId}{fileExtension}"});
         }
 
-        public async Task<MapImage> GetMapImage(string id)
+        public async Task<MapImage> GetMapImage(Guid id)
         {
-            return await Task.Run(() =>
+            return await Task.Run( async() =>
             {
                 try
                 {
-                    var data = db.FileData.First(x => x.Id == id);
+                    var data = await db.FileData.Get(id);
 
                     var path = Path.Combine(filePaths[FileType.Map], data.FileName);
 

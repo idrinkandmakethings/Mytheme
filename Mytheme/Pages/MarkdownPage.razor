@@ -1,8 +1,6 @@
 ﻿@page "/markdownpage/{parent}"
 @page "/markdownpage/{parent}/{name}"
-
-@using Mytheme.Dal
-@using Mytheme.Dal.Dto
+@using Mytheme.Data.Dto
 @using Mytheme.Modals
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
@@ -88,29 +86,32 @@
     private async void SavePage()
     {
 
-        DalResult result;
-
-        if (_page.Id == Guid.Empty.ToString())
+        if (_page.Id == Guid.Empty)
         {
-            result = await SectionService.AddPageAsync(_page);
+            var result = await  SectionService.AddPageAsync(_page);
 
             if (result.IsSuccess)
             {
-                _page.Id = result.Message;
+                _page.Id = result.Result;
 
                 BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, false);
+            }
+            else
+            {
+                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
             }
         }
         else
         {
-            result = await SectionService.UpdatePageAsync(_page);
+            var result = await SectionService.UpdatePageAsync(_page);
+            if (!result.IsSuccess)
+            {
+                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
+            }
         }
 
 
-        if (!result.IsSuccess)
-        {
-            ModalService.ShowInfoModal($"Error Saving Page", result.Message);
-        }
+        
     }
 
     protected void OpenNewPageModal()
@@ -136,6 +137,7 @@
             {
                 _page = (Page) result.Data;
                 SavePage();
+                StateHasChanged();
             }
             catch (Exception e)
             {

@@ -8,12 +8,11 @@ using ElectronNET.API;
 using Ganss.XSS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Mytheme.Dal;
+using Mytheme.Data;
 using Mytheme.Modal;
 using Mytheme.Services;
 using Mytheme.Services.Interfaces;
@@ -27,8 +26,10 @@ namespace Mytheme
         {
             Configuration = configuration;
 
-            using var db = new DataStorage();
-            db.Database.Migrate();
+            DapperExtensions.DapperExtensions.SqlDialect = new DapperExtensions.Sql.SqliteDialect();
+
+            var db = new DataStorage();
+            db.MigrateDatabase().Wait();
         }
 
         public IConfiguration Configuration { get; }
@@ -41,9 +42,8 @@ namespace Mytheme
             services.AddServerSideBlazor();
             services.AddBlazorStyled();
             services.AddTypography();
-            services.AddServerSideBlazor().AddHubOptions(o =>
+            services.AddServerSideBlazor().AddHubOptions(o => 
             {
-              
                 o.MaximumReceiveMessageSize = 10485760; // 10MB
             });
             services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
@@ -61,10 +61,11 @@ namespace Mytheme
             services.AddSingleton<SvgHelperService>();
             services.AddScoped<BrowserResizeService>();
 
-            services.AddScoped<DataStorage>();
+            
+            services.AddTransient<DataStorage>();
 
-            services.AddScoped<IRandomTableService>(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
-            services.AddScoped<ITemplateService>(x => new TemplateService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<IRandomTableService>(x => new RandomTableService());
+            services.AddScoped<ITemplateService>(x => new TemplateService());
             services.AddScoped<IFileHandlerService>(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
             services.AddScoped<ISectionService>(x => new SectionService(x.GetRequiredService<DataStorage>()));
 

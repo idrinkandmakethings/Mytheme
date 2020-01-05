@@ -3,9 +3,7 @@
 @page "/section"
 
 @implements IDisposable
-
-@using Mytheme.Dal
-@using Mytheme.Dal.Dto
+@using Mytheme.Data.Dto
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Serilog
@@ -186,7 +184,7 @@
                                     @sub.Name
                                 </td>
                                 <td>
-                                    <a @onclick="@( () => NavigateToSection(sub.Id))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                                    <a @onclick="@( () => NavigateToSection(sub.Id.ToString()))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
                                 </td>
                             </tr>
                         }
@@ -283,11 +281,15 @@
             {
                 _section = result.Result;
 
-                Id = _section.Id;
+                Id = _section.Id.ToString();
 
                 sectionType = _section.SectionType;
 
                 BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", true);
+            }
+            else
+            {
+                ModalService.ShowInfoModal("Error!", $"Error loading campaign.");
             }
         }
         else if (!string.IsNullOrEmpty(ParentId))
@@ -308,11 +310,11 @@
 
             _section = new Section
             {
-                Id = Id,
+                Id = Guid.Empty,
                 Enabled = true,
                 DateCreated = DateTime.Now,
                 SectionType = sectionType,
-                Parent = ParentId,
+                Parent = Guid.Parse(ParentId),
             };
         }
         else
@@ -325,15 +327,17 @@
 
             _section = new Section
             {
-                Id = Id,
+                Id = Guid.Empty,
                 Enabled = true,
                 DateCreated = DateTime.Now,
                 SectionType = SectionType.Campaign,
-                Parent = Guid.Empty.ToString(),
+                Parent = Guid.Empty,
             };
         }
 
         SetAllTheThings();
+
+        StateHasChanged();
     }
 
 
@@ -347,7 +351,7 @@
         {
             _section = result.Result;
 
-            Id = _section.Id;
+            Id = _section.Id.ToString();
 
             sectionType = _section.SectionType;
 
@@ -397,28 +401,32 @@
     private async void SaveSection()
     {
 
-        DalResult result;
-
-        if (_section.Id == Guid.Empty.ToString())
+        if (_section.Id == Guid.Empty)
         {
-            result = await SectionService.AddSectionAsync(_section);
+            var result = await SectionService.AddSectionAsync(_section);
 
             if (result.IsSuccess)
             {
-                _section.Id = result.Message;
-                Id = _section.Id;
+                _section.Id = result.Result;
+                Id = _section.Id.ToString();
                 BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", false);
+            }
+            else
+            {
+                ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
             }
         }
         else
         {
-            result = await SectionService.UpdateSectionAsync(_section);
+            var result = await SectionService.UpdateSectionAsync(_section);
+            
+            if (!result.IsSuccess)
+            {
+                ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
+            }
         }
 
-        if (!result.IsSuccess)
-        {
-            ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
-        }
+
     }
 
     private void AddSubsection()
@@ -462,7 +470,7 @@
 
     private bool IsSaved()
     {
-        return _section.Id != Guid.Empty.ToString();
+        return _section.Id != Guid.Empty;
     }
 
     private async Task OnResize()

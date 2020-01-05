@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 using Mytheme.Templating.TemplateTypes;
 using Mytheme.Templating;
 using Newtonsoft.Json;
@@ -19,7 +19,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomNumber
             };
@@ -42,7 +42,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomNumber
             };
@@ -65,7 +65,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomTable
             };
@@ -88,7 +88,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomTable
             };
@@ -110,7 +110,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomTable
             };
@@ -134,7 +134,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomTable
             };
@@ -158,7 +158,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomTable
             };
@@ -180,7 +180,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.RandomTable
             };
@@ -202,7 +202,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Template
             };
@@ -224,7 +224,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Template
             };
@@ -246,7 +246,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Template
             };
@@ -268,7 +268,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Template
             };
@@ -292,7 +292,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Template
             };
@@ -314,7 +314,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Template
             };
@@ -336,7 +336,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.DieRoll
             };
@@ -360,7 +360,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.DieRoll
             };
@@ -384,7 +384,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.DieRoll
             };
@@ -408,7 +408,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.DieRoll
             };
@@ -432,7 +432,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.DieRoll
             };
@@ -456,7 +456,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.List
             };
@@ -480,7 +480,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Variable
             };
@@ -513,7 +513,7 @@ namespace TemplatingTests
 
             var field = new TemplateField
             {
-                Order = 1,
+                Sort = 1,
                 Value = testVal,
                 FieldType = TemplateFieldType.Variable
             };

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using DapperExtensions.Mapper;
 
-namespace Mytheme.Dal.Dto
+namespace Mytheme.Data.Dto
 {
     public enum SectionType
     {
@@ -14,34 +14,43 @@ namespace Mytheme.Dal.Dto
         None 
     }
 
+    public sealed class SectionMapper : ClassMapper<Section>
+    {
+        public SectionMapper()
+        {
+            Table("Section ");
+            Map(r => r.Id).Column("Id").Key(KeyType.Guid);
+            Map(r => r.Parent).Column("Parent");
+            Map(r => r.Name).Column("Name");
+            Map(r => r.Icon).Column("Icon");
+            Map(r => r.Description).Column("Description");
+            Map(r => r.SectionType).Column("SectionType");
+            Map(r => r.SortOrder).Column("SortOrder");
+            Map(r => r.DateCreated).Column("DateCreated");
+            Map(r => r.DateModified).Column("DateModified");
+            Map(r => r.Enabled).Column("Enabled");
+            Map(r => r.Children).Ignore();
+            Map(r => r.PageIds).Ignore();
+            Map(r => r.MapPageIds).Ignore();
+        }
+    }
+
     public class Section : DtoObject
     {
         [Key]
-        public string Id { get; set; }
-        public string Parent { get; set; }
-
-        [Required]
+        public Guid Id { get; set; }
+        public Guid Parent { get; set; }
         public string Name { get; set; }
-
-        [Required]
         public SectionType SectionType { get; set; }
-        public int Order { get; set; }
+        public int SortOrder { get; set; }
         public string Icon { get; set; }
         public string Description { get; set; }
-
-        [Required]
         public DateTime DateCreated { get; set; }
-        [Required]
         public DateTime DateModified { get; set; }
-
-        [Required]
         public bool Enabled { get; set; }
 
-        [NotMapped]
         public List<Section> Children { get; set; }
-        [NotMapped]
         public List<PageLink> PageIds { get; set; }
-        [NotMapped]
         public List<PageLink> MapPageIds { get; set; }
 
         public Section()

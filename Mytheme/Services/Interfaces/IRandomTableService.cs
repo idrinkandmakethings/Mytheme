@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Mytheme.Dal;
-using Mytheme.Dal.Dto;
+using Mytheme.Data;
+using Mytheme.Data.Dto;
 
 namespace Mytheme.Services.Interfaces
 {
     public interface IRandomTableService
     {
-        Task<DalResult> AddRandomTable(RandomTable table);
+        Task<DalResult<Guid>> AddRandomTable(RandomTable table);
         Task<DalResult> UpdateRandomTable(RandomTable table);
         Task<DalResult<RandomTable>> GetRandomTable(string id);
         Task<DalResult<RandomTable>> GetRandomTableByName(string name);

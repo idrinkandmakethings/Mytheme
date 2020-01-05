@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Mytheme.Dal.Dto;
+using Mytheme.Data.Dto;
 
 namespace Mytheme.Models
 {

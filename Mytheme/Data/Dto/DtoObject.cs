@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Mytheme.Dal.Dto
+namespace Mytheme.Data.Dto
 {
     public abstract class DtoObject
     {
