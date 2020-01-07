@@ -1,24 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using DapperExtensions.Mapper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mytheme.Data.Dto
 {
 
-    public sealed class RandomTableMapper : ClassMapper<RandomTable>
-    {
-        public RandomTableMapper()
-        {
-            Table("RandomTable");
-            Map(r => r.Id).Column("Id").Key(KeyType.Guid);
-            Map(r =>r.Name).Column("Name");
-            Map(r => r.Category).Column("Category");
-            Map(r => r.Description).Column("Description");
-            Map(r => r.Enabled).Column("Enabled");
-            Map(r => r.Entries).Ignore();
-        }
-    }
 
     public class RandomTable : DtoObject
     {
@@ -29,6 +16,7 @@ namespace Mytheme.Data.Dto
         public string Description { get; set; }
         public bool Enabled { get; set; }
 
+        [NotMapped]
         public List<TableEntry> Entries { get; set; }
     }
 

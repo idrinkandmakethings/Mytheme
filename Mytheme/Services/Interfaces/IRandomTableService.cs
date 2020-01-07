@@ -10,7 +10,7 @@ namespace Mytheme.Services.Interfaces
     {
         Task<DalResult<Guid>> AddRandomTable(RandomTable table);
         Task<DalResult> UpdateRandomTable(RandomTable table);
-        Task<DalResult<RandomTable>> GetRandomTable(string id);
+        Task<DalResult<RandomTable>> GetRandomTable(Guid id);
         Task<DalResult<RandomTable>> GetRandomTableByName(string name);
         Task<DalResult<RandomTable[]>> GetAllRandomTables();
         Task<DalResult<List<string>>> GetCategories();

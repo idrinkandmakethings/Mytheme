@@ -1,27 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using DapperExtensions.Mapper;
+using System.ComponentModel.DataAnnotations.Schema;
 using Mytheme.Templating.TemplateTypes;
 
 namespace Mytheme.Data.Dto
 {
-
-    public sealed class TemplateMapper : ClassMapper<Template>
-    {
-        public TemplateMapper()
-        {
-            Table("Template");
-            Map(r => r.Id).Column("Id").Key(KeyType.Guid);
-            Map(r => r.Name).Column("Name");
-            Map(r => r.Category).Column("Category");
-            Map(r => r.Description).Column("Description");
-            Map(r => r.Enabled).Column("Enabled");
-            Map(r => r.TemplateBody).Column("TemplateBody");
-            Map(r => r.Fields).Ignore();
-            Map(r => r.TemplateVariables).Ignore();
-        }
-    }
 
     public class Template : DtoObject
     {
@@ -40,9 +24,9 @@ namespace Mytheme.Data.Dto
         public bool Enabled { get; set; }
         public string TemplateBody { get; set; }
 
+        [NotMapped]
         public List<TemplateField> Fields { get; set; }
-
-        // not pulled from DB
+        [NotMapped]
         public Dictionary<string, TemplateField> TemplateVariables { get; set; }
 
         public void SetVariables()

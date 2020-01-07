@@ -108,7 +108,7 @@
             var page = new MapPage()
             {
                 Name = string.Empty,
-                FK_Section = parentId
+                FK_Section = Guid.Parse(parentId)
             };
 
             ModalService.Close(ModalResult.Cancel());
@@ -144,11 +144,11 @@
 
         var page = new MapPage()
         {
-            Id = Guid.Empty.ToString(),
+            Id = Guid.Empty,
             Name = Name,
-            FK_Section = parentId,
+            FK_Section = Guid.Parse(parentId),
             Enabled = true,
-            Image = imageId.ToString(),
+            Image = imageId,
             Link = $"{parentId}/"
         };
 

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using DapperExtensions;
 using Mytheme.Data.Dal;
 using Mytheme.Data.Dto;
 using Mytheme.Data.SQL;
@@ -12,12 +11,30 @@ using Serilog;
 
 namespace Mytheme.Data
 {
+    /// <summary>
+    /// https://github.com/ericdc1/Dapper.SimpleCRUD
+    /// </summary>
     public class DataStorage
     {
         private readonly string connectionString;
         private readonly string dbPath;
 
+        public SettingDal SettingDal { get; }
         public FileDataDal FileData { get; }
+
+        public TemplateCategoryDal TemplateCategory { get; }
+        public TemplateDal TemplateDal { get; }
+        public TemplateFieldDal TemplateField { get; }
+
+        public TableCategoryDal TableCategory { get; }
+        public RandomTableDal RandomTable { get; }
+        public TableEntryDal TableEntry { get; }
+
+
+        public SectionDal Section { get; }
+        public PageDal Page { get; set; }
+        public MapPageDal MapPage { get; }
+        public MapMarkerDal MapMarker { get; }
 
         public DataStorage()
         {
@@ -26,7 +43,21 @@ namespace Mytheme.Data
 
             connectionString = $"Data Source={Path.Combine(dbPath, "mytheme.sqlite")}";
 
+            SettingDal = new SettingDal(connectionString);
             FileData = new FileDataDal(connectionString);
+
+            TemplateCategory = new TemplateCategoryDal(connectionString);
+            TemplateDal = new TemplateDal(connectionString);
+            TemplateField = new TemplateFieldDal(connectionString);
+
+            TableCategory = new TableCategoryDal(connectionString);
+            RandomTable = new RandomTableDal(connectionString);
+            TableEntry = new TableEntryDal(connectionString);
+
+            Section = new SectionDal(connectionString);
+            Page = new PageDal(connectionString);
+            MapPage = new MapPageDal(connectionString);
+            MapMarker = new MapMarkerDal(connectionString);
         }
 
         public async Task MigrateDatabase()
@@ -87,7 +118,7 @@ namespace Mytheme.Data
                 Log.Debug("Settings DB version to 1");
                 var version = new Setting {Id = "version", Value = "1"};
 
-                conn.Insert(version);
+                await conn.InsertAsync(version);
 
                 await conn.CloseAsync();
             }

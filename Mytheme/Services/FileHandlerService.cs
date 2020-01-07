@@ -82,7 +82,7 @@ namespace Mytheme.Services
             stream.CopyTo(fs);
             await fs.FlushAsync();
 
-             await db.FileData.Insert(new FileData {Id = imageId, DisplayName = imageId.ToString(), FileType = type, FileName = $"{imageId}{fileExtension}"});
+             await db.FileData.InsertAsync(new FileData {Id = imageId, DisplayName = imageId.ToString(), FileType = type, FileName = $"{imageId}{fileExtension}"});
         }
 
         public async Task<MapImage> GetMapImage(Guid id)
@@ -91,7 +91,7 @@ namespace Mytheme.Services
             {
                 try
                 {
-                    var data = await db.FileData.Get(id);
+                    var data = await db.FileData.GetAsync(id);
 
                     var path = Path.Combine(filePaths[FileType.Map], data.FileName);
 

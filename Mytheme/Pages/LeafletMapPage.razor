@@ -121,28 +121,31 @@
     private async void SaveMapPage()
     {
 
-        DalResult result;
 
-        if (mapPage.Id == Guid.Empty.ToString())
+
+        if (mapPage.Id == Guid.Empty)
         {
-            result = await SectionService.AddMapPageAsync(mapPage);
+            var result = await SectionService.AddMapPageAsync(mapPage);
 
             if (result.IsSuccess)
             {
-                mapPage.Id = result.Message;
+                mapPage.Id = result.Result;
 
                 BreadcrumbService.SetBreadCrumb(mapPage.Name, mapPage.Link, false);
+            }
+            else
+            {
+                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
             }
         }
         else
         {
-            result = await SectionService.UpdateMapPageAsync(mapPage);
-        }
+            var result = await SectionService.UpdateMapPageAsync(mapPage);
 
-
-        if (!result.IsSuccess)
-        {
-            ModalService.ShowInfoModal($"Error Saving Page", result.Message);
+            if (!result.IsSuccess)
+            {
+                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
+            }
         }
     }
 

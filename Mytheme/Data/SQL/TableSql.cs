@@ -107,7 +107,7 @@
     FK_Section BLOB,
     Name TEXT,
     Link TEXT,
-    Image TEXT,
+    Image BLOB,
     DateCreated TEXT,
     DateModified TEXT,
     Enabled INTEGER,

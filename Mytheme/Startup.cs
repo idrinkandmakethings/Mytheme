@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Blazor.FileReader;
 using BlazorStyled;
 using BlazorTypography;
+using Dapper;
 using ElectronNET.API;
 using Ganss.XSS;
 using Microsoft.AspNetCore.Builder;
@@ -26,7 +27,7 @@ namespace Mytheme
         {
             Configuration = configuration;
 
-            DapperExtensions.DapperExtensions.SqlDialect = new DapperExtensions.Sql.SqliteDialect();
+            SimpleCRUD.SetDialect(SimpleCRUD.Dialect.SQLite);
 
             var db = new DataStorage();
             db.MigrateDatabase().Wait();
