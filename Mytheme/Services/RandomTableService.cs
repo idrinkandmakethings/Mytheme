@@ -24,6 +24,15 @@ namespace Mytheme.Services
             {
                 var id = await db.RandomTable.InsertAsync(table);
 
+                if (table.Entries.Count > 0)
+                {
+                    foreach (var entry in table.Entries)
+                    {
+                        entry.FK_RandomTable = id;
+                        entry.Id = await db.TableEntry.InsertAsync(entry);
+                    }
+                }
+
                 return new DalResult<Guid>(DalStatus.Success, id);
             }
             catch (Exception e)
@@ -38,6 +47,24 @@ namespace Mytheme.Services
             try
             {
                 var result = await db.RandomTable.UpdateAsync(table);
+
+                await db.TableEntry.DeleteAllForTableAsync(table.Id);
+
+                if (table.Entries.Count > 0)
+                {
+                    foreach (var entry in table.Entries)
+                    {
+                        if (entry.Id == Guid.Empty)
+                        {
+                            entry.FK_RandomTable = table.Id;
+                            entry.Id = await db.TableEntry.InsertAsync(entry);
+                        }
+                        else
+                        {
+                            await db.TableEntry.UpdateAsync(entry);
+                        }
+                    }
+                }
 
                 return new DalResult(result ? DalStatus.Success : DalStatus.Unknown);
             }
@@ -116,13 +143,12 @@ namespace Mytheme.Services
             catch (Exception e)
             {
                 Log.Error(e, "Exception adding Table Category {Category}", category);
-                return new DalResult(DalStatus.Unknown, "Error saving table");
+                return new DalResult(DalStatus.Unknown, "Error saving table category");
             }
         }
 
         public async Task<DalResult<bool>> CategoryExists(string name)
         {
-
             try
             {
                 var exists = await db.TableCategory.Exists(name);

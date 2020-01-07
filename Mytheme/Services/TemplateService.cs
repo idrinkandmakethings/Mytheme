@@ -11,229 +11,169 @@ namespace Mytheme.Services
 {
     public class TemplateService : ITemplateService
     {
-        public Task<DalResult<Guid>> AddTemplate(Template template)
+
+        private readonly DataStorage db;
+
+        public TemplateService(DataStorage db)
         {
-            throw new NotImplementedException();
+            this.db = db;
         }
 
-        public Task<DalResult> UpdateTemplate(Template template)
+        public async Task<DalResult<Guid>> AddTemplate(Template template)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var id = await db.Template.InsertAsync(template);
+
+                if (template.Fields.Count > 0)
+                {
+                    foreach (var field in template.Fields)
+                    {
+                        field.FK_Template = id;
+                        field.Id = await db.TemplateField.InsertAsync(field);
+                    }
+                }
+
+                return new DalResult<Guid>(DalStatus.Success, id);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception saving table {Name}.", template.Name);
+                return new DalResult<Guid>(DalStatus.Unknown, Guid.Empty, "Error saving table");
+            }
         }
 
-        public Task<DalResult<Template>> GetTemplate(string id)
+        public async Task<DalResult> UpdateTemplate(Template template)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await db.Template.UpdateAsync(template);
+
+                await db.TemplateField.DeleteAllForTemplateAsync(template.Id);
+
+                if (template.Fields.Count > 0)
+                {
+                    foreach (var entry in template.Fields)
+                    {
+                        if (entry.Id == Guid.Empty)
+                        {
+                            entry.FK_Template = template.Id;
+                            entry.Id = await db.TemplateField.InsertAsync(entry);
+                        }
+                        else
+                        {
+                            await db.TemplateField.UpdateAsync(entry);
+                        }
+                    }
+                }
+
+                return new DalResult(result ? DalStatus.Success : DalStatus.Unknown);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception updating template id {Id}.", template);
+                return new DalResult(DalStatus.Unknown, "Error updating template");
+            }
         }
 
-        public Task<DalResult<Template>> GetTemplateByName(string name)
+        public async Task<DalResult<Template>> GetTemplate(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await db.Template.GetAsync(id);
+                result.Fields = await db.TemplateField.GetByTemplateIdAsync(result.Id);
+                return new DalResult<Template>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting template id {Id}.", id);
+                return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
+            }
         }
 
-        public Task<DalResult<Template[]>> GetAllTemplates()
+        public async Task<DalResult<Template>> GetTemplateByName(string name)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await db.Template.GetByNameAsync(name);
+                result.Fields = await db.TemplateField.GetByTemplateIdAsync(result.Id);
+                return new DalResult<Template>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting template name {Name}.", name);
+                return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
+            }
         }
 
-        public Task<DalResult<List<string>>> GetCategories()
+        public async Task<DalResult<Template[]>> GetAllTemplates()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await db.Template.GetAllAsync();
+                return new DalResult<Template[]>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting tables.");
+                return new DalResult<Template[]>(DalStatus.Unknown, null, "Unknown error retrieving templates");
+            }
         }
 
-        public Task<DalResult> AddCategory(string category)
+        public async Task<DalResult<List<string>>> GetCategories()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await db.TemplateCategory.GetAllAsync();
+                return new DalResult<List<string>>(DalStatus.Success, result.Select(x => x.Name).ToList());
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Exception getting Template Categories.");
+                return new DalResult<List<string>>(DalStatus.Unknown, null, "Unknown error retrieving categories");
+            }
         }
 
-        public Task<DalResult<bool>> CategoryExists(string name)
+        public async Task<DalResult> AddCategory(string category)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _ = await db.TemplateCategory.InsertAsync(new TemplateCategory() { Name = category, Enabled = true });
+                return new DalResult(DalStatus.Success);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception adding Template Category {Category}", category);
+                return new DalResult(DalStatus.Unknown, "Error saving template category");
+            }
         }
 
-        public Task<DalResult<bool>> TemplateExists(string name)
+        public async Task<DalResult<bool>> CategoryExists(string name)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var exists = await db.TemplateCategory.Exists(name);
+                return new DalResult<bool>(DalStatus.Success, exists);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception checking if Template Category {Name} exists.", name);
+                return new DalResult<bool>(DalStatus.Unknown, false, "Error determining category exists");
+            }
+        }
+
+        public async Task<DalResult<bool>> TemplateExists(string name)
+        {
+            try
+            {
+                var exists = await db.Template.Exists(name);
+                return new DalResult<bool>(DalStatus.Success, exists);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception checking if template {name} exists", name);
+                return new DalResult<bool>(DalStatus.Unknown, false, "Error determining template exists");
+            }
         }
     }
 }
-//        private readonly DataStorage db;
-
-//        public TemplateService(DataStorage db)
-//        {
-//            this.db = db;
-//        }
-
-//        public async Task<DalResult> AddTemplate(Template template)
-//        {
-//            return await Task.Run(async () =>
-//            {
-//                try
-//                {
-//                    template.SetVariables();
-//                    var result = await db.Templates.AddAsync(template);
-//                    db.SaveChanges(true);
-
-//                    return new DalResult(DalStatus.Success);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception adding template. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult(DalStatus.Unknown, "Error saving template");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult> UpdateTemplate(Template template)
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    template.SaveVariables();
-//                    db.Templates.Update(template);
-//                    db.SaveChanges(true);
-
-//                    return new DalResult(DalStatus.Success);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception updating template id {template.Id}. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult(DalStatus.Unknown, "Error updating template");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult<Template>> GetTemplate(string id)
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    var result = db.Templates.First(t => t.Id == id);
-//                    result.SetVariables();
-//                    return new DalResult<Template>(DalStatus.Success, result);
-
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception getting template id {id}. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult<Template>> GetTemplateByName(string name)
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    var result = db.Templates.First(t => t.Name == name);
-//                    result.SetVariables();
-//                    return new DalResult<Template>(DalStatus.Success, result);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception adding template {name}. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult<Template>(DalStatus.Unknown, null, "Unknown error retrieving template");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult<Template[]>> GetAllTemplates()
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    var result = db.Templates.ToArray();
-//                    return new DalResult<Template[]>(DalStatus.Success, result);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception getting all template. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult<Template[]>(DalStatus.Unknown, null, "Unknown error retrieving templates");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult<List<string>>> GetCategories()
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    var result = db.TemplateCategories.Select(x => x.Name).OrderBy(n => n).ToList();
-//                    return new DalResult<List<string>>(DalStatus.Success, result);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception getting all template categories. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult<List<string>>(DalStatus.Unknown, null, "Unknown error retrieving categories");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult> AddCategory(string category)
-//        {
-//            return await Task.Run(async () =>
-//            {
-//                try
-//                {
-//                    var result = await db.TemplateCategories.AddAsync(new TemplateCategory { Name = category });
-//                    db.SaveChanges(true);
-//                    return new DalResult(DalStatus.Success);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception adding template category {category}. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult(DalStatus.Unknown, "Error saving category");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult<bool>> CategoryExists(string name)
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    var exists = db.TemplateCategories.Any(x => x.Name == name);
-//                    return new DalResult<bool>(DalStatus.Success, exists);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception checking if template category {name} exists. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult<bool>(DalStatus.Unknown, false, "Error determining category exists");
-//                }
-//            });
-//        }
-
-//        public async Task<DalResult<bool>> TemplateExists(string name)
-//        {
-//            return await Task.Run(() =>
-//            {
-//                try
-//                {
-//                    var exists = db.Templates.Any(x => x.Name == name);
-//                    return new DalResult<bool>(DalStatus.Success, exists);
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.Error($"Exception checking if template {name} exists. ex: {e.Message}");
-//                    Log.Debug(e.StackTrace);
-//                    return new DalResult<bool>(DalStatus.Unknown, false, "Error determining Template exists");
-//                }
-//            });
-//        }
-//    }
-//}

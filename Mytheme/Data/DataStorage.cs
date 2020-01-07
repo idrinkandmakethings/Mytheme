@@ -19,11 +19,11 @@ namespace Mytheme.Data
         private readonly string connectionString;
         private readonly string dbPath;
 
-        public SettingDal SettingDal { get; }
+        public SettingDal Setting { get; }
         public FileDataDal FileData { get; }
 
         public TemplateCategoryDal TemplateCategory { get; }
-        public TemplateDal TemplateDal { get; }
+        public TemplateDal Template { get; }
         public TemplateFieldDal TemplateField { get; }
 
         public TableCategoryDal TableCategory { get; }
@@ -43,11 +43,11 @@ namespace Mytheme.Data
 
             connectionString = $"Data Source={Path.Combine(dbPath, "mytheme.sqlite")}";
 
-            SettingDal = new SettingDal(connectionString);
+            Setting = new SettingDal(connectionString);
             FileData = new FileDataDal(connectionString);
 
             TemplateCategory = new TemplateCategoryDal(connectionString);
-            TemplateDal = new TemplateDal(connectionString);
+            Template = new TemplateDal(connectionString);
             TemplateField = new TemplateFieldDal(connectionString);
 
             TableCategory = new TableCategoryDal(connectionString);

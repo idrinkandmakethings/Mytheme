@@ -90,5 +90,20 @@ namespace Mytheme.Data.Dal
                 await conn.CloseAsync();
             }
         }
+
+        public async Task DeleteAllForTableAsync(Guid id)
+        {
+            await using var conn = GetConnection();
+
+            try
+            {
+                await conn.OpenAsync();
+                await conn.DeleteListAsync<TableEntry>(new { FK_RandomTable = id });
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
+        }
     }
 }

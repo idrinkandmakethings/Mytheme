@@ -138,7 +138,7 @@ else
         {
             dropZoneVisibility = "none";
             isUpdate = true;
-            var result = await RandomTableService.GetRandomTable(Tablename);
+            var result = await RandomTableService.GetRandomTableByName(Tablename);
             if (result.IsSuccess)
             {
                 table = result.Result;

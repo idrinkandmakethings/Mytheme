@@ -65,8 +65,8 @@ namespace Mytheme
             
             services.AddTransient<DataStorage>();
 
-            services.AddScoped<IRandomTableService>(x => new RandomTableService());
-            services.AddScoped<ITemplateService>(x => new TemplateService());
+            services.AddScoped<IRandomTableService>(x => new RandomTableService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<ITemplateService>(x => new TemplateService(x.GetRequiredService<DataStorage>()));
             services.AddScoped<IFileHandlerService>(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
             services.AddScoped<ISectionService>(x => new SectionService(x.GetRequiredService<DataStorage>()));
 

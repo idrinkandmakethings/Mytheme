@@ -117,7 +117,7 @@
         else
         {
             isUpdate = true;
-            var result = await TemplateService.GetTemplate(TemplateId);
+            var result = await TemplateService.GetTemplate(Guid.Parse(TemplateId));
             if (result.IsSuccess)
             {
                 template = result.Result;

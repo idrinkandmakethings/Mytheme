@@ -32,6 +32,11 @@ namespace TemplatingTests.Mocks
             throw new System.NotImplementedException();
         }
 
+        public Task<DalResult<Template>> GetTemplate(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<DalResult<Template>> GetTemplate(string id)
         {
             throw new System.NotImplementedException();

@@ -29,6 +29,11 @@ namespace TemplatingTests.Mocks
             throw new System.NotImplementedException();
         }
 
+        public Task<DalResult<RandomTable>> GetRandomTable(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<DalResult<RandomTable>> GetRandomTable(string id)
         {
            throw new System.NotImplementedException();
