@@ -134,7 +134,7 @@ namespace Mytheme.Data
                 await conn.ExecuteAsync(tables.MapMarkers);
 
                 Log.Debug("Settings DB version to 1");
-                var version = new Setting {Name = "version", Value = "A"};
+                var version = new Setting {Name = "version", Value = "1"};
 
                 await conn.InsertAsync(version);
 
