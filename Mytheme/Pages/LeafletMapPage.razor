@@ -15,7 +15,8 @@
 @inject SvgHelperService SvgHelperService
 @inject IJSRuntime JsRuntime
 @inject IModalService ModalService
-@inject ISectionService SectionService
+@inject IMapService MapService
+
 
 <Styled @bind-Classname="@mapStyle">
     position: relative;
@@ -49,7 +50,7 @@
 
         if (!string.IsNullOrEmpty(Id))
         {
-            var result = await SectionService.GetMapPageAsync(Id);
+            var result = await MapService.GetMapPageAsync(Guid.Parse(Id));
 
             if (result.IsSuccess)
             {
@@ -121,11 +122,9 @@
     private async void SaveMapPage()
     {
 
-
-
         if (mapPage.Id == Guid.Empty)
         {
-            var result = await SectionService.AddMapPageAsync(mapPage);
+            var result = await MapService.AddMapPageAsync(mapPage);
 
             if (result.IsSuccess)
             {
@@ -140,7 +139,7 @@
         }
         else
         {
-            var result = await SectionService.UpdateMapPageAsync(mapPage);
+            var result = await MapService.UpdateMapPageAsync(mapPage);
 
             if (!result.IsSuccess)
             {
@@ -205,6 +204,10 @@
                 var marker = (MapMarker) result.Data;
 
                 mapPage.MapMarkers.Add(marker);
+
+                var dalResult = await MapService.AddMarkerAsync(marker);
+
+                marker.Id = dalResult.Result;
 
                 await mapView.AddMarker(marker.ToLeafletMarker());
 

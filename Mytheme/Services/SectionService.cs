@@ -30,476 +30,274 @@ namespace Mytheme.Services
             }
             catch (Exception e)
             {
-                Log.Error($"Exception getting campaign list. ex: {e.Message}");
-                Log.Debug(e.StackTrace);
+                Log.Error(e,"Exception getting campaign list.");
                 return new DalResult<Section[]>(DalStatus.Unknown, null, "Error saving section");
             }
         }
 
-        public Task<DalResult<IndexLevel>> GetCampaignIndex(string id)
+
+        public async Task<DalResult<IndexLevel>> GetCampaignIndex(Guid id)
         {
-            throw new NotImplementedException();
+            var result = await GetIndexLevelForSection(id);
+            return new DalResult<IndexLevel>(DalStatus.Success, result);
         }
 
-        public Task<DalResult<Guid>> AddSectionAsync(Section section)
+        private async Task<IndexLevel> GetIndexLevelForSection(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var section = await db.Section.GetAsync(id);
+
+                var result = new IndexLevel
+                {
+                    LevelHome = new LinkObject { Link = $"section/{section.Id}", Name = section.Name },
+                    Type = section.SectionType,
+                    SubSectionType = section.SectionType.GetSubSectionType()
+                };
+
+                var maps = await db.MapPage.GetAllForSectionAsync(id);
+
+                result.Maps = maps.Select(x => new LinkObject { Link = x.Link, Name = x.Name }).ToList();
+
+                var pages = await db.Page.GetAllForSectionAsync(id);
+                    
+                result.Pages = pages.Select(x => new LinkObject { Link = x.Link, Name = x.Name }).ToList();
+
+                result.SubLevels = new List<IndexLevel>();
+
+                if (result.SubSectionType == SectionType.None)
+                {
+                    return result;
+                }
+                else
+                {
+                    var subs = await db.Section.GetAllSubSectionsAsync(id);
+
+                    foreach (var sub in subs)
+                    {
+                        result.SubLevels.Add(await GetIndexLevelForSection(sub.Id));
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting index level for id {Id}.", id);
+                return null;
+            }
         }
 
-        public Task<DalResult> UpdateSectionAsync(Section section)
+        public async Task<DalResult<Guid>> AddSectionAsync(Section section)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                section.DateCreated = DateTime.Now;
+                section.DateModified = DateTime.Now;
 
-        public Task<DalResult<Section>> GetSectionAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
+                //if (!section.TryValidate(out var errors))
+                //{
+                //    section.Id = Guid.Empty.ToString();
+                //    return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
+                //}
 
-        public Task<DalResult<Section[]>> GetAllSectionsForParentAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<Page[]>> GetAllPagesForSection(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<Guid>> AddPageAsync(Page page)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult> UpdatePageAsync(Page page)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<Page>> GetPageAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<Page>> GetPageByNameAsync(string parent, string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<MapPage[]>> GetAllMapPagesForSection(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<Guid>> AddMapPageAsync(MapPage page)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult> UpdateMapPageAsync(MapPage page)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DalResult<MapPage>> GetMapPageAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        //public async Task<DalResult<IndexLevel>> GetCampaignIndex(string id)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        var result = await GetIndexLevelForSection(id);
-        //        return new DalResult<IndexLevel>(DalStatus.Success, result);
-        //    }).ConfigureAwait(false);
-        //}
-
-        //private async Task<IndexLevel> GetIndexLevelForSection(string id)
-        //{
-        //    try
-        //    {
-        //        var section = db.Sections.First(x => x.Id == id);
-
-        //        var result = new IndexLevel
-        //        {
-        //            LevelHome = new LinkObject {Link = $"section/{section.Id}", Name = section.Name},
-        //            Type = section.SectionType,
-        //            SubSectionType = section.SectionType.GetSubSectionType()
-        //        };
+                var id = await db.Section.InsertAsync(section);
                 
-        //        result.Maps = db.MapPages.Where(x => x.FK_Section == id)
-        //            .Select(x => new LinkObject {Link = x.Link, Name = x.Name}).ToList();
+                return new DalResult<Guid>(DalStatus.Success, id);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception saving section {Name}.", section.Name);
+                return new DalResult<Guid>(DalStatus.Unknown,  Guid.Empty, "Error saving section");
+            }
+        }
 
-        //        result.Pages = db.Pages.Where(x => x.FK_Section == id)
-        //            .Select(x => new LinkObject {Link = x.Link, Name = x.Name}).ToList();
+        public async Task<DalResult> UpdateSectionAsync(Section section)
+        {
+            try
+            {
+                section.DateModified = DateTime.Now;
 
-        //        result.SubLevels = new List<IndexLevel>();
+                var result = await db.Section.UpdateAsync(section);
+                
+                return new DalResult(result ? DalStatus.Success : DalStatus.Unknown);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception saving section {Name}.", section.Name);
+                return new DalResult(DalStatus.Unknown, "Error saving section");
+            }
+        }
 
-        //        if (result.SubSectionType == SectionType.None)
-        //        {
-        //            return result;
-        //        }
-        //        else
-        //        {
-        //            var subs = db.Sections.Where(x => x.Enabled).Where(x => x.Parent == id).ToArray();
+        public async Task<DalResult<Section>> GetSectionAsync(Guid id, bool populateChildren = false)
+        {
+            try
+            {
+                var result = await db.Section.GetAsync(id);
 
-        //            foreach (var sub in subs)
-        //            {
-        //                result.SubLevels.Add(await GetIndexLevelForSection(sub.Id));
-        //            }
-        //        }
+                if (populateChildren)
+                {
+                    var childResult = await GetAllSectionsForParentAsync(id);
+                    result.Children = childResult.Result.ToList();
+                }
+                else
+                {
+                    var subsections = await db.Section.GetAllSubSectionsAsync(id);
+                    result.Children = subsections.ToList();
+                }
+                
+                var pages = await db.Page.GetAllForSectionAsync(id);
 
-        //        return result;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Log.Error(e, "Exception getting index level for id {Id}.", id);
-        //        return null;
-        //    }
-        //}
+                result.PageIds = pages.Select(x => new PageLink(x.Name, x.Link)).ToList();
 
-        //public async Task<DalResult> AddSectionAsync(Section section)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            section.Id = Guid.NewGuid().ToString();
-        //            section.DateCreated = DateTime.Now;
-        //            section.DateModified = DateTime.Now;
-                    
-        //           if (!section.TryValidate(out var errors))
-        //           {
-        //               section.Id = Guid.Empty.ToString();
-        //               return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-        //           }
-                    
-        //            var result = await db.Sections.AddAsync(section);
-        //            db.SaveChanges(true);
+                var maps = await db.MapPage.GetAllForSectionAsync(id);
 
-        //            return new DalResult(DalStatus.Success, section.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception saving section {section.Name}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult(DalStatus.Unknown, "Error saving section");
-        //        }
-        //    });
-        //}
+                result.MapPageIds = maps.Select(x => new PageLink(x.Name, x.Link)).ToList();
 
-        //public async Task<DalResult> UpdateSectionAsync(Section section)
-        //{
-        //    return await Task.Run(() =>
-        //    {
-        //        try
-        //        {
-        //            section.DateModified = DateTime.Now;
+                return new DalResult<Section>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception getting section id {Id}.", id);
+                return new DalResult<Section>(DalStatus.Unknown, null, "Error getting section");
+            }
+        }
 
-        //            if (!section.TryValidate(out var errors))
-        //            {
-        //                return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-        //            }
+        public async Task<DalResult<Section[]>> GetAllSectionsForParentAsync(Guid id)
+        {
+            try
+            {
+                var result = await db.Section.GetAllSubSectionsAsync(id);
 
-        //            db.Sections.Update(section);
-        //            db.SaveChanges(true);
+                foreach (var section in result)
+                {
+                    var childResult = await GetAllSectionsForParentAsync(id);
 
-        //            return new DalResult(DalStatus.Success);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception saving section {section.Name}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult(DalStatus.Unknown, "Error saving section");
-        //        }
-        //    });
-        //}
+                    section.Children = childResult.Result.ToList();
 
-        //public async Task<DalResult<Section>> GetSectionAsync(string id)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            var result = db.Sections.Find(id);
+                    var pages = await db.Page.GetAllForSectionAsync(id);
+
+                    section.PageIds = pages.Select(x => new PageLink(x.Name, x.Link)).ToList();
+
+                    var maps = await db.MapPage.GetAllForSectionAsync(id);
+
+                    section.MapPageIds = maps.Select(x => new PageLink(x.Name, x.Link)).ToList();
+                }
+
+                return new DalResult<Section[]>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting all sections.");
+                return new DalResult<Section[]>(DalStatus.Unknown, null, "Error getting sections");
+            }
+        }
+
+        #region Page Queries
 
 
-        //            var childResult = await GetAllSectionsForParentAsync(id);
+        public async Task<DalResult<Page[]>> GetAllPagesForSection(Guid id)
+        {
+            try
+            {
+                var result = await db.Page.GetAllForSectionAsync(id);
 
-        //            result.Children = childResult.Result.ToList();
+                return new DalResult<Page[]>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception getting pages for section id {Id}.", id);
+                return new DalResult<Page[]>(DalStatus.Unknown, null, "Error getting pages for section");
+            }
+        }
 
-        //            result.PageIds = db.Pages.Where(x => x.FK_Section == result.Id)
-        //               .Select(x => new PageLink(x.Name, x.Link)).ToList();
+        public async Task<DalResult<Guid>> AddPageAsync(Page page)
+        {
+            try
+            {
+                page.DateCreated = DateTime.Now;
+                page.DateModified = DateTime.Now;
 
-        //            result.MapPageIds = db.MapPages.Where(x => x.FK_Section == result.Id)
-        //                .Select(x => new PageLink(x.Name, x.Link)).ToList();
+                var result = await db.Page.InsertAsync(page);
+                
+                return new DalResult<Guid>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception saving page {Name}.", page.Name);
+                return new DalResult<Guid>(DalStatus.Unknown, Guid.Empty, "Error saving page");
+            }
+        }
 
-        //            return new DalResult<Section>( DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting section id {id}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<Section>(DalStatus.Unknown, null,"Error getting section");
-        //        }
-        //    });
-        //}
+        public async Task<DalResult> UpdatePageAsync(Page page)
+        {
+            try
+            {
+                page.DateModified = DateTime.Now;
+                
+                var result = await db.Page.UpdateAsync(page);
+                
+                return new DalResult(result ? DalStatus.Success : DalStatus.Unknown);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception saving page {Name}.", page.Name);
+                return new DalResult(DalStatus.Unknown, "Error saving page");
+            }
+        }
 
-        //public async Task<DalResult<Section[]>> GetAllSectionsForParentAsync(string id)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            var result = db.Sections.Where(x => x.Enabled).Where(x => x.Parent == id).ToArray();
+        public async Task<DalResult<Page>> GetPageAsync(Guid id)
+        {
+            try
+            {
+                var result = await db.Page.GetAsync(id);
 
-        //            foreach (var section in result)
-        //            {
-        //                var childResult = await GetAllSectionsForParentAsync(section.Id);
+                return new DalResult<Page>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception getting page id {Id}.", id);
+                return new DalResult<Page>(DalStatus.Unknown, null, "Error getting page");
+            }
+        }
 
-        //                section.Children = childResult.Result.ToList();
+        public async Task<DalResult<Page>> GetPageByNameAsync(Guid parent, string name)
+        {
+            try
+            {
+                var result = await db.Page.GetByNameAsync(parent, name);
 
-        //                section.PageIds = db.Pages.Where(x => x.FK_Section == section.Id)
-        //                    .Select(x => new PageLink(x.Name, x.Link)).ToList();
+                return new DalResult<Page>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception getting page {Name} of section {Parent}.", name, parent);
+                return new DalResult<Page>(DalStatus.Unknown, null, "Error getting page");
+            }
+        }
 
-        //                section.MapPageIds = db.MapPages.Where(x => x.FK_Section == section.Id)
-        //                    .Select(x => new PageLink(x.Name, x.Link)).ToList();
-        //            }
+        #endregion
 
-        //            return new DalResult<Section[]>(DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting all sections. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<Section[]>(DalStatus.Unknown, null, "Error getting sections");
-        //        }
-        //    });
-        //}
-
-        //#region Page Queries
-
-
-        //public async Task<DalResult<Page[]>> GetAllPagesForSection(string id)
-        //{
-        //    return await Task.Run( () =>
-        //    {
-        //        try
-        //        {
-        //            var result = db.Pages.Where(x => x.FK_Section == id).ToArray();
-
-        //            return new DalResult<Page[]>(DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting pages for section id {id}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<Page[]>(DalStatus.Unknown, null, "Error getting pages for section");
-        //        }
-        //    });
-        //}
-
-        //public async Task<DalResult> AddPageAsync(Page page)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            page.Id = Guid.NewGuid().ToString();
-        //            page.DateCreated = DateTime.Now;
-        //            page.DateModified = DateTime.Now;
-
-        //            if (!page.TryValidate(out var errors))
-        //            {
-        //                page.Id = Guid.Empty.ToString();
-        //                return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-        //            }
-
-        //            var result = await db.Pages.AddAsync(page);
-        //            await db.SaveChangesAsync(true);
-
-        //            return new DalResult(DalStatus.Success, page.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception saving page {page.Name}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult(DalStatus.Unknown, "Error saving page");
-        //        }
-        //    });
-        //}
-
-        //public async Task<DalResult> UpdatePageAsync(Page page)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            page.DateModified = DateTime.Now;
-
-        //            if (!page.TryValidate(out var errors))
-        //            {
-        //                page.Id = Guid.Empty.ToString();
-        //                return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-        //            }
-
-        //            var result = db.Pages.Update(page);
-        //            await db.SaveChangesAsync(true);
-
-        //            return new DalResult(DalStatus.Success, page.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception saving page {page.Name}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult(DalStatus.Unknown, "Error saving page");
-        //        }
-        //    });
-        //}
-
-        //public async Task<DalResult<Page>> GetPageAsync(string id)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            var result = await db.Pages.FindAsync(id);
-
-        //            return new DalResult<Page>(DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting page id {id}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<Page>(DalStatus.Unknown, null, "Error getting page");
-        //        }
-        //    });
-        //}
-
-        //public async Task<DalResult<Page>> GetPageByNameAsync(string parent, string name)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            var result = db.Pages.First(x => x.Enabled && x.Name == name && x.FK_Section == parent);
-
-        //            return new DalResult<Page>(DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting page {name} of section {parent}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<Page>(DalStatus.Unknown, null, "Error getting page");
-        //        }
-        //    });
-        //}
-
-        //#endregion
-
-        //#region Map Page Queries
+        #region Map Page Queries
 
 
-        //public async Task<DalResult<MapPage[]>> GetAllMapPagesForSection(string id)
-        //{
-        //    return await Task.Run(() =>
-        //    {
-        //        try
-        //        {
-        //            var result = db.MapPages.Where(x => x.FK_Section == id).ToArray();
+        public async Task<DalResult<MapPage[]>> GetAllMapPagesForSection(Guid id)
+        {
+            try
+            {
+                var result = await db.MapPage.GetAllForSectionAsync(id);
 
-        //            return new DalResult<MapPage[]>(DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting map pages for section id {id}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<MapPage[]>(DalStatus.Unknown, null, "Error getting map pages for section");
-        //        }
-        //    });
-        //}
+                return new DalResult<MapPage[]>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Exception getting map pages for section id {Id}.", id);
+                return new DalResult<MapPage[]>(DalStatus.Unknown, null, "Error getting map pages for section");
+            }
+        }
 
-        //public async Task<DalResult> AddMapPageAsync(MapPage page)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            page.Id = Guid.NewGuid().ToString();
-        //            page.DateCreated = DateTime.Now;
-        //            page.DateModified = DateTime.Now;
-        //            page.Link = $"{page.Link}{page.Id}";
+       
 
-        //            if (!page.TryValidate(out var errors))
-        //            {
-        //                page.Id = Guid.Empty.ToString();
-        //                return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-        //            }
-
-        //            var result = await db.MapPages.AddAsync(page);
-        //            db.SaveChanges(true);
-
-        //            return new DalResult(DalStatus.Success, page.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception saving map page {page.Name}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult(DalStatus.Unknown, "Error saving map page");
-        //        }
-        //    });
-        //}
-
-        //public async Task<DalResult> UpdateMapPageAsync(MapPage page)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            page.DateModified = DateTime.Now;
-
-        //            if (!page.TryValidate(out var errors))
-        //            {
-        //                page.Id = Guid.Empty.ToString();
-        //                return new DalResult(DalStatus.ConstraintViolation, string.Join(';', errors));
-        //            }
-
-        //            var result = db.MapPages.Update(page);
-        //            await db.SaveChangesAsync(true);
-
-        //            return new DalResult(DalStatus.Success, page.Id);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception saving map page {page.Name}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult(DalStatus.Unknown, "Error saving map page");
-        //        }
-        //    });
-        //}
-
-        //public async Task<DalResult<MapPage>> GetMapPageAsync(string id)
-        //{
-        //    return await Task.Run(async () =>
-        //    {
-        //        try
-        //        {
-        //            var result = await db.MapPages.FindAsync(id);
-
-        //            db.Entry(result).Collection(r => r.MapMarkers).Load();
-                    
-        //            return new DalResult<MapPage>(DalStatus.Success, result);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Log.Error($"Exception getting page id {id}. ex: {e.Message}");
-        //            Log.Debug(e.StackTrace);
-        //            return new DalResult<MapPage>(DalStatus.Unknown, null, "Error getting page");
-        //        }
-        //    });
-        //}
-
-        //#endregion
+        #endregion
     }
 }
