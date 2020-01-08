@@ -149,8 +149,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        campaigns = (await SectionService.GetAllCampaignsAsync()).Result;
+        var result = await SectionService.GetAllCampaignsAsync();
 
+        campaigns = result.Result;
 
         BreadcrumbService.SetBreadCrumb("", "", false);
         BreadcrumbService.ClearHistory();

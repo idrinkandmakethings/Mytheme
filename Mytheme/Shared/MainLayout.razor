@@ -296,7 +296,7 @@ Colors
 
     private async void CampaignSelected(string id)
     {
-        var result = await SectionService.GetCampaignIndex(id);
+        var result = await SectionService.GetCampaignIndex(Guid.Parse(id));
 
         if (result.IsSuccess)
         {

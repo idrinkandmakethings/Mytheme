@@ -19,7 +19,8 @@
     public class TableSql
     {
         public string Settings => $@"CREATE TABLE {Tables.Settings} (
-    Id TEXT NOT NULL NOT NULL PRIMARY KEY,
+    Id Integer NOT NULL PRIMARY KEY,
+    Name TEXT,
     Value TEXT);";
 
         public string FileData => $@"CREATE TABLE {Tables.FileData} (

@@ -184,7 +184,7 @@
                                     @sub.Name
                                 </td>
                                 <td>
-                                    <a @onclick="@( () => NavigateToSection(sub.Id.ToString()))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                                    <a @onclick="@( () => NavigateToSection(sub.Id))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
                                 </td>
                             </tr>
                         }
@@ -275,7 +275,7 @@
 
         if (!string.IsNullOrEmpty(Id))
         {
-            var result = await SectionService.GetSectionAsync(Id);
+            var result = await SectionService.GetSectionAsync(Guid.Parse(Id));
 
             if (result.IsSuccess)
             {
@@ -341,11 +341,11 @@
     }
 
 
-    private async void NavigateToSection(string id)
+    private async void NavigateToSection(Guid id)
     {
-        Id = id;
+        Id = id.ToString();
 
-        var result = await SectionService.GetSectionAsync(Id);
+        var result = await SectionService.GetSectionAsync(id);
 
         if (result.IsSuccess)
         {
