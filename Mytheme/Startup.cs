@@ -28,7 +28,9 @@ namespace Mytheme
             Configuration = configuration;
 
             SimpleCRUD.SetDialect(SimpleCRUD.Dialect.SQLite);
-            SqlMapper.AddTypeHandler<Guid>(new GuidTypeHandler());
+            SqlMapper.AddTypeHandler(new GuidTypeHandler());
+            SqlMapper.RemoveTypeMap(typeof(Guid));
+            SqlMapper.RemoveTypeMap(typeof(Guid?));
 
             var db = new DataStorage();
             db.MigrateDatabase().Wait();

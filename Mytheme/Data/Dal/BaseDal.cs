@@ -50,6 +50,8 @@ namespace Mytheme.Data.Dal
             {
                 await conn.CloseAsync();
             }
+
+
         }
 
         public virtual async Task<T[]> GetAllAsync()

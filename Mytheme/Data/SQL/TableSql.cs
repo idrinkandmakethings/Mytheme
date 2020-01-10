@@ -24,7 +24,7 @@
     Value TEXT);";
 
         public string FileData => $@"CREATE TABLE {Tables.FileData} (
-    Id BLOB NOT NULL PRIMARY KEY,
+    Id TEXT NOT NULL PRIMARY KEY,
     FileName TEXT,
     DisplayName TEXT, 
     FileType INTEGER)";
@@ -32,12 +32,12 @@
         //Templates
 
         public string TemplateCategory => $@"CREATE TABLE {Tables.TemplateCategory} (
-    Id BLOB NOT NULL PRIMARY KEY,
+    Id TEXT NOT NULL PRIMARY KEY,
     Name TEXT,
     Enabled INTEGER)";
 
         public string Templates  => $@"CREATE TABLE {Tables.Template} (
-    Id BLOB NOT NULL PRIMARY KEY,
+    Id TEXT NOT NULL PRIMARY KEY,
     Name TEXT,
     Category TEXT,
     Description TEXT,
@@ -45,8 +45,8 @@
     TemplateBody TEXT)";
 
         public string TemplateFields => $@"CREATE TABLE {Tables.TemplateField} (
-    Id BLOB NOT NULL PRIMARY KEY,
-    FK_Template BLOB,
+    Id TEXT NOT NULL PRIMARY KEY,
+    FK_Template TEXT,
     Sort INTEGER,
     FieldType INTEGER,
     Valid INTEGER,
@@ -58,20 +58,20 @@
         // Tables
 
         public string TableCategory => $@"CREATE TABLE {Tables.TableCategory} (
-    Id BLOB NOT NULL PRIMARY KEY,
+    Id TEXT NOT NULL PRIMARY KEY,
     Name TEXT,
     Enabled INTEGER)";
 
         public string RandomTables => $@"CREATE TABLE {Tables.RandomTable} (
-    Id BLOB NOT NULL PRIMARY KEY,
+    Id TEXT NOT NULL PRIMARY KEY,
     Name TEXT,
     Category TEXT,
     Description TEXT,
     Enabled INTEGER)";
         
         public string TableEntry => $@"CREATE TABLE {Tables.TableEntry} (
-    Id BLOB NOT NULL PRIMARY KEY,
-    FK_RandomTable BLOB,
+    Id TEXT NOT NULL PRIMARY KEY,
+    FK_RandomTable TEXT,
     Entry TEXT,
     LowerBound INTEGER,
     UpperBound INTEGER,
@@ -80,8 +80,8 @@
         // sections, pages, maps
 
         public string Sections => $@"CREATE TABLE {Tables.Section} (
-    Id BLOB NOT NULL PRIMARY KEY,
-    Parent BLOB,
+    Id TEXT NOT NULL PRIMARY KEY,
+    Parent TEXT,
     Name TEXT,
     Icon TEXT,
     Description TEXT,
@@ -92,8 +92,8 @@
     Enabled INTEGER)";
 
         public string Pages => $@"CREATE TABLE {Tables.Page} (
-    Id BLOB NOT NULL PRIMARY KEY,
-    FK_Section BLOB,
+    Id TEXT NOT NULL PRIMARY KEY,
+    FK_Section TEXT,
     Name TEXT,
     PageType INTEGER,
     Link TEXT,
@@ -104,19 +104,19 @@
     FOREIGN KEY(FK_Section) REFERENCES Section(Id))";
 
         public string MapPages => $@"CREATE TABLE {Tables.MapPage} (
-    Id BLOB NOT NULL PRIMARY KEY,
-    FK_Section BLOB,
+    Id TEXT NOT NULL PRIMARY KEY,
+    FK_Section TEXT,
     Name TEXT,
     Link TEXT,
-    Image BLOB,
+    Image TEXT,
     DateCreated TEXT,
     DateModified TEXT,
     Enabled INTEGER,
     FOREIGN KEY(FK_Section) REFERENCES Section(Id))";
 
         public string MapMarkers => $@"CREATE TABLE {Tables.MapMarker} (
-    Id BLOB NOT NULL PRIMARY KEY,
-    FK_MapPage BLOB,
+    Id TEXT NOT NULL PRIMARY KEY,
+    FK_MapPage TEXT,
     Name TEXT,
     Content TEXT,
     Lat REAL,
