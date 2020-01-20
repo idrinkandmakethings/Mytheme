@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Mytheme.Models;
 
 namespace Mytheme.Services
 {
@@ -9,8 +11,9 @@ namespace Mytheme.Services
         public List<NavBarButton> NavBarButtons { get; set; }
         
         public event Action<string> OnBreadCrumbChange;
-        public event Action<string> OnCampaignSelected; 
-
+        public event Action<string> OnCampaignSelected;
+        public event Action<NavigationLink> OnNavigateToLink;
+        
         public event Action OnNavbarButtonChange;
 
         private Queue<string> history;
@@ -50,6 +53,11 @@ namespace Mytheme.Services
             NavBarButtons.Clear();
             NavBarButtons.AddRange(buttons);
             OnNavbarButtonChange?.Invoke();
+        }
+
+        public void Navigate(NavigationLink link)
+        {
+            OnNavigateToLink?.Invoke(link);
         }
     }
 

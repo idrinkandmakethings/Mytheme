@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mytheme.Models;
 
 namespace Mytheme.Data.Dto
 {
@@ -32,32 +33,15 @@ namespace Mytheme.Data.Dto
         [NotMapped]
         public List<Section> Children { get; set; }
         [NotMapped]
-        public List<PageLink> PageIds { get; set; }
+        public List<LinkObject> PageIds { get; set; }
         [NotMapped]
-        public List<PageLink> MapPageIds { get; set; }
+        public List<LinkObject> MapPageIds { get; set; }
 
         public Section()
         {
             Children = new List<Section>();
-            PageIds = new List<PageLink>();
-            MapPageIds = new List<PageLink>();
-        }
-    }
-
-    public class PageLink
-    {
-        public string Name { get; set; }
-        public string Link { get; set; }
-
-        public PageLink(string name, string link)
-        {
-            Name = name;
-            Link = link;
-        }
-
-        public PageLink()
-        {
-            
+            PageIds = new List<LinkObject>();
+            MapPageIds = new List<LinkObject>();
         }
     }
 }

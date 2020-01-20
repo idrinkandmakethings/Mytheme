@@ -19,7 +19,6 @@ namespace Mytheme.Data.Dto
         public Guid FK_Section { get; set; }
         public string Name { get; set; }
         public PageType PageType { get; set; }
-        public string Link { get; set; }
         public string Content { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }

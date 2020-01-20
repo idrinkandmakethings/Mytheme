@@ -15,9 +15,9 @@ namespace Mytheme.Models
             Directories = new List<Directory>();
         }
 
-        public Directory(string name, string link)
+        public Directory(string name, NavigationLink link)
         {
-            Header = new LinkObject{Name = name, Link = link};
+            Header = new LinkObject(name, link);
             Links = new List<LinkObject>();
             Directories = new List<Directory>();
         }

@@ -1,9 +1,8 @@
-﻿@page "/section/create/{parentId}/{stype}"
-@page "/section/{id}"
-@page "/section"
+﻿
 
 @implements IDisposable
 @using Mytheme.Data.Dto
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Serilog
@@ -158,15 +157,15 @@
     & tr:nth-child(even) {background-color: #f2f2f2;}
 </Styled>
 
-@if (_section != null)
+@if (CurrentSection != null)
 {
 
     <div id="details" class="@detailSection">
         <div class="@nameDiv">
-            <input type="text" id="name" placeholder="Name" @bind="@_section.Name" />
+            <input type="text" id="name" placeholder="Name" @bind="@CurrentSection.Name" />
         </div>
         <div class="@descriptionDiv">
-            <textarea id="desc" class="@description" placeholder="Description" @bind="@_section.Description"></textarea>
+            <textarea id="desc" class="@description" placeholder="Description" @bind="@CurrentSection.Description"></textarea>
         </div>
     </div>
     <div id="linkSection" class="@linkSection">
@@ -177,7 +176,7 @@
             <div class="@subSectionLinks">
                 <table class="@linkTable">
                     <tbody>
-                        @foreach (var sub in _section.Children)
+                        @foreach (var sub in CurrentSection.Children)
                         {
                             <tr>
                                 <td>
@@ -198,14 +197,14 @@
             </div>
             <div class="@pageLinks">
                 <table class="@linkTable">
-                    @foreach (var p in _section.PageIds)
+                    @foreach (var p in CurrentSection.PageIds)
                     {
                     <tr>
                         <td>
                             @p.Name
                         </td>
                         <td>
-                            <a @onclick="@( () =>  NavigationManager.NavigateTo($"/markdownpage/{p.Link}", true))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                            <a @onclick="@( () =>  NavigateTo(p.Link))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
                         </td>
                     </tr>
                     }
@@ -218,14 +217,14 @@
             </div>
             <div class="@mapLinks">
                 <table class="@linkTable">
-                    @foreach (var m in _section.MapPageIds)
+                    @foreach (var m in CurrentSection.MapPageIds)
                     {
                         <tr>
                             <td>
                                 @m.Name
                             </td>
                             <td>
-                                <a @onclick="@( () =>  NavigationManager.NavigateTo($"/mappage/{m.Link}", true))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                                <a @onclick="@( () => NavigateTo(m.Link))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
                             </td>
                         </tr>}
                 </table>
@@ -247,21 +246,24 @@
 
     private bool accordionEngaged, accordionDisengaged;
 
-    [Parameter]
-    public string Id { get; set; }
 
     [Parameter]
-    public string ParentId { get; set; }
+    public Section CurrentSection { get; set; }
+
 
     [Parameter]
-    public string SType { get; set; }
+    public EventCallback<Guid> OnMapPageAdd { get; set; }
 
+    [Parameter]
+    public EventCallback<Guid> OnPageAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<NavigationLink> OnNavigate { get; set; }
 
     private SectionType sectionType;
 
     private string subSectionType;
 
-    private Section _section;
 
     protected override async Task OnInitializedAsync()
     {
@@ -273,68 +275,6 @@
 
         SetLinkDisplay(width);
 
-        if (!string.IsNullOrEmpty(Id))
-        {
-            var result = await SectionService.GetSectionAsync(Guid.Parse(Id));
-
-            if (result.IsSuccess)
-            {
-                _section = result.Result;
-
-                Id = _section.Id.ToString();
-
-                sectionType = _section.SectionType;
-
-                BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", true);
-            }
-            else
-            {
-                ModalService.ShowInfoModal("Error!", $"Error loading campaign.");
-            }
-        }
-        else if (!string.IsNullOrEmpty(ParentId))
-        {
-            try
-            {
-                sectionType = (SectionType)Enum.Parse(typeof(SectionType), SType);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Error parsing route arg enum.");
-                sectionType = SectionType.Campaign;
-            }
-
-            Id = Guid.Empty.ToString();
-
-            BreadcrumbService.SetBreadCrumb($"New {sectionType.ToString()}", "", true);
-
-            _section = new Section
-            {
-                Id = Guid.Empty,
-                Enabled = true,
-                DateCreated = DateTime.Now,
-                SectionType = sectionType,
-                Parent = Guid.Parse(ParentId),
-            };
-        }
-        else
-        {
-            sectionType = SectionType.Campaign;
-
-            Id = Guid.Empty.ToString();
-
-            BreadcrumbService.SetBreadCrumb($"New Campaign", "", false);
-
-            _section = new Section
-            {
-                Id = Guid.Empty,
-                Enabled = true,
-                DateCreated = DateTime.Now,
-                SectionType = SectionType.Campaign,
-                Parent = Guid.Empty,
-            };
-        }
-
         SetAllTheThings();
 
         StateHasChanged();
@@ -343,19 +283,14 @@
 
     private async void NavigateToSection(Guid id)
     {
-        Id = id.ToString();
 
         var result = await SectionService.GetSectionAsync(id);
 
         if (result.IsSuccess)
         {
-            _section = result.Result;
+            CurrentSection = result.Result;
 
-            Id = _section.Id.ToString();
-
-            sectionType = _section.SectionType;
-
-            BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", true);
+            BreadcrumbService.SetBreadCrumb(CurrentSection.Name, CurrentSection.Id.ToString(), true);
         }
 
         SetAllTheThings();
@@ -401,15 +336,14 @@
     private async void SaveSection()
     {
 
-        if (_section.Id == Guid.Empty)
+        if (CurrentSection.Id == Guid.Empty)
         {
-            var result = await SectionService.AddSectionAsync(_section);
+            var result = await SectionService.AddSectionAsync(CurrentSection);
 
             if (result.IsSuccess)
             {
-                _section.Id = result.Result;
-                Id = _section.Id.ToString();
-                BreadcrumbService.SetBreadCrumb(_section.Name, $"/section/{_section.Id}", false);
+                CurrentSection.Id = result.Result;
+                BreadcrumbService.SetBreadCrumb(CurrentSection.Name, CurrentSection.Id.ToString(), false);
             }
             else
             {
@@ -418,8 +352,8 @@
         }
         else
         {
-            var result = await SectionService.UpdateSectionAsync(_section);
-            
+            var result = await SectionService.UpdateSectionAsync(CurrentSection);
+
             if (!result.IsSuccess)
             {
                 ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
@@ -455,22 +389,42 @@
             return;
         }
 
-        NavigationManager.NavigateTo($"/section/create/{_section.Id}/{newSection}", true);
+        CurrentSection = new Section();
+
+        BreadcrumbService.SetBreadCrumb($"New {newSection.ToString()}", "", false);
+
+    }
+
+    private void NavigateTo(NavigationLink link)
+    {
+        OnNavigate.InvokeAsync(link);
     }
 
     private void AddPage()
     {
-        NavigationManager.NavigateTo($"/markdownpage/{_section.Id}", true);
+        if (!IsSaved())
+        {
+            ModalService.ShowInfoModal($"{sectionType} Not Saved", $"You must save this {sectionType} before adding a Page");
+            return;
+        }
+
+        OnPageAdd.InvokeAsync(CurrentSection.Id);
     }
 
     private void AddMapPage()
     {
-        NavigationManager.NavigateTo($"/mappage/{_section.Id}", true);
+        if (!IsSaved())
+        {
+            ModalService.ShowInfoModal($"{sectionType} Not Saved", $"You must save this {sectionType} before adding a Map Page");
+            return;
+        }
+
+        OnMapPageAdd.InvokeAsync(CurrentSection.Id);
     }
 
     private bool IsSaved()
     {
-        return _section.Id != Guid.Empty;
+        return CurrentSection.Id != Guid.Empty;
     }
 
     private async Task OnResize()

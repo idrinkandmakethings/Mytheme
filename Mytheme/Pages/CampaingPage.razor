@@ -1,27 +1,182 @@
-﻿@using System.Diagnostics.Eventing.Reader
+﻿@page "/campaign/"
+@page "/campaign/{id}"
 
-@if (viewSection)
-{
-    <SectionPage Section="@section"></SectionPage>
-}
-else if (viewMap)
-{
-    <LeafletMapPage></LeafletMapPage>
-}
-else if (viewPage)
-{
-    <MarkdownPage></MarkdownPage>
-}
-else
-{
-    <span>Error...</span>
-}
+@using Mytheme.Data.Dto
+@using Mytheme.Models
+@using Mytheme.Services
+@using Mytheme.Services.Interfaces
+
+@inject ISectionService SectionService
+@inject IMapService MapService
+@inject IModalService ModalService
+@inject BreadcrumbService BreadcrumbService
+
+<Styled @bind-Classname="@sectionView">
+    display: @viewSection;
+</Styled>
+
+<Styled @bind-Classname="@pageView">
+    display: @viewPage;
+</Styled>
+
+<Styled @bind-Classname="@mapView">
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: @viewMap;
+</Styled>
+
+<div class="@sectionView" id="sectionView">
+    <SectionPage CurrentSection="@currentSection"
+                 OnPageAdd="AddPage"
+                 OnMapPageAdd="AddMapPage"
+                 OnNavigate="Navigate"></SectionPage>
+</div>
+<div class="@pageView" id="pageView">
+    <MarkdownPage CurrentPage="page"
+                  OnNavigate="Navigate"></MarkdownPage>
+</div>
+<div class="@mapView" id="mapView">
+    <LeafletMapPage MapPage="mapPage"
+                    OnNavigate="Navigate"></LeafletMapPage>
+</div>
+
 
 
 @code {
 
-    private bool viewSection;
-    private bool viewMap;
-    private bool viewPage;
+    private string sectionView, pageView, mapView;
 
+    private string viewSection;
+    private string viewMap;
+    private string viewPage;
+
+    private Section campaign;
+
+    private Section currentSection;
+    private MapPage mapPage;
+    private Page page;
+
+    [Parameter]
+    public string Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        BreadcrumbService.OnNavigateToLink += NavigateToLink;
+
+        if (string.IsNullOrEmpty(Id))
+        {
+            // new campaign
+        }
+        else
+        {
+            var result = await SectionService.GetSectionAsync(Guid.Parse(Id));
+
+            if (result.IsSuccess)
+            {
+                campaign = result.Result;
+                currentSection = result.Result;
+                viewMap = "none";
+                viewPage = "none";
+                viewSection = "block";
+            }
+        }
+    }
+
+
+    private async void NavigateToLink(NavigationLink link)
+    {
+        await Navigate(link);
+    }
+
+    private async Task Navigate(NavigationLink navLink)
+    {
+        switch (navLink.ViewType)
+        {
+            case ViewType.Section:
+                await NavigateToSection(navLink.Link);
+                break;
+            case ViewType.Page:
+                await NavigateToPage(navLink.Link);
+                break;
+            case ViewType.MapPage:
+                await NavigateToMapPage(navLink.Link);
+                break;
+            default:
+                ModalService.ShowInfoModal($"Navigation error", $"Unknown view type.");
+                break;
+        }
+    }
+
+    private async Task NavigateToSection(Guid link)
+    {
+        var result = await SectionService.GetSectionAsync(link);
+
+        if (result.IsSuccess)
+        {
+            currentSection = result.Result;
+
+            viewMap = "none";
+            viewPage = "none";
+            viewSection = "block";
+
+            StateHasChanged();
+
+        }
+        else
+        {
+            ModalService.ShowInfoModal($"Navigation error", $"Error navigating to Section: {result.Message}");
+        }
+    }
+
+    private async Task AddPage(Guid parent)
+    {
+    }
+
+    private async Task NavigateToPage(Guid link)
+    {
+        var result = await SectionService.GetPageAsync(link);
+
+        if (result.IsSuccess)
+        {
+            page = result.Result;
+
+            viewMap = "none";
+            viewSection = "none";
+            viewPage = "block";
+
+            StateHasChanged();
+        }
+        else
+        {
+            ModalService.ShowInfoModal($"Navigation error", $"Error navigating to Page: {result.Message}");
+        }
+    }
+
+    private async Task AddMapPage(Guid parent)
+    {
+
+    }
+
+    private async Task NavigateToMapPage(Guid link)
+    {
+        var result = await MapService.GetMapPageAsync(link);
+
+        if (result.IsSuccess)
+        {
+
+            viewSection = "none";
+            viewPage = "none";
+            viewMap = "block";
+
+            mapPage = result.Result;
+
+            StateHasChanged();
+        }
+        else
+        {
+            ModalService.ShowInfoModal($"Navigation error", $"Error navigating to Section: {result.Message}");
+        }
+    }
 }

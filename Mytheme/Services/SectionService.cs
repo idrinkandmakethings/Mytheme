@@ -48,23 +48,23 @@ namespace Mytheme.Services
                 var section = await db.Section.GetAsync(id);
                 var currentSubType = section.SectionType.GetSubSectionType();
 
-                var directory = new Directory(section.Name, $"section/{section.Id}");
+                var directory = new Directory(section.Name, new NavigationLink(section.Id, ViewType.Section));
 
                 var maps = await db.MapPage.GetAllForSectionAsync(id);
 
-                var mapsDirectory = new Directory("Maps", "");
+                var mapsDirectory = new Directory("Maps", new NavigationLink(Guid.Empty, ViewType.None));
                 foreach (var mapPage in maps)
                 {
-                    mapsDirectory.Links.Add(new LinkObject { Name = mapPage.Name, Link = $"mappage/{mapPage.Link}" });
+                    mapsDirectory.Links.Add(new LinkObject(mapPage.Name, new NavigationLink(mapPage.Id, ViewType.MapPage)));
                 }
 
                 directory.Directories.Add(mapsDirectory);
 
                 var pages = await db.Page.GetAllForSectionAsync(id);
-                var pageDirectory = new Directory("Pages", "");
+                var pageDirectory = new Directory("Pages", new NavigationLink(Guid.Empty, ViewType.None));
                 foreach (var page in pages)
                 {
-                    pageDirectory.Links.Add(new LinkObject { Name = page.Name, Link = $"page/{page.Link}" });
+                    pageDirectory.Links.Add(new LinkObject(page.Name, new NavigationLink(page.Id, ViewType.Page)));
                 }
 
                 directory.Directories.Add(pageDirectory);
@@ -107,18 +107,18 @@ namespace Mytheme.Services
 
                 var result = new IndexLevel
                 {
-                    LevelHome = new LinkObject { Link = $"section/{section.Id}", Name = section.Name },
+                    LevelHome = new LinkObject(section.Name, new NavigationLink(section.Id, ViewType.Section)),
                     Type = section.SectionType,
                     SubSectionType = section.SectionType.GetSubSectionType()
                 };
 
                 var maps = await db.MapPage.GetAllForSectionAsync(id);
 
-                result.Maps = maps.Select(x => new LinkObject { Link = x.Link, Name = x.Name }).ToList();
+                result.Maps = maps.Select(x => new LinkObject( x.Name,  new NavigationLink(x.Id, ViewType.MapPage))).ToList();
 
                 var pages = await db.Page.GetAllForSectionAsync(id);
 
-                result.Pages = pages.Select(x => new LinkObject { Link = x.Link, Name = x.Name }).ToList();
+                result.Pages = pages.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.Page))).ToList();
 
                 result.SubLevels = new List<IndexLevel>();
 
@@ -205,11 +205,11 @@ namespace Mytheme.Services
                 
                 var pages = await db.Page.GetAllForSectionAsync(id);
 
-                result.PageIds = pages.Select(x => new PageLink(x.Name, x.Link)).ToList();
+                result.PageIds = pages.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.Page))).ToList();
 
                 var maps = await db.MapPage.GetAllForSectionAsync(id);
 
-                result.MapPageIds = maps.Select(x => new PageLink(x.Name, x.Link)).ToList();
+                result.MapPageIds = maps.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.MapPage))).ToList();
 
                 return new DalResult<Section>(DalStatus.Success, result);
             }
@@ -234,11 +234,11 @@ namespace Mytheme.Services
 
                     var pages = await db.Page.GetAllForSectionAsync(id);
 
-                    section.PageIds = pages.Select(x => new PageLink(x.Name, x.Link)).ToList();
+                    section.PageIds = pages.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.Page))).ToList();
 
                     var maps = await db.MapPage.GetAllForSectionAsync(id);
 
-                    section.MapPageIds = maps.Select(x => new PageLink(x.Name, x.Link)).ToList();
+                    section.MapPageIds = maps.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.MapPage))).ToList();
                 }
 
                 return new DalResult<Section[]>(DalStatus.Success, result);

@@ -1,39 +1,80 @@
 ﻿@using Mytheme.Models
 
+<Styled @bind-Classname="@listView">
+    list-style-type: none;
+    margin-bottom: 2px;
+    margin-left: 10px;
+    & li {
+    padding-left: 10px;
+    margin-bottom: 2px;
+    }
+</Styled>
+
+<Styled @bind-Classname="@linkSpan">
+    list-style-type: none;
+    cursor: pointer;
+</Styled>
+
+<Styled Classname="@linkSpan" PseudoClass="PseudoClasses.Hover">
+    color: lightgrey;
+</Styled>
+
+<Styled @bind-Classname="@headerLinkSpan">
+    list-style-type: none;
+    cursor: pointer;
+    font-size: 18px;
+</Styled>
+
+<Styled Classname="@headerLinkSpan" PseudoClass="PseudoClasses.Hover">
+    color: lightgrey;
+</Styled>
+
 @if (Directories != null)
 {
-    <ul>
+    <ul class="@listView">
         @foreach (var dir in Directories)
         {
-        <li>
-            <span @onclick="@dir.Toggle">@dir.GetIcon()</span>
-            @if (string.IsNullOrEmpty(dir.Header.Link))
-            {
-                <span>@dir.Header.Name</span>
-            }
-            else
-            {
-                <span><a href="@dir.Header.Link">@dir.Header.Name</a></span>
-            }
-            @if (dir.Expanded)
-            {
+            <li>
                 <div>
-                    <ul>
-                        @foreach (var link in dir.Links)
-                        {
-                            <li><a href="@link.Link">@link.Name</a></li>
-                        }
-                    </ul>
-                    <TreeView Directories="dir.Directories"></TreeView>
+                    <span @onclick="@dir.Toggle" class="@linkSpan">@dir.GetIcon()</span>
+                    @if (dir.Header.Link.ViewType == ViewType.None)
+                    {
+                        <span>@dir.Header.Name</span>
+                    }
+                    else
+                    {
+                        <span @onclick="@(() => NavigateTo(dir.Header.Link))" class="@linkSpan">@dir.Header.Name</span>
+                    }
                 </div>
-            }
-        </li>
+                @if (dir.Expanded)
+                {
+                    <div>
+                        <ul class="@listView">
+                            @foreach (var link in dir.Links)
+                            {
+                                <li><span @onclick="@(() => NavigateTo(link.Link))" class="@headerLinkSpan">@link.Name</span></li>
+                            }
+                        </ul>
+                        <TreeView Directories="dir.Directories"></TreeView>
+                    </div>
+                }
+            </li>
         }
     </ul>
 }
 
 @code {
+    private string listView, headerLinkSpan, linkSpan;
+
     [Parameter]
     public List<Directory> Directories { get; set; }
+
+    [Parameter]
+    public EventCallback<NavigationLink> OnNavigation { get; set; }
+
+    private void NavigateTo(NavigationLink link)
+    {
+        OnNavigation.InvokeAsync(link);
+    }
 
 }

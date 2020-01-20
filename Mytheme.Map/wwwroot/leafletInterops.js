@@ -5,6 +5,15 @@ var popup = L.popup().setContent('<div>Add Marker?</div><button onclick="AddIcon
 window.leafletBlazor = {
 
     createImageMap: function (mapId, img, w, h) {
+
+        if (map !== undefined) {
+            try {
+                map.off();
+                map.remove();
+            } catch(ex) {
+                console.log("can't remove map");
+            }
+        }
         map = L.map(mapId,
             {
                 minZoom: 0,

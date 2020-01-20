@@ -57,35 +57,6 @@ Colors
 </Styled>
 
 
-<Styled @bind-Classname="@sideNav">
-
-    height: 100%;
-    width: @navWidth;
-    position: fixed;
-    z-index: 2000;
-    top: 0;
-    left: 0;
-    background-color: #111;
-    overflow-x: hidden;
-    padding-top: 60px;
-    transition: 0.5s;
-
-    & a {
-    padding: 8px 8px 8px 32px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #818181;
-    display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    transition: 0.3s;
-    }
-
-    & a:hover {
-    color: #f1f1f1;
-    }
-</Styled>
 
 <Styled @bind-Classname="@searchPanel">
 
@@ -176,11 +147,37 @@ Colors
 </Styled>
 
 <Styled @bind-Classname="@mainView">
+    display: flex;
+    flex-direction: row;
     box-sizing: border-box;
-    position: relative;
     width: 100%;
     height: 100%;
-    padding: 58px 20px 20px;
+    padding: 58px 0px 0px;
+</Styled>
+
+<Styled @bind-Classname="@sideNav">
+
+    height: 100%;
+    width: @navWidth;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+
+    & a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    transition: 0.3s;
+    }
+
+    & a:hover {
+    color: #f1f1f1;
+    }
 </Styled>
 
 
@@ -197,6 +194,14 @@ Colors
 <Styled @bind-Classname="@navIndex">
     flex-grow: 1;
     background: cyan;
+    overflow-y: auto;
+    font-size: 20px;
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@navIndexHeader">
+    padding: 7px;
+    font-size: 26px;
 </Styled>
 
 <Styled @bind-Classname="@mgmtHeader">
@@ -211,26 +216,15 @@ Colors
 </Styled>
 
 
+<Styled @bind-Classname="@mainContent">
+    flex-grow: 1;
+    padding: 0px 20px 20px;
+</Styled>
+
+
 <Modal></Modal>
 
-<div class="@sideNav">
-    <div class="@navFlexRoot">
-        <div class="@navHome">
-            <a href="#">Home</a>
-        </div>
-        <div class="@navIndex">
-            <TreeView Directories="@index"></TreeView>
-        </div>
-        <div class="@mgmtHeader">
-            <a @onclick="ToggleAppManagement">App Management</a>
-        </div>
-        <div class="@mgmtSection">
-            <a href="tables">Tables</a>
-            <a href="templates">Templates</a>
-            <a href="imageloader">Image Loader</a>
-        </div>
-    </div>
-</div>
+
 
 <div class="@topNav">
     <div class="@topNavBody">
@@ -248,20 +242,40 @@ Colors
     <a href="#">Home</a>
 </div>
 
-
 <div class="@mainView">
-    @Body
+    <div class="@sideNav">
+        <div class="@navFlexRoot">
+            <div class="@navHome">
+                <a href="#">Home</a>
+            </div>
+            <div class="@navIndex">
+                <div class="@navIndexHeader">@campaignLabel</div>
+                <TreeView Directories="@index" OnNavigation="NavigateToLink"></TreeView>
+            </div>
+            <div class="@mgmtHeader">
+                <a @onclick="ToggleAppManagement">App Management</a>
+            </div>
+            <div class="@mgmtSection">
+                <a href="tables">Tables</a>
+                <a href="templates">Templates</a>
+                <a href="imageloader">Image Loader</a>
+            </div>
+        </div>
+    </div>
+    <div class="@mainContent">
+        @Body
+    </div>
 </div>
 
 
 @code {
     private string topNav, topNavBody, topNavTitle, topNavButton, topNavComponents, sideNav, searchPanel, mainView;
 
-    private string navFlexRoot, navHome, navIndex;
+    private string navFlexRoot, navHome, navIndex, navIndexHeader, mainContent;
 
     private string mgmtHeader, mgmtSection;
 
-    private string mgmtSectionDisplay= "none";
+    private string mgmtSectionDisplay = "none";
 
     private string navWidth = "0px";
     private string searchWidth = "0px";
@@ -271,6 +285,8 @@ Colors
     private bool searchOpen;
     private bool mgmtSectionOpen;
 
+
+    private string campaignLabel;
     private List<Directory> index = new List<Directory>();
 
     protected override void OnInitialized()
@@ -300,8 +316,9 @@ Colors
 
         if (result.IsSuccess)
         {
+            campaignLabel = result.Result.Header.Name;
             index.Clear();
-            index.Add(result.Result);
+            index.AddRange(result.Result.Directories);
         }
     }
 
@@ -380,5 +397,10 @@ Colors
         mgmtSectionDisplay = "none";
         mgmtSectionOpen = false;
         StateHasChanged();
+    }
+
+    private async Task NavigateToLink(NavigationLink link)
+    {
+        BreadcrumbService.Navigate(link);
     }
 }

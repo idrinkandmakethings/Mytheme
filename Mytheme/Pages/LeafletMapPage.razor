@@ -1,9 +1,8 @@
-﻿@page "/mappage/{parent}"
-@page "/mappage/{parent}/{id}"
-@using Mytheme.Data
+﻿
 @using Mytheme.Data.Dto
 @using Mytheme.Map.Models
 @using Mytheme.Modals
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Serilog
@@ -24,55 +23,32 @@
     height: 100%;
 </Styled>
 
-    <div class="@mapStyle">
-        <LeafletMap OnMarkerAdded="MarkerAdded" @ref="@mapView"></LeafletMap>
-    </div>
+<LeafletMap OnMarkerAdded="MarkerAdded" @ref="@mapView"></LeafletMap>
 
 
 @code {
 
     private string mapStyle;
 
-    private MapPage mapPage;
-
-
     MapImage map;
     LeafletMap mapView;
 
     [Parameter]
-    public string Parent { get; set; }
+    public EventCallback<NavigationLink> OnNavigate { get; set; }
 
     [Parameter]
-    public string Id { get; set; }
+    public MapPage MapPage { get; set; }
 
+    
     protected override async Task OnInitializedAsync()
     {
-
-        if (!string.IsNullOrEmpty(Id))
-        {
-            var result = await MapService.GetMapPageAsync(Guid.Parse(Id));
-
-            if (result.IsSuccess)
-            {
-                mapPage = result.Result;
-
-                BreadcrumbService.SetBreadCrumb(mapPage.Name, mapPage.Link, true);
-            }
-        }
-        else
-        {
-            BreadcrumbService.SetBreadCrumb($"New Map", "", true);
-
-            OpenNewMapPageModal();
-        }
-
         SetNavBarButtons();
     }
 
 
     protected override async Task OnParametersSetAsync()
     {
-        if (mapPage != null)
+        if (MapPage != null)
         {
             await LoadMap();
         }
@@ -80,13 +56,13 @@
 
     private async Task LoadMap()
     {
-        var result = await FileHandlerService.GetMapImage(mapPage.Image);
+        var result = await FileHandlerService.GetMapImage(MapPage.Image);
 
         map = result;
 
         await mapView.InitializeMap(map);
 
-        foreach (var marker in mapPage.MapMarkers)
+        foreach (var marker in MapPage.MapMarkers)
         {
             await mapView.AddMarker(marker.ToLeafletMarker());
         }
@@ -108,7 +84,7 @@
         var p = new ModalParameters();
         p.Add("lat", coord.Latitude);
         p.Add("lon", coord.Longitude);
-        p.Add("parent", mapPage.Id);
+        p.Add("parent", MapPage.Id);
 
         ModalService.Show<AddMapMarkerModal>("Add Map Marker", p,
             new ModalOptions
@@ -123,15 +99,15 @@
     private async void SaveMapPage()
     {
 
-        if (mapPage.Id == Guid.Empty)
+        if (MapPage.Id == Guid.Empty)
         {
-            var result = await MapService.AddMapPageAsync(mapPage);
+            var result = await MapService.AddMapPageAsync(MapPage);
 
             if (result.IsSuccess)
             {
-                mapPage.Id = result.Result;
+                MapPage.Id = result.Result;
 
-                BreadcrumbService.SetBreadCrumb(mapPage.Name, mapPage.Link, false);
+                BreadcrumbService.SetBreadCrumb(MapPage.Name, MapPage.Id.ToString(), false);
             }
             else
             {
@@ -140,7 +116,7 @@
         }
         else
         {
-            var result = await MapService.UpdateMapPageAsync(mapPage);
+            var result = await MapService.UpdateMapPageAsync(MapPage);
 
             if (!result.IsSuccess)
             {
@@ -162,7 +138,7 @@
     protected void OpenNewMapPageModal()
     {
         var p = new ModalParameters();
-        p.Add("parent", Parent);
+        p.Add("parent", "");
 
         ModalService.Show<AddNewMapPageModal>("Add New Map", p,
             new ModalOptions
@@ -180,7 +156,7 @@
         {
             try
             {
-                mapPage = (MapPage) result.Data;
+                MapPage = (MapPage) result.Data;
                 SaveMapPage();
                 await LoadMap();
             }
@@ -204,7 +180,7 @@
             {
                 var marker = (MapMarker) result.Data;
 
-                mapPage.MapMarkers.Add(marker);
+                MapPage.MapMarkers.Add(marker);
 
                 var dalResult = await MapService.AddMarkerAsync(marker);
 

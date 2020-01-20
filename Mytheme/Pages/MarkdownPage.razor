@@ -1,7 +1,6 @@
-﻿@page "/markdownpage/{parent}"
-@page "/markdownpage/{parent}/{name}"
-@using Mytheme.Data.Dto
+﻿@using Mytheme.Data.Dto
 @using Mytheme.Modals
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 @using Serilog
@@ -15,60 +14,40 @@
 @inject ISectionService SectionService
 
 
-@if (_page != null)
+@if (CurrentPage != null)
 {
-    <TabbedMarkdownEditor OnSaveEdit="@SaveEdit" Content="@_page.Content" PercentHeight="90" @ref="@markdown"></TabbedMarkdownEditor>
+    <TabbedMarkdownEditor OnSaveEdit="@SaveEdit" Content="@CurrentPage.Content" PercentHeight="90" @ref="@markdown"></TabbedMarkdownEditor>
 }
 
 @code {
 
-    public string Content { get; set; }
-
-    private Page _page;
-
     private TabbedMarkdownEditor markdown;
 
     [Parameter]
-    public string Parent { get; set; }
+    public EventCallback<NavigationLink> OnNavigate { get; set; }
 
     [Parameter]
-    public string Name { get; set; }
+    public Page CurrentPage { get; set; }
+
+    public string Content { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrEmpty(Name))
-        {
-            var result = await SectionService.GetPageByNameAsync(Guid.Parse(Parent), Name);
-
-            if (result.IsSuccess)
-            {
-                _page = result.Result;
-
-                BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, true);
-            }
-        }
-        else
-        {
-            BreadcrumbService.SetBreadCrumb($"New Page", "", true);
-
-            OpenNewPageModal();
-        }
-
-        StateHasChanged();
+    
     }
 
 
     private async void NavigateToPage(string name)
     {
 
-        var result = await SectionService.GetPageByNameAsync(Guid.Parse(Parent), name);
+        var result = await SectionService.GetPageByNameAsync(CurrentPage.FK_Section, name);
 
         if (result.IsSuccess)
         {
-            _page = result.Result;
+            CurrentPage = result.Result;
 
-            BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, true);
+            BreadcrumbService.SetBreadCrumb(CurrentPage.Name, CurrentPage.Id.ToString(), true);
         }
 
         StateHasChanged();
@@ -77,22 +56,22 @@
 
     private async Task SaveEdit(string content)
     {
-        _page.Content = content;
+        CurrentPage.Content = content;
 
         SavePage();
     }
 
     private async void SavePage()
     {
-        if (_page.Id == Guid.Empty)
+        if (CurrentPage.Id == Guid.Empty)
         {
-            var result = await  SectionService.AddPageAsync(_page);
+            var result = await  SectionService.AddPageAsync(CurrentPage);
 
             if (result.IsSuccess)
             {
-                _page.Id = result.Result;
+                CurrentPage.Id = result.Result;
 
-                BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, false);
+                BreadcrumbService.SetBreadCrumb(CurrentPage.Name, CurrentPage.Id.ToString(), false);
             }
             else
             {
@@ -101,7 +80,7 @@
         }
         else
         {
-            var result = await SectionService.UpdatePageAsync(_page);
+            var result = await SectionService.UpdatePageAsync(CurrentPage);
             if (!result.IsSuccess)
             {
                 ModalService.ShowInfoModal($"Error Saving Page", result.Message);
@@ -115,7 +94,7 @@
     protected void OpenNewPageModal()
     {
         var p = new ModalParameters();
-        p.Add("parent", Parent);
+        p.Add("parent", CurrentPage.FK_Section);
 
         ModalService.Show<AddNewPageModal>("Add New Page", p,
             new ModalOptions
@@ -133,7 +112,7 @@
         {
             try
             {
-                _page = (Page) result.Data;
+                CurrentPage = (Page) result.Data;
                 SavePage();
                 StateHasChanged();
             }

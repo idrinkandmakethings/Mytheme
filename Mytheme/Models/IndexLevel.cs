@@ -21,9 +21,4 @@ namespace Mytheme.Models
             Maps = new List<LinkObject>();
         }
     }
-
-    public class LinkObject {
-        public string Name { get; set; }
-        public string Link { get; set; }
-    }
 }

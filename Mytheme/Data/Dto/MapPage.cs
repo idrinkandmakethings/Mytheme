@@ -11,7 +11,6 @@ namespace Mytheme.Data.Dto
         public Guid Id { get; set; }
         public Guid FK_Section { get; set; }
         public string Name { get; set; }
-        public string Link { get; set; }
         public Guid Image { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
