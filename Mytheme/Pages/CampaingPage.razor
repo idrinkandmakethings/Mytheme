@@ -1,0 +1,27 @@
+﻿@using System.Diagnostics.Eventing.Reader
+
+@if (viewSection)
+{
+    <SectionPage Section="@section"></SectionPage>
+}
+else if (viewMap)
+{
+    <LeafletMapPage></LeafletMapPage>
+}
+else if (viewPage)
+{
+    <MarkdownPage></MarkdownPage>
+}
+else
+{
+    <span>Error...</span>
+}
+
+
+@code {
+
+    private bool viewSection;
+    private bool viewMap;
+    private bool viewPage;
+
+}

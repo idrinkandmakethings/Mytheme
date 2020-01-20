@@ -18,7 +18,7 @@ namespace Mytheme.Data.Dal
             try
             {
                 await conn.OpenAsync();
-                var id = await conn.InsertAsync(data);
+                var id = await conn.InsertAsync<Guid, FileData>(data);
                 return data.Id;
             }
             finally

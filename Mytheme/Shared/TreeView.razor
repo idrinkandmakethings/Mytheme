@@ -1,0 +1,39 @@
+﻿@using Mytheme.Models
+
+@if (Directories != null)
+{
+    <ul>
+        @foreach (var dir in Directories)
+        {
+        <li>
+            <span @onclick="@dir.Toggle">@dir.GetIcon()</span>
+            @if (string.IsNullOrEmpty(dir.Header.Link))
+            {
+                <span>@dir.Header.Name</span>
+            }
+            else
+            {
+                <span><a href="@dir.Header.Link">@dir.Header.Name</a></span>
+            }
+            @if (dir.Expanded)
+            {
+                <div>
+                    <ul>
+                        @foreach (var link in dir.Links)
+                        {
+                            <li><a href="@link.Link">@link.Name</a></li>
+                        }
+                    </ul>
+                    <TreeView Directories="dir.Directories"></TreeView>
+                </div>
+            }
+        </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public List<Directory> Directories { get; set; }
+
+}

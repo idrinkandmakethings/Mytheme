@@ -35,6 +35,63 @@ namespace Mytheme.Services
             }
         }
 
+        public async Task<DalResult<Directory>> GetCampaignDirectory(Guid id)
+        {
+            var result = await GetDirectoryForSection(id);
+            return new DalResult<Directory>(DalStatus.Success, result);
+        }
+
+        private async Task<Directory> GetDirectoryForSection(Guid id)
+        {
+            try
+            {
+                var section = await db.Section.GetAsync(id);
+                var currentSubType = section.SectionType.GetSubSectionType();
+
+                var directory = new Directory(section.Name, $"section/{section.Id}");
+
+                var maps = await db.MapPage.GetAllForSectionAsync(id);
+
+                var mapsDirectory = new Directory("Maps", "");
+                foreach (var mapPage in maps)
+                {
+                    mapsDirectory.Links.Add(new LinkObject { Name = mapPage.Name, Link = $"mappage/{mapPage.Link}" });
+                }
+
+                directory.Directories.Add(mapsDirectory);
+
+                var pages = await db.Page.GetAllForSectionAsync(id);
+                var pageDirectory = new Directory("Pages", "");
+                foreach (var page in pages)
+                {
+                    pageDirectory.Links.Add(new LinkObject { Name = page.Name, Link = $"page/{page.Link}" });
+                }
+
+                directory.Directories.Add(pageDirectory);
+
+                if (currentSubType == SectionType.None)
+                {
+                    return directory;
+                }
+                else
+                {
+                    var subs = await db.Section.GetAllSubSectionsAsync(id);
+
+                    foreach (var sub in subs)
+                    {
+                        directory.Directories.Add(await GetDirectoryForSection(sub.Id));
+                    }
+                }
+
+                return directory;
+
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception directory for section {Id}.", id);
+                return null;
+            }
+        }
 
         public async Task<DalResult<IndexLevel>> GetCampaignIndex(Guid id)
         {
@@ -60,7 +117,7 @@ namespace Mytheme.Services
                 result.Maps = maps.Select(x => new LinkObject { Link = x.Link, Name = x.Name }).ToList();
 
                 var pages = await db.Page.GetAllForSectionAsync(id);
-                    
+
                 result.Pages = pages.Select(x => new LinkObject { Link = x.Link, Name = x.Name }).ToList();
 
                 result.SubLevels = new List<IndexLevel>();

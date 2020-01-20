@@ -21,6 +21,7 @@ namespace Mytheme.Services
         {
             try
             {
+                page.Id = Guid.NewGuid();
                 page.DateCreated = DateTime.Now;
                 page.DateModified = DateTime.Now;
                 page.Link = $"{page.Link}{page.Id}";

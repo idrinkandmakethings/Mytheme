@@ -72,6 +72,7 @@ namespace Mytheme
             services.AddScoped<ITemplateService>(x => new TemplateService(x.GetRequiredService<DataStorage>()));
             services.AddScoped<IFileHandlerService>(x => new FileHandlerService(x.GetRequiredService<DataStorage>()));
             services.AddScoped<ISectionService>(x => new SectionService(x.GetRequiredService<DataStorage>()));
+            services.AddScoped<IMapService>(x => new MapService(x.GetRequiredService<DataStorage>()));
 
             services.AddServerSideBlazor().AddCircuitOptions(o =>
             {

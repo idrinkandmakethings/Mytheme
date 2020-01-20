@@ -108,6 +108,7 @@
         var p = new ModalParameters();
         p.Add("lat", coord.Latitude);
         p.Add("lon", coord.Longitude);
+        p.Add("parent", mapPage.Id);
 
         ModalService.Show<AddMapMarkerModal>("Add Map Marker", p,
             new ModalOptions

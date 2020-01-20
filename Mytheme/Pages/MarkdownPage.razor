@@ -17,10 +17,16 @@
 
 @if (_page != null)
 {
-    <TabbedMarkdownEditor Content="@_page.Content" PercentHeight="90"></TabbedMarkdownEditor>
+    <TabbedMarkdownEditor OnSaveEdit="@SaveEdit" Content="@_page.Content" PercentHeight="90" @ref="@markdown"></TabbedMarkdownEditor>
 }
 
 @code {
+
+    public string Content { get; set; }
+
+    private Page _page;
+
+    private TabbedMarkdownEditor markdown;
 
     [Parameter]
     public string Parent { get; set; }
@@ -28,9 +34,6 @@
     [Parameter]
     public string Name { get; set; }
 
-    public string Content { get; set; }
-
-    private Page _page;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,7 +55,7 @@
             OpenNewPageModal();
         }
 
-        SetNavBarButtons();
+        StateHasChanged();
     }
 
 
@@ -68,24 +71,19 @@
             BreadcrumbService.SetBreadCrumb(_page.Name, _page.Link, true);
         }
 
-        SetNavBarButtons();
-
         StateHasChanged();
     }
 
-    private void SetNavBarButtons()
+
+    private async Task SaveEdit(string content)
     {
+        _page.Content = content;
 
-        var buttons = new List<NavBarButton>();
-
-        buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
-
-        BreadcrumbService.SetNavBarButtons(buttons);
+        SavePage();
     }
 
     private async void SavePage()
     {
-
         if (_page.Id == Guid.Empty)
         {
             var result = await  SectionService.AddPageAsync(_page);
@@ -111,7 +109,7 @@
         }
 
 
-        
+
     }
 
     protected void OpenNewPageModal()

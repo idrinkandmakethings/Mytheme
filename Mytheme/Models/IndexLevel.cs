@@ -13,6 +13,13 @@ namespace Mytheme.Models
         public List<IndexLevel> SubLevels { get; set; }
         public List<LinkObject> Pages { get; set; }
         public List<LinkObject> Maps { get; set; }
+
+        public IndexLevel()
+        {
+            SubLevels = new List<IndexLevel>();
+            Pages = new List<LinkObject>();
+            Maps = new List<LinkObject>();
+        }
     }
 
     public class LinkObject {

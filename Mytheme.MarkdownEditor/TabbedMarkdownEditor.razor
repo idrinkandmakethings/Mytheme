@@ -105,12 +105,15 @@
 
     private string editTabVisibility;
     private string displayTabVisibility;
-    
+
 
     private string _content;
     private int percentHeight;
 
     private bool showPreview;
+
+    [Parameter]
+    public EventCallback<string> OnSaveEdit { get; set; }
 
     [Parameter]
     public int PercentHeight
@@ -144,9 +147,19 @@
     {
         ModeButton = SetSvgToView();
 
-        editTabVisibility = "block";
-        displayTabVisibility = "none";
-        showPreview = false;
+        if (string.IsNullOrEmpty(Content))
+        {
+            editTabVisibility = "block";
+            displayTabVisibility = "none";
+            showPreview = false;
+        }
+        else
+        {
+            editTabVisibility = "none";
+            displayTabVisibility = "block";
+            showPreview = true;
+        }
+
     }
 
     private MarkupString ConvertStringToMarkupString(string value)
@@ -166,7 +179,7 @@
         return new MarkupString();
     }
 
-    private void ChangeView()
+    private async Task ChangeView()
     {
         if (showPreview)
         {
@@ -181,6 +194,7 @@
             editTabVisibility = "none";
             displayTabVisibility = "block";
             ModeButton = SetSvgToEdit();
+            await OnSaveEdit.InvokeAsync(Content);
         }
     }
 

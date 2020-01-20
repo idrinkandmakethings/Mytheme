@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Threading.Tasks;
 using Mytheme.Data;
 using Mytheme.Data.Dto;
@@ -10,6 +9,7 @@ namespace Mytheme.Services.Interfaces
     public interface ISectionService
     {
         Task<DalResult<Section[]>> GetAllCampaignsAsync();
+        Task<DalResult<Directory>> GetCampaignDirectory(Guid id);
         Task<DalResult<IndexLevel>> GetCampaignIndex(Guid id);
 
         Task<DalResult<Guid>> AddSectionAsync(Section section);

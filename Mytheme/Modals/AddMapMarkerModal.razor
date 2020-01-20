@@ -1,4 +1,5 @@
 ﻿@using System.Text
+@using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments
 @using Mytheme.Data.Dto
 @using Mytheme.Services.Interfaces
 
@@ -31,6 +32,8 @@
     private double lat;
     private double lon;
 
+    private Guid parent;
+
     [Parameter]
     public string Name { get; set; }
     [Parameter]
@@ -45,6 +48,7 @@
     {
         lat = Parameters?.Get<double>("lat") ?? 0;
         lon = Parameters?.Get<double>("lon") ?? 0;
+        parent = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
     }
 
     private async Task HandleSubmit()
@@ -59,6 +63,7 @@
         var marker = new MapMarker
         {
             Id = Guid.NewGuid(),
+            FK_MapPage = parent, 
             Name = Name,
             Content = SetContent(),
             Lat = lat,

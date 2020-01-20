@@ -219,7 +219,7 @@ Colors
             <a href="#">Home</a>
         </div>
         <div class="@navIndex">
-
+            <TreeView Directories="@index"></TreeView>
         </div>
         <div class="@mgmtHeader">
             <a @onclick="ToggleAppManagement">App Management</a>
@@ -271,7 +271,7 @@ Colors
     private bool searchOpen;
     private bool mgmtSectionOpen;
 
-    private IndexLevel index = new IndexLevel();
+    private List<Directory> index = new List<Directory>();
 
     protected override void OnInitialized()
     {
@@ -296,11 +296,12 @@ Colors
 
     private async void CampaignSelected(string id)
     {
-        var result = await SectionService.GetCampaignIndex(Guid.Parse(id));
+        var result = await SectionService.GetCampaignDirectory(Guid.Parse(id));
 
         if (result.IsSuccess)
         {
-            index = result.Result;
+            index.Clear();
+            index.Add(result.Result);
         }
     }
 
