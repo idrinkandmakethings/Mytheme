@@ -260,7 +260,7 @@
     [Parameter]
     public EventCallback<NavigationLink> OnNavigate { get; set; }
 
-    private SectionType sectionType;
+    //private SectionType sectionType;
 
     private string subSectionType;
 
@@ -278,6 +278,11 @@
         SetAllTheThings();
 
         StateHasChanged();
+    }
+
+    protected override void OnParametersSet()
+    {
+        SetAllTheThings();
     }
 
 
@@ -308,7 +313,7 @@
         subSectionType = string.Empty;
         subSectionDisplay = "flex";
 
-        switch (sectionType)
+        switch (CurrentSection?.SectionType)
         {
             case SectionType.Campaign:
                 subSectionType = SectionType.Adventure.ToString();
@@ -316,10 +321,6 @@
                 break;
             case SectionType.Adventure:
                 subSectionType = SectionType.Chapter.ToString();
-                buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
-                break;
-            case SectionType.Chapter:
-                subSectionType = SectionType.Section.ToString();
                 buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
                 break;
             default:
@@ -344,10 +345,16 @@
             {
                 CurrentSection.Id = result.Result;
                 BreadcrumbService.SetBreadCrumb(CurrentSection.Name, CurrentSection.Id.ToString(), false);
+
+
+                if (CurrentSection.SectionType == SectionType.Campaign)
+                {
+                    BreadcrumbService.CampaignSelected(CurrentSection.Id.ToString());
+                }
             }
             else
             {
-                ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
+                ModalService.ShowInfoModal($"Error Saving section", result.Message);
             }
         }
         else
@@ -356,7 +363,7 @@
 
             if (!result.IsSuccess)
             {
-                ModalService.ShowInfoModal($"Error Saving {sectionType}", result.Message);
+                ModalService.ShowInfoModal($"Error Saving section", result.Message);
             }
         }
 
@@ -367,16 +374,13 @@
     {
         SectionType newSection;
 
-        switch (sectionType)
+        switch (CurrentSection?.SectionType)
         {
             case SectionType.Campaign:
                 newSection = SectionType.Adventure;
                 break;
             case SectionType.Adventure:
                 newSection = SectionType.Chapter;
-                break;
-            case SectionType.Chapter:
-                newSection = SectionType.Section;
                 break;
             default:
                 newSection = SectionType.Campaign;
@@ -385,7 +389,7 @@
 
         if (!IsSaved())
         {
-            ModalService.ShowInfoModal($"{sectionType} Not Saved", $"You must save this {sectionType} before adding {(newSection == SectionType.Adventure ? "an" : "a")} {newSection}");
+            ModalService.ShowInfoModal($"{CurrentSection?.SectionType} Not Saved", $"You must save this {CurrentSection?.SectionType} before adding {(newSection == SectionType.Adventure ? "an" : "a")} {newSection}");
             return;
         }
 
@@ -404,7 +408,7 @@
     {
         if (!IsSaved())
         {
-            ModalService.ShowInfoModal($"{sectionType} Not Saved", $"You must save this {sectionType} before adding a Page");
+            ModalService.ShowInfoModal($"{CurrentSection?.SectionType} Not Saved", $"You must save this {CurrentSection?.SectionType} before adding a Page");
             return;
         }
 
@@ -415,7 +419,7 @@
     {
         if (!IsSaved())
         {
-            ModalService.ShowInfoModal($"{sectionType} Not Saved", $"You must save this {sectionType} before adding a Map Page");
+            ModalService.ShowInfoModal($"{CurrentSection?.SectionType} Not Saved", $"You must save this {CurrentSection?.SectionType} before adding a Map Page");
             return;
         }
 

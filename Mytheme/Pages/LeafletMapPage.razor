@@ -39,19 +39,31 @@
     [Parameter]
     public MapPage MapPage { get; set; }
 
-    
-    protected override async Task OnInitializedAsync()
-    {
-        SetNavBarButtons();
-    }
-
 
     protected override async Task OnParametersSetAsync()
     {
-        if (MapPage != null)
+        if (MapPage != null && MapPage.Id != Guid.Empty)
         {
+            SetNavBarButtons();
+
             await LoadMap();
         }
+        else if (MapPage?.Id == Guid.Empty)
+        {   
+            OpenNewMapPageModal();
+        }
+    }
+
+    
+    private void SetNavBarButtons()
+    {
+
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
+        buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
     }
 
     private async Task LoadMap()
@@ -66,17 +78,8 @@
         {
             await mapView.AddMarker(marker.ToLeafletMarker());
         }
-    }
 
-    private void SetNavBarButtons()
-    {
-
-        var buttons = new List<NavBarButton>();
-
-        buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
-        buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
-
-        BreadcrumbService.SetNavBarButtons(buttons);
+        StateHasChanged();
     }
 
     private async void MarkerAdded(Coordinate coord)
@@ -138,7 +141,7 @@
     protected void OpenNewMapPageModal()
     {
         var p = new ModalParameters();
-        p.Add("parent", "");
+        p.Add("parent", MapPage.FK_Section);
 
         ModalService.Show<AddNewMapPageModal>("Add New Map", p,
             new ModalOptions
@@ -159,6 +162,7 @@
                 MapPage = (MapPage) result.Data;
                 SaveMapPage();
                 await LoadMap();
+                BreadcrumbService.RefreshIndex();
             }
             catch (Exception e)
             {

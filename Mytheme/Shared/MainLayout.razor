@@ -193,7 +193,7 @@ Colors
 
 <Styled @bind-Classname="@navIndex">
     flex-grow: 1;
-    background: cyan;
+    background: linen;
     overflow-y: auto;
     font-size: 20px;
     font-weight: bold;
@@ -202,6 +202,11 @@ Colors
 <Styled @bind-Classname="@navIndexHeader">
     padding: 7px;
     font-size: 26px;
+    cursor: pointer;
+</Styled>
+
+<Styled Classname="@navIndexHeader" PseudoClass="PseudoClasses.Hover">
+    color: grey;
 </Styled>
 
 <Styled @bind-Classname="@mgmtHeader">
@@ -212,7 +217,7 @@ Colors
 <Styled @bind-Classname="@mgmtSection">
     height: 200px;
     display: @mgmtSectionDisplay;
-    background: cyan;
+    background: linen;
 </Styled>
 
 
@@ -249,7 +254,7 @@ Colors
                 <a href="#">Home</a>
             </div>
             <div class="@navIndex">
-                <div class="@navIndexHeader">@campaignLabel</div>
+                <div class="@navIndexHeader" @onclick="@(() => NavigateToCampaign(campaignLink.Link.ToString()))">@campaignLabel</div>
                 <TreeView Directories="@index" OnNavigation="NavigateToLink"></TreeView>
             </div>
             <div class="@mgmtHeader">
@@ -287,6 +292,8 @@ Colors
 
 
     private string campaignLabel;
+    private NavigationLink campaignLink;
+
     private List<Directory> index = new List<Directory>();
 
     protected override void OnInitialized()
@@ -308,6 +315,9 @@ Colors
         Styled.SetThemeValue("colors.code-background", "#DCD0C0");
         Styled.SetThemeValue("colors.code-text", "#373737");
         Styled.SetThemeValue("colors.hr", "#974442");
+
+        campaignLabel = "";
+        index.Clear();
     }
 
     private async void CampaignSelected(string id)
@@ -317,6 +327,7 @@ Colors
         if (result.IsSuccess)
         {
             campaignLabel = result.Result.Header.Name;
+            campaignLink = result.Result.Header.Link;
             index.Clear();
             index.AddRange(result.Result.Directories);
         }
@@ -399,8 +410,16 @@ Colors
         StateHasChanged();
     }
 
+    private void NavigateToCampaign(string id)
+    {
+        NavigationManager.NavigateTo($"campaign/{id}", true);
+    }
+
     private async Task NavigateToLink(NavigationLink link)
     {
-        BreadcrumbService.Navigate(link);
+        if (link != null)
+        {
+            BreadcrumbService.Navigate(link);
+        }
     }
 }

@@ -24,7 +24,6 @@ namespace Mytheme.Services
                 page.Id = Guid.NewGuid();
                 page.DateCreated = DateTime.Now;
                 page.DateModified = DateTime.Now;
-                page.Link = $"{page.Link}{page.Id}";
 
                 var result = await db.MapPage.InsertAsync(page);
 

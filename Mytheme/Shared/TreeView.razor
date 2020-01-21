@@ -16,7 +16,7 @@
 </Styled>
 
 <Styled Classname="@linkSpan" PseudoClass="PseudoClasses.Hover">
-    color: lightgrey;
+    color: grey;
 </Styled>
 
 <Styled @bind-Classname="@headerLinkSpan">
@@ -55,7 +55,7 @@
                                 <li><span @onclick="@(() => NavigateTo(link.Link))" class="@headerLinkSpan">@link.Name</span></li>
                             }
                         </ul>
-                        <TreeView Directories="dir.Directories"></TreeView>
+                        <TreeView Directories="dir.Directories" OnNavigation="NavigateTo"></TreeView>
                     </div>
                 }
             </li>
@@ -71,6 +71,7 @@
 
     [Parameter]
     public EventCallback<NavigationLink> OnNavigation { get; set; }
+
 
     private void NavigateTo(NavigationLink link)
     {

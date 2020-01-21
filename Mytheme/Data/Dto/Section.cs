@@ -10,7 +10,6 @@ namespace Mytheme.Data.Dto
     {
         Campaign,
         Adventure,
-        Section,
         Chapter,
         None 
     }

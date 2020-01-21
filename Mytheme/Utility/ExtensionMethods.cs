@@ -50,8 +50,6 @@ namespace Mytheme.Utility
                 case SectionType.Campaign:
                     return SectionType.Adventure;
                 case SectionType.Adventure:
-                    return SectionType.Section;
-                case SectionType.Section:
                     return SectionType.Chapter;
                 default:
                     return SectionType.None;

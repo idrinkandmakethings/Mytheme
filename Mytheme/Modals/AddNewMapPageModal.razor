@@ -91,7 +91,7 @@
         "image/gif"
     };
 
-    private string parentId;
+    private Guid parentId;
 
     [Parameter]
     public string Name { get; set; }
@@ -101,18 +101,7 @@
 
     protected override void OnInitialized()
     {
-        parentId = Parameters?.Get<string>("parent") ?? string.Empty;
-
-        if (string.IsNullOrEmpty(parentId))
-        {
-            var page = new MapPage()
-            {
-                Name = string.Empty,
-                FK_Section = Guid.Parse(parentId)
-            };
-
-            ModalService.Close(ModalResult.Cancel());
-        }
+        parentId = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
     }
 
     private async Task HandleSubmit()
@@ -146,10 +135,9 @@
         {
             Id = Guid.Empty,
             Name = Name,
-            FK_Section = Guid.Parse(parentId),
+            FK_Section = parentId,
             Enabled = true,
-            Image = imageId,
-            Link = $"{parentId}/"
+            Image = imageId
         };
 
         ModalService.Close(ModalResult.Ok(page));

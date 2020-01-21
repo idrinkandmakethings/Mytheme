@@ -109,10 +109,9 @@
             <div class="@columnLeft" style="background-color:#aaa;">
                 <div class="@subRow">
                     <div class="@subColumnUpper" style="background-color:#aa0;">
-                        <a href=""><img src="/images/new_campaign.png" /></a>
                     </div>
                     <div class="@subColumnLower" style="">
-                        <a class="@button" href="section">
+                        <a class="@button" @onclick="NewCampaign">
                             <div class="@buttonLabel">New Campaign</div>
                         </a>
                     </div>
@@ -170,9 +169,12 @@
 
     protected void CampaignSelected(string id)
     {
-        BreadcrumbService.CampaignSelected(id);
-
         NavigationManager.NavigateTo($"campaign/{id}");
+    }
+
+    protected void NewCampaign()
+    {
+        NavigationManager.NavigateTo($"campaign");
     }
 
 }

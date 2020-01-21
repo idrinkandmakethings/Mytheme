@@ -6,6 +6,7 @@
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
+@implements IDisposable
 @inject ISectionService SectionService
 @inject IMapService MapService
 @inject IModalService ModalService
@@ -67,7 +68,17 @@
 
         if (string.IsNullOrEmpty(Id))
         {
-            // new campaign
+            campaign = new Section
+            {
+                Enabled = true,
+                SectionType = SectionType.Campaign
+            };
+
+            currentSection = campaign;
+
+            viewMap = "none";
+            viewPage = "none";
+            viewSection = "block";
         }
         else
         {
@@ -80,6 +91,8 @@
                 viewMap = "none";
                 viewPage = "none";
                 viewSection = "block";
+
+                BreadcrumbService.CampaignSelected(Id);
             }
         }
     }
@@ -122,7 +135,6 @@
             viewSection = "block";
 
             StateHasChanged();
-
         }
         else
         {
@@ -132,7 +144,19 @@
 
     private async Task AddPage(Guid parent)
     {
+        page = new Page
+        {
+            Name = "New Page",
+            FK_Section = currentSection.Id
+        };
+
+        viewMap = "none";
+        viewSection = "none";
+        viewPage = "block";
+
+        StateHasChanged();
     }
+
 
     private async Task NavigateToPage(Guid link)
     {
@@ -156,7 +180,16 @@
 
     private async Task AddMapPage(Guid parent)
     {
+        mapPage = new MapPage
+        {
+            FK_Section = currentSection.Id
+        };
 
+        viewSection = "none";
+        viewPage = "none";
+        viewMap = "block";
+
+        StateHasChanged();
     }
 
     private async Task NavigateToMapPage(Guid link)
@@ -178,5 +211,10 @@
         {
             ModalService.ShowInfoModal($"Navigation error", $"Error navigating to Section: {result.Message}");
         }
+    }
+
+    public void Dispose()
+    {
+        BreadcrumbService.OnNavigateToLink -= NavigateToLink;
     }
 }

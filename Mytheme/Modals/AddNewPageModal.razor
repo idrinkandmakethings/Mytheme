@@ -38,7 +38,7 @@
 
     private string errorMessage;
 
-    private string parentId;
+    private Guid parentId;
 
     private string pageType;
 
@@ -50,18 +50,7 @@
 
     protected override void OnInitialized()
     {
-        parentId = Parameters?.Get<string>("parent") ?? string.Empty;
-
-        if (string.IsNullOrEmpty(parentId))
-        {
-            var page = new Page
-            {
-                Name = string.Empty,
-                FK_Section = Guid.Parse(parentId)
-            };
-
-            ModalService.Close(ModalResult.Ok(page));
-        }
+        parentId = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
 
         pageType = PageType.Person.ToString();
     }
@@ -80,11 +69,10 @@
         {
             Id = Guid.Empty,
             Name = Name,
-            FK_Section = Guid.Parse(parentId),
+            FK_Section = parentId,
             PageType = Enum.Parse<PageType>(pageType,true),
             Enabled = true,
-            Content = "",
-            Link = $"{parentId}/{Name}"
+            Content = ""
         };
 
         ModalService.Close(ModalResult.Ok(page));

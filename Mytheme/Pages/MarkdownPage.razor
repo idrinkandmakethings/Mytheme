@@ -32,11 +32,26 @@
     public string Content { get; set; }
 
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-    
+        if (CurrentPage?.Id == Guid.Empty)
+        {
+            OpenNewPageModal();
+        }
+
+        SetNavBarButtons();
     }
 
+    private void SetNavBarButtons()
+    {
+
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
+        buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+    }
 
     private async void NavigateToPage(string name)
     {
@@ -86,9 +101,6 @@
                 ModalService.ShowInfoModal($"Error Saving Page", result.Message);
             }
         }
-
-
-
     }
 
     protected void OpenNewPageModal()
@@ -114,6 +126,7 @@
             {
                 CurrentPage = (Page) result.Data;
                 SavePage();
+                BreadcrumbService.RefreshIndex();
                 StateHasChanged();
             }
             catch (Exception e)
@@ -126,5 +139,14 @@
         {
             // TODO: go back in navigation...
         }
+    }
+    private void ShowDeleteModal()
+    {
+
+    }
+
+    private async void DeleteMapPage()
+    {
+
     }
 }

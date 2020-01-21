@@ -18,7 +18,8 @@ namespace Mytheme.Services
 
         private Queue<string> history;
         private string currentRoute;
-        
+
+        private string currentCampaignId;
 
         public BreadcrumbService()
         {
@@ -40,7 +41,13 @@ namespace Mytheme.Services
 
         public void CampaignSelected(string campaignId)
         {
+            currentCampaignId = campaignId;
             OnCampaignSelected?.Invoke(campaignId);
+        }
+
+        public void RefreshIndex()
+        {
+            OnCampaignSelected?.Invoke(currentCampaignId);
         }
 
         public void ClearHistory()
