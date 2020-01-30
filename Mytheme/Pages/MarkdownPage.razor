@@ -71,13 +71,15 @@
 
     private async Task SaveEdit(string content)
     {
-        CurrentPage.Content = content;
+        //CurrentPage.Content = content;
 
         SavePage();
     }
 
     private async void SavePage()
     {
+        CurrentPage.Content = markdown.Content;
+
         if (CurrentPage.Id == Guid.Empty)
         {
             var result = await  SectionService.AddPageAsync(CurrentPage);

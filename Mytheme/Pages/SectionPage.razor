@@ -393,7 +393,7 @@
             return;
         }
 
-        CurrentSection = new Section();
+        CurrentSection = new Section{Parent = CurrentSection.Id, SectionType = newSection};
 
         BreadcrumbService.SetBreadCrumb($"New {newSection.ToString()}", "", false);
 
