@@ -34,7 +34,7 @@
 
     protected override void OnParametersSet()
     {
-        if (CurrentPage?.Id == Guid.Empty)
+        if (CurrentPage?.Id == Guid.Empty && string.IsNullOrEmpty(CurrentPage?.Name))
         {
             OpenNewPageModal();
         }
@@ -147,7 +147,7 @@
 
     }
 
-    private async void DeleteMapPage()
+    private async void DeletePage()
     {
 
     }

@@ -1,4 +1,5 @@
-﻿@using Ganss.XSS
+﻿@using System.Text.RegularExpressions
+@using Ganss.XSS
 @using Markdig
 
 @inject IHtmlSanitizer Sanitizer
@@ -112,6 +113,9 @@
 
     private bool showPreview;
 
+    private Regex bracketRegex;
+    private Regex bracketNameRegex;
+
     [Parameter]
     public EventCallback<string> OnSaveEdit { get; set; }
 
@@ -145,6 +149,8 @@
 
     protected override void OnInitialized()
     {
+
+
         ModeButton = SetSvgToView();
 
         if (string.IsNullOrEmpty(Content))
@@ -172,8 +178,10 @@
             // Sanitize HTML before rendering
             var sanitizedHtml = Sanitizer.Sanitize(html);
 
+            var linksSet = SetBracketLinks(sanitizedHtml);
+
             // Return sanitized HTML as a MarkupString that Blazor can render
-            return new MarkupString(sanitizedHtml);
+            return new MarkupString(linksSet);
         }
 
         return new MarkupString();
@@ -198,6 +206,22 @@
         }
     }
 
+    private string SetBracketLinks(string html)
+    {
+        if (bracketRegex == null)
+        {
+            bracketRegex = new Regex(@"\[\[(.*)\](\w+):([\w\d-]+)\]", RegexOptions.Compiled);
+        }
+
+        if (bracketNameRegex == null)
+        {
+            bracketNameRegex = new Regex(@"\[\[([\w\d\s]+)\]\]", RegexOptions.Compiled);
+        }
+
+        var bracketDone = bracketRegex.Replace(html, @"<a href=""bracketlink\$2\$3"">$1</a>");
+        var result = bracketNameRegex.Replace(bracketDone, @"<a href=""bracketlink\byname"">$1</a>");
+        return result;
+    }
 
     private MarkupString SetSvgToView()
     {

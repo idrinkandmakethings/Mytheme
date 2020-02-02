@@ -1,4 +1,9 @@
-﻿@using Mytheme.Models
+﻿@using CurrieTechnologies.Razor.Clipboard
+@using Mytheme.Models
+@using Mytheme.Services
+
+@inject ClipboardService ClipboardService
+@inject SvgHelperService SvgHelperService
 
 <Styled @bind-Classname="@listView">
     list-style-type: none;
@@ -13,6 +18,7 @@
 <Styled @bind-Classname="@linkSpan">
     list-style-type: none;
     cursor: pointer;
+    margin-right: 8px;
 </Styled>
 
 <Styled Classname="@linkSpan" PseudoClass="PseudoClasses.Hover">
@@ -52,7 +58,7 @@
                         <ul class="@listView">
                             @foreach (var link in dir.Links)
                             {
-                                <li><span @onclick="@(() => NavigateTo(link.Link))" class="@headerLinkSpan">@link.Name</span></li>
+                            <li><span @onclick="@(async e => await ClipboardService.WriteTextAsync($"[[{link.Name}]{link.Link.ViewType.ToString()}:{link.Link.Link}]"))" class="@linkSpan">@SvgHelperService.GetImage(SvgName.Link, 14, "black")</span><span @onclick="@(() => NavigateTo(link.Link))" class="@headerLinkSpan">@link.Name</span></li>
                             }
                         </ul>
                         <TreeView Directories="dir.Directories" OnNavigation="NavigateTo"></TreeView>

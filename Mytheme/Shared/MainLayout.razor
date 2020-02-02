@@ -296,12 +296,34 @@ Colors
 
     private List<Directory> index = new List<Directory>();
 
+    protected  delegate void OnBracketLink(string link, string text);
+
+    private static event OnBracketLink OnBracketLinkOccured;
+
+    [JSInvokable]
+    public static void BracketLinkInterop(string link, string text)
+    {
+        OnBracketLinkOccured?.Invoke(link, text);
+    }
+
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += LocationChanged;
         BreadcrumbService.OnBreadCrumbChange += UpdateBreadCrumb;
         BreadcrumbService.OnNavbarButtonChange += UpdateNavbarButtons;
         BreadcrumbService.OnCampaignSelected += CampaignSelected;
+
+#pragma warning disable 4014
+
+        OnBracketLinkOccured  += async delegate(string link, string text)
+        {
+            await InvokeAsync(async () =>
+            {
+                await NavigateToLink(ParseLink(link, text));
+            });
+        };
+
+#pragma warning restore 4014
 
         var theme = new BlazorTypography.Themes.Stardust();
         Typography.ApplyTypography(theme);
@@ -414,6 +436,27 @@ Colors
     {
         NavigationManager.NavigateTo($"campaign/{id}", true);
     }
+
+    private NavigationLink ParseLink(string link, string text)
+    {
+        try
+        {
+            if (link.Contains("byname"))
+            {
+                return new NavigationLink(text);
+            }
+
+            var linkParts = link.Split("/");
+
+            return new NavigationLink(Guid.Parse(linkParts[5]), Enum.Parse<ViewType>(linkParts[4], true));
+        }
+        catch (Exception ex)
+        {
+            //yum
+            return null;
+        }
+    }
+
 
     private async Task NavigateToLink(NavigationLink link)
     {

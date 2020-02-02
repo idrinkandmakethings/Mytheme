@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Blazor.FileReader;
 using BlazorStyled;
 using BlazorTypography;
+using CurrieTechnologies.Razor.Clipboard;
 using Dapper;
 using ElectronNET.API;
 using Ganss.XSS;
@@ -78,6 +79,8 @@ namespace Mytheme
             {
                 o.DetailedErrors = true;
             });
+
+            services.AddClipboard();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
