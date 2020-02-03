@@ -34,7 +34,7 @@ namespace Mytheme
         {
             return WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                //.UseElectron(args)
+                .UseElectron(args)
                 .Build();
         }
     }

@@ -283,6 +283,10 @@
     protected override void OnParametersSet()
     {
         SetAllTheThings();
+
+        BreadcrumbService.SetBreadCrumb(CurrentSection?.Name, CurrentSection?.Id.ToString(), true);
+
+        StateHasChanged();
     }
 
 

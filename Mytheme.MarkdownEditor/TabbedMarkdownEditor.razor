@@ -55,13 +55,6 @@
     display: none;
     height: @($"{PercentHeight}vh");
     position: relative;
-    & a {
-        position: absolute;
-        top: 18px;
-        right: 18px;
-        z-index:10;
-    }
-
     @@media(max-width:1000px){
     display: inline-block;
     }
@@ -80,6 +73,13 @@
     border: 1px solid lightgrey;
 </Styled>
 
+
+<Styled @bind-Classname="@modeButton">
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index:10;
+</Styled>
 
 
 
@@ -218,8 +218,8 @@
             bracketNameRegex = new Regex(@"\[\[([\w\d\s]+)\]\]", RegexOptions.Compiled);
         }
 
-        var bracketDone = bracketRegex.Replace(html, @"<a href=""bracketlink\$2\$3"">$1</a>");
-        var result = bracketNameRegex.Replace(bracketDone, @"<a href=""bracketlink\byname"">$1</a>");
+        var bracketDone = bracketRegex.Replace(html, @"<span><a style=""display:inline;"" href=""bracketlink\$2\$3"">$1</a></span>");
+        var result = bracketNameRegex.Replace(bracketDone, @"<span><a style=""display:inline;"" href=""bracketlink\byname"">$1</a>");
         return result;
     }
 

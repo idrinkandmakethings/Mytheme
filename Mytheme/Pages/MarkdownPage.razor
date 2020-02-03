@@ -38,6 +38,10 @@
         {
             OpenNewPageModal();
         }
+        else
+        {
+            BreadcrumbService.SetBreadCrumb(CurrentPage?.Name, CurrentPage?.Id.ToString(), true);
+        }
 
         SetNavBarButtons();
     }
@@ -51,6 +55,7 @@
         buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
 
         BreadcrumbService.SetNavBarButtons(buttons);
+
     }
 
     private async void NavigateToPage(string name)

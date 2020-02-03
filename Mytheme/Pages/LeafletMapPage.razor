@@ -42,8 +42,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (MapPage != null && MapPage.Id != Guid.Empty)
+        if (MapPage != null && MapPage?.Id != Guid.Empty)
         {
+            BreadcrumbService.SetBreadCrumb(MapPage?.Name, MapPage?.Id.ToString(), true);
+
             SetNavBarButtons();
 
             await LoadMap();
