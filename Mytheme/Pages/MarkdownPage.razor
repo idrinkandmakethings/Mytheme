@@ -34,7 +34,7 @@
 
     protected override void OnParametersSet()
     {
-        if (CurrentPage?.Id == Guid.Empty && string.IsNullOrEmpty(CurrentPage?.Name))
+        if (CurrentPage?.Id == Guid.Empty && (string.IsNullOrEmpty(CurrentPage?.Name) || string.Equals(CurrentPage?.Name, "New Page", StringComparison.OrdinalIgnoreCase)))
         {
             OpenNewPageModal();
         }

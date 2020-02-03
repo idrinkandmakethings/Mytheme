@@ -296,14 +296,14 @@ Colors
 
     private List<Directory> index = new List<Directory>();
 
-    protected  delegate void OnBracketLink(string link, string text);
+    protected  delegate void OnBracketLink(string link);
 
     private static event OnBracketLink OnBracketLinkOccured;
 
     [JSInvokable]
-    public static void BracketLinkInterop(string link, string text)
+    public static void BracketLinkInterop(string link)
     {
-        OnBracketLinkOccured?.Invoke(link, text);
+        OnBracketLinkOccured?.Invoke(link);
     }
 
     protected override void OnInitialized()
@@ -315,11 +315,11 @@ Colors
 
 #pragma warning disable 4014
 
-        OnBracketLinkOccured  += async delegate(string link, string text)
+        OnBracketLinkOccured  += async delegate(string link)
         {
             await InvokeAsync(async () =>
             {
-                await NavigateToLink(ParseLink(link, text));
+                await NavigateToLink(ParseLink(link));
             });
         };
 
@@ -437,18 +437,17 @@ Colors
         NavigationManager.NavigateTo($"campaign/{id}", true);
     }
 
-    private NavigationLink ParseLink(string link, string text)
+    private NavigationLink ParseLink(string link)
     {
         try
         {
-            if (link.Contains("byname"))
+            if (link.Contains(":"))
             {
-                return new NavigationLink(text);
+                var parts = link.Split(":");
+                return new NavigationLink(Guid.Parse(parts[1]), Enum.Parse<ViewType>(parts[0], true));
             }
 
-            var linkParts = link.Split("/");
-
-            return new NavigationLink(Guid.Parse(linkParts[5]), Enum.Parse<ViewType>(linkParts[4], true));
+            return new NavigationLink(link);
         }
         catch (Exception ex)
         {

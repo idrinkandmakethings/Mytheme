@@ -218,8 +218,8 @@
             bracketNameRegex = new Regex(@"\[\[([\w\d\s]+)\]\]", RegexOptions.Compiled);
         }
 
-        var bracketDone = bracketRegex.Replace(html, @"<span><a style=""display:inline;"" href=""bracketlink\$2\$3"">$1</a></span>");
-        var result = bracketNameRegex.Replace(bracketDone, @"<span><a style=""display:inline;"" href=""bracketlink\byname"">$1</a>");
+        var bracketDone = bracketRegex.Replace(html, @"<span><a style=""display:inline;"" onclick=""bracketLink('$2:$3')"" href="""">$1</a></span>");
+        var result = bracketNameRegex.Replace(bracketDone, @"<span><a style=""display:inline;"" onclick=""bracketLink('$1')"" href="""">$1</a>");
         return result;
     }
 
