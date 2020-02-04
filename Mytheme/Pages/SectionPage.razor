@@ -1,21 +1,12 @@
-﻿
-
-@implements IDisposable
+﻿@implements IDisposable
 @using Mytheme.Data.Dto
 @using Mytheme.Models
 @using Mytheme.Services
-@using Mytheme.Services.Interfaces
 @using Serilog
 
-
-@inject BreadcrumbService BreadcrumbService
-@inject NavigationManager NavigationManager
 @inject SvgHelperService SvgHelperService
 @inject BrowserResizeService BrowserResizeService
 @inject IJSRuntime JsRuntime
-@inject IModalService ModalService
-@inject ISectionService SectionService
-
 
 <Styled @bind-Classname="@detailSection">
     height: 30%;
@@ -183,7 +174,7 @@
                                     @sub.Name
                                 </td>
                                 <td>
-                                    <a @onclick="@( () => NavigateToSection(sub.Id))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
+                                    <a @onclick="@(() => NavigateTo(new NavigationLink(sub.Id, ViewType.Section)))">@SvgHelperService.GetImage(SvgName.CircleArrowRight, 26, "white")</a>
                                 </td>
                             </tr>
                         }
@@ -243,31 +234,19 @@
 
     private int subSectionColumnFlex, pagesColumnFlex, mapsColumnFlex;
 
-
     private bool accordionEngaged, accordionDisengaged;
 
 
     [Parameter]
     public Section CurrentSection { get; set; }
 
-
-    [Parameter]
-    public EventCallback<Guid> OnMapPageAdd { get; set; }
-
-    [Parameter]
-    public EventCallback<Guid> OnPageAdd { get; set; }
-
     [Parameter]
     public EventCallback<NavigationLink> OnNavigate { get; set; }
-
-    //private SectionType sectionType;
-
+    
     private string subSectionType;
-
 
     protected override async Task OnInitializedAsync()
     {
-
         BrowserResizeService.OnResize += OnResize;
         await BrowserResizeService.RegisterForResize(JsRuntime);
 
@@ -283,156 +262,29 @@
     protected override void OnParametersSet()
     {
         SetAllTheThings();
-
-        BreadcrumbService.SetBreadCrumb(CurrentSection?.Name, CurrentSection?.Id.ToString(), true);
-
-        StateHasChanged();
     }
 
-
-    private async void NavigateToSection(Guid id)
-    {
-
-        var result = await SectionService.GetSectionAsync(id);
-
-        if (result.IsSuccess)
-        {
-            CurrentSection = result.Result;
-
-            BreadcrumbService.SetBreadCrumb(CurrentSection.Name, CurrentSection.Id.ToString(), true);
-        }
-
-        SetAllTheThings();
-
-
-        StateHasChanged();
-    }
 
     private void SetAllTheThings()
     {
-        var buttons = new List<NavBarButton>();
-
-        buttons.Add(new NavBarButton("Save", SvgName.Save, SaveSection));
-
         subSectionType = string.Empty;
-        subSectionDisplay = "flex";
+        subSectionDisplay = CurrentSection?.SectionType == SectionType.Chapter ? "none" :"flex";
 
         switch (CurrentSection?.SectionType)
         {
             case SectionType.Campaign:
                 subSectionType = SectionType.Adventure.ToString();
-                buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
                 break;
             case SectionType.Adventure:
                 subSectionType = SectionType.Chapter.ToString();
-                buttons.Add(new NavBarButton($"Add {subSectionType}", SvgName.Folder, AddSubsection));
-                break;
-            default:
-                subSectionDisplay = "none";
                 break;
         }
-
-        buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPage));
-        buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPage));
-
-        BreadcrumbService.SetNavBarButtons(buttons);
     }
-
-    private async void SaveSection()
-    {
-
-        if (CurrentSection.Id == Guid.Empty)
-        {
-            var result = await SectionService.AddSectionAsync(CurrentSection);
-
-            if (result.IsSuccess)
-            {
-                CurrentSection.Id = result.Result;
-                BreadcrumbService.SetBreadCrumb(CurrentSection.Name, CurrentSection.Id.ToString(), false);
-
-
-                if (CurrentSection.SectionType == SectionType.Campaign)
-                {
-                    BreadcrumbService.CampaignSelected(CurrentSection.Id.ToString());
-                }
-            }
-            else
-            {
-                ModalService.ShowInfoModal($"Error Saving section", result.Message);
-            }
-        }
-        else
-        {
-            var result = await SectionService.UpdateSectionAsync(CurrentSection);
-
-            if (!result.IsSuccess)
-            {
-                ModalService.ShowInfoModal($"Error Saving section", result.Message);
-            }
-        }
-
-
-    }
-
-    private void AddSubsection()
-    {
-        SectionType newSection;
-
-        switch (CurrentSection?.SectionType)
-        {
-            case SectionType.Campaign:
-                newSection = SectionType.Adventure;
-                break;
-            case SectionType.Adventure:
-                newSection = SectionType.Chapter;
-                break;
-            default:
-                newSection = SectionType.Campaign;
-                break;
-        }
-
-        if (!IsSaved())
-        {
-            ModalService.ShowInfoModal($"{CurrentSection?.SectionType} Not Saved", $"You must save this {CurrentSection?.SectionType} before adding {(newSection == SectionType.Adventure ? "an" : "a")} {newSection}");
-            return;
-        }
-
-        CurrentSection = new Section{Parent = CurrentSection.Id, SectionType = newSection};
-
-        BreadcrumbService.SetBreadCrumb($"New {newSection.ToString()}", "", false);
-
-    }
+    
 
     private void NavigateTo(NavigationLink link)
     {
         OnNavigate.InvokeAsync(link);
-    }
-
-    private void AddPage()
-    {
-        if (!IsSaved())
-        {
-            ModalService.ShowInfoModal($"{CurrentSection?.SectionType} Not Saved", $"You must save this {CurrentSection?.SectionType} before adding a Page");
-            return;
-        }
-
-        OnPageAdd.InvokeAsync(CurrentSection.Id);
-    }
-
-    private void AddMapPage()
-    {
-        if (!IsSaved())
-        {
-            ModalService.ShowInfoModal($"{CurrentSection?.SectionType} Not Saved", $"You must save this {CurrentSection?.SectionType} before adding a Map Page");
-            return;
-        }
-
-        OnMapPageAdd.InvokeAsync(CurrentSection.Id);
-    }
-
-    private bool IsSaved()
-    {
-        return CurrentSection.Id != Guid.Empty;
     }
 
     private async Task OnResize()
@@ -517,5 +369,4 @@
     {
         BrowserResizeService.OnResize -= OnResize;
     }
-
 }

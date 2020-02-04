@@ -44,28 +44,12 @@
     {
         if (MapPage != null && MapPage?.Id != Guid.Empty)
         {
-            BreadcrumbService.SetBreadCrumb(MapPage?.Name, MapPage?.Id.ToString(), true);
-
-            SetNavBarButtons();
-
             await LoadMap();
         }
         else if (MapPage?.Id == Guid.Empty)
         {   
             OpenNewMapPageModal();
         }
-    }
-
-    
-    private void SetNavBarButtons()
-    {
-
-        var buttons = new List<NavBarButton>();
-
-        buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
-        buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
-
-        BreadcrumbService.SetNavBarButtons(buttons);
     }
 
     private async Task LoadMap()
@@ -101,7 +85,7 @@
             }, OnMapMarkerModalClosed);
     }
 
-    private async void SaveMapPage()
+    public async Task Save()
     {
 
         if (MapPage.Id == Guid.Empty)
@@ -162,7 +146,7 @@
             try
             {
                 MapPage = (MapPage) result.Data;
-                SaveMapPage();
+                await Save();
                 await LoadMap();
                 BreadcrumbService.RefreshIndex();
             }
@@ -194,7 +178,7 @@
 
                 await mapView.AddMarker(marker.ToLeafletMarker());
 
-                SaveMapPage();
+                await Save();
             }
             catch (Exception e)
             {

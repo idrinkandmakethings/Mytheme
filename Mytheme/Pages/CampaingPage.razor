@@ -29,17 +29,18 @@
 
 <div class="@sectionView" id="sectionView">
     <SectionPage CurrentSection="@currentSection"
-                 OnPageAdd="AddPage"
-                 OnMapPageAdd="AddMapPage"
-                 OnNavigate="Navigate"></SectionPage>
+                 OnNavigate="Navigate"
+                 @ref="@sectionRef"></SectionPage>
 </div>
 <div class="@pageView" id="pageView">
     <MarkdownPage CurrentPage="page"
-                  OnNavigate="Navigate"></MarkdownPage>
+                  OnNavigate="Navigate"
+                  @ref="pageRef"></MarkdownPage>
 </div>
 <div class="@mapView" id="mapView">
     <LeafletMapPage MapPage="mapPage"
-                    OnNavigate="Navigate"></LeafletMapPage>
+                    OnNavigate="Navigate"
+                    @ref="@mapRef"></LeafletMapPage>
 </div>
 
 
@@ -55,8 +56,11 @@
     private Section campaign;
 
     private Section currentSection;
+    private SectionPage sectionRef;
     private MapPage mapPage;
+    private LeafletMapPage mapRef;
     private Page page;
+    private MarkdownPage pageRef;
 
     [Parameter]
     public string Id { get; set; }
@@ -70,6 +74,7 @@
         {
             campaign = new Section
             {
+                Name = "New Campaign",
                 Enabled = true,
                 SectionType = SectionType.Campaign
             };
@@ -79,6 +84,8 @@
             viewMap = "none";
             viewPage = "none";
             viewSection = "block";
+
+            SetNavBar(ViewType.Section);
         }
         else
         {
@@ -93,6 +100,8 @@
                 viewSection = "block";
 
                 BreadcrumbService.CampaignSelected(Id);
+
+                SetNavBar(ViewType.Section);
             }
         }
     }
@@ -108,26 +117,32 @@
         if (navLink.ViewType == ViewType.Page && navLink.Link == Guid.Empty)
         {
             await NavigateToPageByName(navLink.Name);
+            SetNavBar(ViewType.Page);
         }
         else
         {
-
             switch (navLink.ViewType)
             {
                 case ViewType.Section:
                     await NavigateToSection(navLink.Link);
+                    SetNavBar(ViewType.Section);
                     break;
                 case ViewType.Page:
                     await NavigateToPage(navLink.Link);
+                    SetNavBar(ViewType.Page);
                     break;
                 case ViewType.MapPage:
                     await NavigateToMapPage(navLink.Link);
+                    SetNavBar(ViewType.MapPage);
                     break;
                 default:
+                    SetNavBar(ViewType.None);
                     ModalService.ShowInfoModal($"Navigation error", $"Unknown view type.");
                     break;
             }
         }
+
+        StateHasChanged();
     }
 
     private async Task NavigateToSection(Guid link)
@@ -137,8 +152,6 @@
         if (result.IsSuccess)
         {
             currentSection = result.Result;
-
-
 
             viewMap = "none";
             viewPage = "none";
@@ -150,36 +163,6 @@
         {
             ModalService.ShowInfoModal($"Navigation error", $"Error navigating to Section: {result.Message}");
         }
-    }
-
-    private async Task AddPage(Guid parent)
-    {
-        page = new Page
-        {
-            Name = "New Page",
-            FK_Section = parent
-        };
-
-        viewMap = "none";
-        viewSection = "none";
-        viewPage = "block";
-
-        StateHasChanged();
-    }
-
-    private async Task AddPage(string name)
-    {
-        page = new Page
-        {
-            Name = name,
-            FK_Section = currentSection.Id
-        };
-
-        viewMap = "none";
-        viewSection = "none";
-        viewPage = "block";
-
-        StateHasChanged();
     }
 
 
@@ -223,20 +206,6 @@
         }
     }
 
-    private async Task AddMapPage(Guid parent)
-    {
-        mapPage = new MapPage
-        {
-            FK_Section = parent
-        };
-
-        viewSection = "none";
-        viewPage = "none";
-        viewMap = "block";
-
-        StateHasChanged();
-    }
-
     private async Task NavigateToMapPage(Guid link)
     {
         var result = await MapService.GetMapPageAsync(link);
@@ -257,6 +226,210 @@
             ModalService.ShowInfoModal($"Navigation error", $"Error navigating to Section: {result.Message}");
         }
     }
+
+    private void SetNavBar(ViewType currentView)
+    {
+        var buttons = new List<NavBarButton>();
+
+        switch (currentView)
+        {
+            case ViewType.Section:
+                buttons.Add(new NavBarButton("Save", SvgName.Save, SaveCurrentSection));
+
+                switch (currentSection?.SectionType)
+                {
+                    case SectionType.Campaign:
+                        buttons.Add(new NavBarButton($"Add {SectionType.Adventure.ToString()}", SvgName.Folder, AddSubsection));
+                        break;
+                    case SectionType.Adventure:
+                        buttons.Add(new NavBarButton($"Add {SectionType.Chapter.ToString()}", SvgName.Folder, AddSubsection));
+                        break;
+                }
+
+                buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPage));
+                buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPage));
+
+                BreadcrumbService.SetBreadCrumb(currentSection.Name, currentSection.Id.ToString(), currentSection.Id != Guid.Empty);
+                break;
+            case ViewType.Page:
+                buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
+                buttons.Add(new NavBarButton("Delete", SvgName.Delete, DeletePage));
+
+                BreadcrumbService.SetBreadCrumb( page.Name, page.Id.ToString(), page.Id != Guid.Empty);
+                break;
+            case ViewType.MapPage:
+                buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
+                buttons.Add(new NavBarButton("Delete", SvgName.Delete, DeleteMapPage));
+
+                BreadcrumbService.SetBreadCrumb( mapPage.Name, mapPage.Id.ToString(), mapPage.Id != Guid.Empty);
+                break;
+            case ViewType.None:
+                BreadcrumbService.SetBreadCrumb("Navigation Error", "", false);
+                break;
+        }
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+    }
+
+
+    #region Section logic
+
+    private async void SaveCurrentSection()
+    {
+        if (currentSection.Id == Guid.Empty)
+        {
+            var result = await SectionService.AddSectionAsync(currentSection);
+
+            if (result.IsSuccess)
+            {
+                currentSection.Id = result.Result;
+                BreadcrumbService.SetBreadCrumb(currentSection.Name, currentSection.Id.ToString(), true);
+                
+                if (currentSection.SectionType == SectionType.Campaign)
+                {
+                    BreadcrumbService.CampaignSelected(currentSection.Id.ToString());
+                }
+            }
+            else
+            {
+                ModalService.ShowInfoModal($"Error Saving section", result.Message);
+            }
+        }
+        else
+        {
+            var result = await SectionService.UpdateSectionAsync(currentSection);
+
+            if (!result.IsSuccess)
+            {
+                ModalService.ShowInfoModal($"Error Saving section", result.Message);
+            }
+        }
+    }
+
+    private void AddSubsection()
+    {
+        if (currentSection.Id == Guid.Empty)
+        {
+            ModalService.ShowInfoModal($"{currentSection?.SectionType} Not Saved", $"You must save this {currentSection?.SectionType} before adding a Subsection");
+            return;
+        }
+
+        SectionType newSection;
+
+        switch (currentSection.SectionType)
+        {
+            case SectionType.Campaign:
+                newSection = SectionType.Adventure;
+                break;
+            case SectionType.Adventure:
+                newSection = SectionType.Chapter;
+                break;
+            default:
+                newSection = SectionType.Campaign;
+                break;
+        }
+
+        currentSection = new Section{Parent = currentSection.Id, SectionType = newSection};
+
+        SetNavBar(ViewType.Section);
+
+        StateHasChanged();
+    }
+    
+    #endregion
+
+    #region Page logic 
+
+    private async void AddPage()
+    {
+        if (currentSection.Id == Guid.Empty)
+        {
+            ModalService.ShowInfoModal($"{currentSection?.SectionType} Not Saved", $"You must save this {currentSection?.SectionType} before adding a Page");
+            return;
+        }
+
+        await AddPage(currentSection.Id);
+    }
+
+    private async Task AddPage(Guid parent)
+    {
+        page = new Page
+        {
+            Name = "New Page",
+            FK_Section = parent
+        };
+
+        viewMap = "none";
+        viewSection = "none";
+        viewPage = "block";
+
+        StateHasChanged();
+    }
+
+    private async Task AddPage(string name)
+    {
+        page = new Page
+        {
+            Name = name,
+            FK_Section = currentSection.Id
+        };
+
+        viewMap = "none";
+        viewSection = "none";
+        viewPage = "block";
+
+        StateHasChanged();
+    }
+
+    private async void SavePage()
+    {
+        await pageRef.Save();
+    }
+
+    private async void DeletePage()
+    {
+
+    }
+    #endregion
+
+    #region MapPage logic
+
+    private async void AddMapPage()
+    {
+        if (currentSection.Id == Guid.Empty)
+        {
+            ModalService.ShowInfoModal($"{currentSection?.SectionType} Not Saved", $"You must save this {currentSection?.SectionType} before adding a Map");
+            return;
+        }
+
+        await AddMapPage(currentSection.Id);
+    }
+
+    private async Task AddMapPage(Guid parent)
+    {
+        mapPage = new MapPage
+        {
+            FK_Section = parent
+        };
+
+        viewSection = "none";
+        viewPage = "none";
+        viewMap = "block";
+
+        StateHasChanged();
+    }
+
+    private async void SaveMapPage()
+    {
+        await mapRef.Save();
+    }
+
+    private async void DeleteMapPage()
+    {
+
+    }
+
+    #endregion
 
     public void Dispose()
     {

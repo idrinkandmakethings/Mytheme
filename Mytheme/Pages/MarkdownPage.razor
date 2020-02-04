@@ -38,50 +38,15 @@
         {
             OpenNewPageModal();
         }
-        else
-        {
-            BreadcrumbService.SetBreadCrumb(CurrentPage?.Name, CurrentPage?.Id.ToString(), true);
-        }
-
-        SetNavBarButtons();
-    }
-
-    private void SetNavBarButtons()
-    {
-
-        var buttons = new List<NavBarButton>();
-
-        buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
-        buttons.Add(new NavBarButton("Delete", SvgName.Delete, ShowDeleteModal));
-
-        BreadcrumbService.SetNavBarButtons(buttons);
-
-    }
-
-    private async void NavigateToPage(string name)
-    {
-
-        var result = await SectionService.GetPageByNameAsync(CurrentPage.FK_Section, name);
-
-        if (result.IsSuccess)
-        {
-            CurrentPage = result.Result;
-
-            BreadcrumbService.SetBreadCrumb(CurrentPage.Name, CurrentPage.Id.ToString(), true);
-        }
-
-        StateHasChanged();
     }
 
 
     private async Task SaveEdit(string content)
     {
-        //CurrentPage.Content = content;
-
-        SavePage();
+        await Save();
     }
 
-    private async void SavePage()
+    public async Task Save()
     {
         CurrentPage.Content = markdown.Content;
 
@@ -125,14 +90,14 @@
             }, OnModalClosed);
     }
 
-    private void OnModalClosed(ModalResult result)
+    private async void OnModalClosed(ModalResult result)
     {
         if (!result.Cancelled)
         {
             try
             {
                 CurrentPage = (Page) result.Data;
-                SavePage();
+                await Save();
                 BreadcrumbService.RefreshIndex();
                 StateHasChanged();
             }
