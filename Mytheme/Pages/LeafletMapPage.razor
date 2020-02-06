@@ -8,9 +8,6 @@
 @using Serilog
 
 @inject IFileHandlerService FileHandlerService
-
-@inject BreadcrumbService BreadcrumbService
-@inject NavigationManager NavigationManager
 @inject SvgHelperService SvgHelperService
 @inject IJSRuntime JsRuntime
 @inject IModalService ModalService
@@ -45,10 +42,6 @@
         if (MapPage != null && MapPage?.Id != Guid.Empty)
         {
             await LoadMap();
-        }
-        else if (MapPage?.Id == Guid.Empty)
-        {   
-            OpenNewMapPageModal();
         }
     }
 
@@ -87,80 +80,14 @@
 
     public async Task Save()
     {
+        var result = await MapService.UpdateMapPageAsync(MapPage);
 
-        if (MapPage.Id == Guid.Empty)
+        if (!result.IsSuccess)
         {
-            var result = await MapService.AddMapPageAsync(MapPage);
-
-            if (result.IsSuccess)
-            {
-                MapPage.Id = result.Result;
-
-                BreadcrumbService.SetBreadCrumb(MapPage.Name, MapPage.Id.ToString(), false);
-            }
-            else
-            {
-                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
-            }
-        }
-        else
-        {
-            var result = await MapService.UpdateMapPageAsync(MapPage);
-
-            if (!result.IsSuccess)
-            {
-                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
-            }
+            ModalService.ShowInfoModal($"Error Saving Map Page", result.Message);
         }
     }
 
-    private void ShowDeleteModal()
-    {
-
-    }
-
-    private async void DeleteMapPage()
-    {
-
-    }
-
-    protected void OpenNewMapPageModal()
-    {
-        var p = new ModalParameters();
-        p.Add("parent", MapPage.FK_Section);
-
-        ModalService.Show<AddNewMapPageModal>("Add New Map", p,
-            new ModalOptions
-            {
-                HeaderColor = "white",
-                HeaderBackgroundColor = "black",
-                PixelWidth = 360,
-                DisableBackgroundCancel = true
-            }, OnModalClosed);
-    }
-
-    private async void OnModalClosed(ModalResult result)
-    {
-        if (!result.Cancelled)
-        {
-            try
-            {
-                MapPage = (MapPage) result.Data;
-                await Save();
-                await LoadMap();
-                BreadcrumbService.RefreshIndex();
-            }
-            catch (Exception e)
-            {
-                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
-                Log.Error(e, "Exception initializing map page after modal creation");
-            }
-        }
-        else
-        {
-            // TODO: go back in navigation...
-        }
-    }
 
     private async void OnMapMarkerModalClosed(ModalResult result)
     {
@@ -187,5 +114,4 @@
             }
         }
     }
-
 }

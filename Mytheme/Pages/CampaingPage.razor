@@ -2,9 +2,11 @@
 @page "/campaign/{id}"
 
 @using Mytheme.Data.Dto
+@using Mytheme.Modals
 @using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
+@using Serilog
 
 @implements IDisposable
 @inject ISectionService SectionService
@@ -182,7 +184,7 @@
         }
         else
         {
-            await AddPage(name);
+            await AddPageByName(name);
         }
     }
 
@@ -246,8 +248,8 @@
                         break;
                 }
 
-                buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPage));
-                buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPage));
+                buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPageButton));
+                buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPageButton));
 
                 BreadcrumbService.SetBreadCrumb(currentSection.Name, currentSection.Id.ToString(), currentSection.Id != Guid.Empty);
                 break;
@@ -284,7 +286,7 @@
             {
                 currentSection.Id = result.Result;
                 BreadcrumbService.SetBreadCrumb(currentSection.Name, currentSection.Id.ToString(), true);
-                
+
                 if (currentSection.SectionType == SectionType.Campaign)
                 {
                     BreadcrumbService.CampaignSelected(currentSection.Id.ToString());
@@ -335,12 +337,13 @@
 
         StateHasChanged();
     }
-    
+
     #endregion
 
     #region Page logic 
 
-    private async void AddPage()
+
+    private async void AddPageButton()
     {
         if (currentSection.Id == Guid.Empty)
         {
@@ -348,37 +351,64 @@
             return;
         }
 
-        await AddPage(currentSection.Id);
+        OpenNewPageModal();
     }
 
-    private async Task AddPage(Guid parent)
+    private async Task AddPageByName(string name)
     {
-        page = new Page
-        {
-            Name = "New Page",
-            FK_Section = parent
-        };
-
-        viewMap = "none";
-        viewSection = "none";
-        viewPage = "block";
-
-        StateHasChanged();
+        OpenNewPageModal(name);
     }
 
-    private async Task AddPage(string name)
+    private void OpenNewPageModal(string name = "")
     {
-        page = new Page
+        var p = new ModalParameters();
+        p.Add("parent", currentSection.Id);
+        p.Add("name", name);
+
+        ModalService.Show<AddNewPageModal>("Add New Page", p,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                PixelWidth = 360,
+                DisableBackgroundCancel = true
+            }, OnNewPageModalClosed);
+    }
+
+    private async void OnNewPageModalClosed(ModalResult result)
+    {
+        if (!result.Cancelled)
         {
-            Name = name,
-            FK_Section = currentSection.Id
-        };
+            try
+            {
+                var newPage = (Page) result.Data;
 
-        viewMap = "none";
-        viewSection = "none";
-        viewPage = "block";
+                var dbResult = await SectionService.AddPageAsync(newPage);
 
-        StateHasChanged();
+                if (dbResult.IsSuccess)
+                {
+                    newPage.Id = dbResult.Result;
+
+                    page = newPage;
+
+                    viewMap = "none";
+                    viewSection = "none";
+                    viewPage = "block";
+
+                    SetNavBar(ViewType.Page);
+                    StateHasChanged();
+                }
+                else
+                {
+                    ModalService.ShowInfoModal($"Error Saving New Page", dbResult.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+                Log.Error(e, "Exception adding mark down page");
+            }
+        }
     }
 
     private async void SavePage()
@@ -388,35 +418,73 @@
 
     private async void DeletePage()
     {
-
+        ModalService.ShowInfoModal($"Not Implemented", "Need moar code, dummy.");
     }
+
     #endregion
 
     #region MapPage logic
 
-    private async void AddMapPage()
+    private async void AddMapPageButton()
     {
         if (currentSection.Id == Guid.Empty)
         {
-            ModalService.ShowInfoModal($"{currentSection?.SectionType} Not Saved", $"You must save this {currentSection?.SectionType} before adding a Map");
+            ModalService.ShowInfoModal($"{currentSection?.SectionType} Not Saved", $"You must save this {currentSection?.SectionType} before adding a Map Page");
             return;
         }
 
-        await AddMapPage(currentSection.Id);
+        OpenNewMapPageModal();
     }
 
-    private async Task AddMapPage(Guid parent)
+    protected void OpenNewMapPageModal()
     {
-        mapPage = new MapPage
+        var p = new ModalParameters();
+        p.Add("parent", currentSection.Id);
+
+        ModalService.Show<AddNewMapPageModal>("Add New Map", p,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                PixelWidth = 360,
+                DisableBackgroundCancel = true
+            }, OnNewMapPageModalClosed);
+    }
+
+    private async void OnNewMapPageModalClosed(ModalResult result)
+    {
+        if (!result.Cancelled)
         {
-            FK_Section = parent
-        };
+            try
+            {
+                var newMap = (MapPage) result.Data;
 
-        viewSection = "none";
-        viewPage = "none";
-        viewMap = "block";
+                var dbResult = await MapService.AddMapPageAsync(newMap);
 
-        StateHasChanged();
+                if (dbResult.IsSuccess)
+                {
+                    newMap.Id = dbResult.Result;
+
+                    mapPage = newMap;
+
+                    viewSection = "none";
+                    viewPage = "none";
+                    viewMap = "block";
+
+                    SetNavBar(ViewType.MapPage);
+                    StateHasChanged();
+                }
+                else
+                {
+                    ModalService.ShowInfoModal($"Error Saving New Map Page", dbResult.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+                Log.Error(e, "Exception adding map page");
+            }
+        }
     }
 
     private async void SaveMapPage()
@@ -426,7 +494,7 @@
 
     private async void DeleteMapPage()
     {
-
+        ModalService.ShowInfoModal($"Not Implemented", "Need moar code, dummy.");
     }
 
     #endregion

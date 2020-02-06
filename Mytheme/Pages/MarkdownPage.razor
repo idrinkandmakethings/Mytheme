@@ -1,17 +1,12 @@
 ﻿@using Mytheme.Data.Dto
-@using Mytheme.Modals
 @using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
-@using Serilog
 
-
-@inject BreadcrumbService BreadcrumbService
-@inject NavigationManager NavigationManager
 @inject SvgHelperService SvgHelperService
 @inject IJSRuntime JsRuntime
-@inject IModalService ModalService
 @inject ISectionService SectionService
+@inject IModalService ModalService
 
 
 @if (CurrentPage != null)
@@ -32,16 +27,7 @@
     public string Content { get; set; }
 
 
-    protected override void OnParametersSet()
-    {
-        if (CurrentPage?.Id == Guid.Empty && (string.IsNullOrEmpty(CurrentPage?.Name) || string.Equals(CurrentPage?.Name, "New Page", StringComparison.OrdinalIgnoreCase)))
-        {
-            OpenNewPageModal();
-        }
-    }
-
-
-    private async Task SaveEdit(string content)
+    private async void SaveEdit(string content)
     {
         await Save();
     }
@@ -50,75 +36,10 @@
     {
         CurrentPage.Content = markdown.Content;
 
-        if (CurrentPage.Id == Guid.Empty)
+        var result = await SectionService.UpdatePageAsync(CurrentPage);
+        if (!result.IsSuccess)
         {
-            var result = await  SectionService.AddPageAsync(CurrentPage);
-
-            if (result.IsSuccess)
-            {
-                CurrentPage.Id = result.Result;
-
-                BreadcrumbService.SetBreadCrumb(CurrentPage.Name, CurrentPage.Id.ToString(), false);
-            }
-            else
-            {
-                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
-            }
+            ModalService.ShowInfoModal($"Error Saving Page", result.Message);
         }
-        else
-        {
-            var result = await SectionService.UpdatePageAsync(CurrentPage);
-            if (!result.IsSuccess)
-            {
-                ModalService.ShowInfoModal($"Error Saving Page", result.Message);
-            }
-        }
-    }
-
-    protected void OpenNewPageModal()
-    {
-        var p = new ModalParameters();
-        p.Add("parent", CurrentPage.FK_Section);
-
-        ModalService.Show<AddNewPageModal>("Add New Page", p,
-            new ModalOptions
-            {
-                HeaderColor = "white",
-                HeaderBackgroundColor = "black",
-                PixelWidth = 360,
-                DisableBackgroundCancel = true
-            }, OnModalClosed);
-    }
-
-    private async void OnModalClosed(ModalResult result)
-    {
-        if (!result.Cancelled)
-        {
-            try
-            {
-                CurrentPage = (Page) result.Data;
-                await Save();
-                BreadcrumbService.RefreshIndex();
-                StateHasChanged();
-            }
-            catch (Exception e)
-            {
-                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
-                Log.Error(e, "Exception adding mark down page");
-            }
-        }
-        else
-        {
-            // TODO: go back in navigation...
-        }
-    }
-    private void ShowDeleteModal()
-    {
-
-    }
-
-    private async void DeletePage()
-    {
-
     }
 }
