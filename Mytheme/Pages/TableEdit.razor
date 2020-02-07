@@ -5,6 +5,7 @@
 @using Blazor.FileReader
 @using Mytheme.Data.Dto
 @using Mytheme.Modals
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
@@ -130,7 +131,7 @@ else
     {
         if (string.IsNullOrEmpty(Tablename))
         {
-            BreadcrumbService.SetBreadCrumb("Add Table", "", true);
+            BreadcrumbService.SetBreadCrumb("Add Table", new NavigationLink(Guid.Empty, ViewType.None), false);
             dropZoneVisibility = "block";
             isUpdate = false;
         }

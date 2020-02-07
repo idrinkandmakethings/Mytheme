@@ -2,6 +2,7 @@
 @page "/edit-template/{templateId}"
 @using Mytheme.Data.Dto
 @using Mytheme.Modals
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
@@ -111,7 +112,7 @@
     {
         if (string.IsNullOrEmpty(TemplateId))
         {
-            BreadcrumbService.SetBreadCrumb("Add Template", "", true);
+            BreadcrumbService.SetBreadCrumb("Add Template",  new NavigationLink(Guid.Empty, ViewType.None), false);
             isUpdate = false;
         }
         else

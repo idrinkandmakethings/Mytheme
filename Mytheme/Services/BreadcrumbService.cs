@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Mytheme.Models;
 
@@ -16,24 +15,26 @@ namespace Mytheme.Services
         
         public event Action OnNavbarButtonChange;
 
-        private Queue<string> history;
-        private string currentRoute;
+        private Stack<NavigationLink> history;
+        private NavigationLink currentRoute;
+        private bool addCurrentNavBack;
 
         private string currentCampaignId;
 
         public BreadcrumbService()
         {
             NavBarButtons = new List<NavBarButton>();
-            history = new Queue<string>();
+            history = new Stack<NavigationLink>();
         }
 
-        public void SetBreadCrumb(string text, string route, bool addNavBack)
+        public void SetBreadCrumb(string text, NavigationLink route, bool addNavBack)
         {
-            if (!string.IsNullOrEmpty(currentRoute) && addNavBack)
+            if (addCurrentNavBack)
             {
-                history.Enqueue(currentRoute);
+                history.Push(currentRoute);
             }
 
+            addCurrentNavBack = addNavBack;
             currentRoute = route;
             
             OnBreadCrumbChange?.Invoke(text);
@@ -65,6 +66,15 @@ namespace Mytheme.Services
         public void Navigate(NavigationLink link)
         {
             OnNavigateToLink?.Invoke(link);
+        }
+
+        public void NavBack()
+        {
+            if (history.TryPop(out var route))
+            {
+                addCurrentNavBack = false;
+                Navigate(route);
+            }
         }
     }
 

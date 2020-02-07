@@ -3,6 +3,7 @@
 @using Mytheme.Data
 @using Mytheme.Data.Dto
 @using Mytheme.Grid
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
@@ -43,7 +44,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        BreadcrumbService.SetBreadCrumb("Tables", "/tables", true);
+        BreadcrumbService.SetBreadCrumb("Tables", new NavigationLink(Guid.Empty, ViewType.None), false);
       
         buttons = new List<ButtonOptions>
         {

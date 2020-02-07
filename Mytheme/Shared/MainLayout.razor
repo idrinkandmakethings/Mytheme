@@ -234,6 +234,7 @@ Colors
 <div class="@topNav">
     <div class="@topNavBody">
         <a @onclick="ToggleNav" class="@topNavButton">@SvgHelperService.GetImage(SvgName.Menu, 26, "white")</a>
+        <a @onclick="BackNav" class="@topNavButton">@SvgHelperService.GetImage(SvgName.BackButton, 26, "white")</a>
         <p class="@topNavTitle">@breadCrumb</p>
         @foreach (var btn in BreadcrumbService.NavBarButtons)
         {
@@ -387,6 +388,11 @@ Colors
                 searchOpen = false;
             }
         }
+    }
+
+    protected void BackNav()
+    {
+        BreadcrumbService.NavBack();
     }
 
     protected void ToggleSearchPanel()

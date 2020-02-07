@@ -47,37 +47,6 @@ if (document.addEventListener) {
     document.attachEvent('onclick', interceptClickEvent);
 }
 
-////https://discuss.atom.io/t/how-to-intercept-electrons-request-and-return-a-customized-response/52312/3
-////https://stackoverflow.com/questions/41068295/electron-prevent-cancel-page-navigation
-////https://github.com/electron/electron/issues/1344
-
-
-
-
-//let wc = require('electron').remote.getCurrentWebContents();
-
-//wc.executeJavaScript('console.log(\'foo\')');
-
-//wc.on('will-navigate', (e, u) => { linkIntercept(e, u)});
-//wc.on('new-window', (e, u) => { linkIntercept(e, u) });
-
-
-
-//function linkIntercept(event, url) {
-//    if (url !== wc.getURL()) {
-
-//        const shell = require('electron').shell;
-//        const webview = document.querySelector('webview');
-
-//        event.preventDefault();
-//        webview.stop();
-//        webview.getWebContents().stop();
-
-//        shell.openExternal(url);
-
-//        return false;
-//    }
-//}
 
 
 

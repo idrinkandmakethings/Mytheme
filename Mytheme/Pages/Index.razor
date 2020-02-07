@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Mytheme.Data.Dto
+@using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
@@ -162,7 +163,7 @@
 
         campaigns = result.Result;
 
-        BreadcrumbService.SetBreadCrumb("", "", false);
+        BreadcrumbService.SetBreadCrumb("", new NavigationLink(Guid.Empty, ViewType.None), false);
         BreadcrumbService.ClearHistory();
         BreadcrumbService.NavBarButtons.Clear();
     }

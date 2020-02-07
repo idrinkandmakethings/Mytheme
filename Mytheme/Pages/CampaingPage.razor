@@ -251,22 +251,22 @@
                 buttons.Add(new NavBarButton($"Add Page", SvgName.Page, AddPageButton));
                 buttons.Add(new NavBarButton($"Add Map", SvgName.Map, AddMapPageButton));
 
-                BreadcrumbService.SetBreadCrumb(currentSection.Name, currentSection.Id.ToString(), currentSection.Id != Guid.Empty);
+                BreadcrumbService.SetBreadCrumb(currentSection.Name, new NavigationLink(currentSection.Id, ViewType.Section), currentSection.Id != Guid.Empty);
                 break;
             case ViewType.Page:
                 buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
                 buttons.Add(new NavBarButton("Delete", SvgName.Delete, DeletePage));
 
-                BreadcrumbService.SetBreadCrumb( page.Name, page.Id.ToString(), page.Id != Guid.Empty);
+                BreadcrumbService.SetBreadCrumb( page.Name, new NavigationLink(page.Id, ViewType.Page), page.Id != Guid.Empty);
                 break;
             case ViewType.MapPage:
                 buttons.Add(new NavBarButton("Save", SvgName.Save, SaveMapPage));
                 buttons.Add(new NavBarButton("Delete", SvgName.Delete, DeleteMapPage));
 
-                BreadcrumbService.SetBreadCrumb( mapPage.Name, mapPage.Id.ToString(), mapPage.Id != Guid.Empty);
+                BreadcrumbService.SetBreadCrumb( mapPage.Name,  new NavigationLink(mapPage.Id, ViewType.MapPage), mapPage.Id != Guid.Empty);
                 break;
             case ViewType.None:
-                BreadcrumbService.SetBreadCrumb("Navigation Error", "", false);
+                BreadcrumbService.SetBreadCrumb("Navigation Error", new NavigationLink(Guid.Empty, ViewType.None), false);
                 break;
         }
 
@@ -285,7 +285,7 @@
             if (result.IsSuccess)
             {
                 currentSection.Id = result.Result;
-                BreadcrumbService.SetBreadCrumb(currentSection.Name, currentSection.Id.ToString(), true);
+                BreadcrumbService.SetBreadCrumb(currentSection.Name, new NavigationLink(currentSection.Id, ViewType.Section), true);
 
                 if (currentSection.SectionType == SectionType.Campaign)
                 {
