@@ -4,52 +4,46 @@
 
 @inject IHtmlSanitizer Sanitizer
 
-<Styled @bind-Classname="@row">
-    width: 100%;
-    box-sizing: border-box;
-    height: @($"{PercentHeight}vh");
-    @@media(max-width:1000px){
-    display: none;
-    }
-</Styled>
-
-<Styled @bind-Classname="@column">
-    float: left;
-    height: 100%;
-</Styled>
+    <Styled @bind-Classname="@wideView">
+        width: 100%;
+        box-sizing: border-box;
+        height: @($"{PercentHeight}vh");
+        display: flex;
+        position: relative;
+        border: 1px solid lightgrey;
+        @@media(max-width:1000px){
+        display: none;
+        }
+    </Styled>
 
 <Styled @bind-Classname="@editArea">
-    width: 50%;
+    background: white;
+    width: @editViewSize;
+    transition: 0.5s;
 </Styled>
 
 <Styled @bind-Classname="viewArea">
-    width: 50%;
-    display: none;
-    background-color:#b0b;
+    padding: 10px;
+    flex-grow: 1;
     word-break: break-word;
-    @@media(max-width:1000px){
-    display: none;
-    }
 </Styled>
 
 <Styled @bind-Classname="@editField">
     resize: none;
     width: 100%;
     height: 100%;
-    margin: 0;
+    border: none;
+    padding: 0px;
+    margin: 0px;
 </Styled>
 
 <Styled @bind-Classname="@displayArea">
     width: 50%;
     word-break: break-word;
-    border: 1px solid lightgrey;
 </Styled>
 
-<Styled @bind-Classname="@clear">
-    clear: both;
-</Styled>
 
-<Styled @bind-Classname="@tabbedEdit">
+<Styled @bind-Classname="@tabbedView">
     width: 100%;
     box-sizing: border-box;
     display: none;
@@ -62,11 +56,14 @@
 
 <Styled @bind-Classname="@editAreaTab">
     display: @editTabVisibility ;
+    background: white;
+    border: 1px solid lightgrey;
     width: 100%;
 </Styled>
 
 <Styled @bind-Classname="@displayAreaTab">
     display: @displayTabVisibility ;
+    padding: 10px;
     width: 100%;
     height: 100%;
     word-break: break-word;
@@ -83,16 +80,16 @@
 
 
 
-<div id="editorRow" class="@row">
-    <div id="markdownEditor" class="@column @editArea">
+<div id="editorRow" class="@wideView">
+    <a @onclick="ChangeView" class="@modeButton">@ModeButton</a>
+    <div id="markdownEditor" class="@editArea">
         <textarea @bind-value="Content" @bind-value:event="oninput" class="@editField"></textarea>
     </div>
-    <div id="markdownDisplay" class="@column @displayArea">
+    <div id="markdownDisplay" class="@viewArea">
         @HtmlContent
     </div>
-    <div class="@clear"></div>
 </div>
-<div id="tabbed-editor" class="@tabbedEdit">
+<div id="tabbed-editor" class="@tabbedView">
     <a @onclick="ChangeView" class="@modeButton">@ModeButton</a>
     <textarea @bind-value="Content" @bind-value:event="oninput" class="@editField @editAreaTab"></textarea>
     <div class="@displayAreaTab">
@@ -101,8 +98,10 @@
 </div>
 
 @code {
-    private string row, column, editArea, editField, displayArea, viewArea, clear, modeButton, tabbedEdit,
+    private string wideView, column, editArea, editField, displayArea, viewArea, clear, modeButton, tabbedView,
         editAreaTab, displayAreaTab;
+
+    private string editViewSize;
 
     private string editTabVisibility;
     private string displayTabVisibility;
@@ -155,12 +154,14 @@
 
         if (string.IsNullOrEmpty(Content))
         {
+            editViewSize= "50%";
             editTabVisibility = "block";
             displayTabVisibility = "none";
             showPreview = false;
         }
         else
         {
+            editViewSize = "0px";
             editTabVisibility = "none";
             displayTabVisibility = "block";
             showPreview = true;
@@ -187,6 +188,7 @@
         return new MarkupString();
     }
 
+
     private async Task ChangeView()
     {
         if (showPreview)
@@ -194,6 +196,7 @@
             showPreview = false;
             editTabVisibility = "block";
             displayTabVisibility = "none";
+            editViewSize = "50%";
             ModeButton = SetSvgToView();
         }
         else
@@ -201,6 +204,7 @@
             showPreview = true;
             editTabVisibility = "none";
             displayTabVisibility = "block";
+            editViewSize = "0px";
             ModeButton = SetSvgToEdit();
             await OnSaveEdit.InvokeAsync(Content);
         }

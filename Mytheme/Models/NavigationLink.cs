@@ -16,16 +16,23 @@ namespace Mytheme.Models
         public ViewType ViewType { get; set; }
         public string Name { get; set; }
 
+        public NavigationLink(string name)
+        {
+            Link = Guid.Empty;
+            ViewType = ViewType.Page;
+            Name = name;
+        }
+
         public NavigationLink(Guid link, ViewType viewType)
         {
             Link = link;
             ViewType = viewType;
         }
 
-        public NavigationLink(string name)
+        public NavigationLink(Guid link, ViewType viewType, string name)
         {
-            Link = Guid.Empty;
-            ViewType = ViewType.Page;
+            Link = link;
+            ViewType = viewType;
             Name = name;
         }
     }

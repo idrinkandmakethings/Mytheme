@@ -128,6 +128,10 @@ namespace Mytheme.Data
                 await conn.ExecuteAsync(tables.MapPages);
                 Log.Debug("Create MapMarker Table");
                 await conn.ExecuteAsync(tables.MapMarkers);
+                Log.Debug("Create Tag Table");
+                await conn.ExecuteAsync(tables.Tag);
+                Log.Debug("Create TagMap Table");
+                await conn.ExecuteAsync(tables.TagMap);
 
                 Log.Debug("Settings DB version to 1");
                 var version = new Setting {Name = "version", Value = "1"};

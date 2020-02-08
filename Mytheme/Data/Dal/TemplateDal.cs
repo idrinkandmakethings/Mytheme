@@ -88,7 +88,6 @@ namespace Mytheme.Data.Dal
             {
                 await conn.CloseAsync();
             }
-
         }
 
         public async Task<List<TemplateField>> GetByTemplateIdAsync(Guid id)

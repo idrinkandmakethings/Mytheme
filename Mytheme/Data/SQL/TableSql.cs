@@ -14,6 +14,8 @@
         public const string Page = "Page";
         public const string MapPage = "MapPage";
         public const string MapMarker = "MapMarker";
+        public const string Tag = "Tag";
+        public const string TagMap = "TagMap";
     }
 
     public class TableSql
@@ -53,7 +55,7 @@
     VariableName TEXT,
     Value TEXT,
     TemplateJson TEXT,
-    FOREIGN KEY(FK_Template) REFERENCES Template(Id))";
+    FOREIGN KEY(FK_Template) REFERENCES {Tables.Template}(Id))";
 
         // Tables
 
@@ -75,7 +77,7 @@
     Entry TEXT,
     LowerBound INTEGER,
     UpperBound INTEGER,
-    FOREIGN KEY(FK_RandomTable) REFERENCES RandomTable(Id))";
+    FOREIGN KEY(FK_RandomTable) REFERENCES {Tables.RandomTable}(Id))";
 
         // sections, pages, maps
 
@@ -95,12 +97,11 @@
     Id TEXT NOT NULL PRIMARY KEY,
     FK_Section TEXT,
     Name TEXT,
-    PageType INTEGER,
     Content TEXT,
     DateCreated TEXT,
     DateModified TEXT,
     Enabled INTEGER,
-    FOREIGN KEY(FK_Section) REFERENCES Section(Id))";
+    FOREIGN KEY(FK_Section) REFERENCES {Tables.Section}(Id))";
 
         public string MapPages => $@"CREATE TABLE {Tables.MapPage} (
     Id TEXT NOT NULL PRIMARY KEY,
@@ -110,7 +111,7 @@
     DateCreated TEXT,
     DateModified TEXT,
     Enabled INTEGER,
-    FOREIGN KEY(FK_Section) REFERENCES Section(Id))";
+    FOREIGN KEY(FK_Section) REFERENCES {Tables.Section}(Id))";
 
         public string MapMarkers => $@"CREATE TABLE {Tables.MapMarker} (
     Id TEXT NOT NULL PRIMARY KEY,
@@ -120,6 +121,18 @@
     Lat REAL,
     Lon REAL,
     Enabled INTEGER,
-    FOREIGN KEY(FK_MapPage) REFERENCES MapPage(Id))";
+    FOREIGN KEY(FK_MapPage) REFERENCES {Tables.MapPage}(Id))";
+
+        public string Tag => $@"CREATE TABLE {Tables.Tag} (
+    Id Integer NOT NULL PRIMARY KEY,
+    Value TEXT);";
+
+        public string TagMap => $@"CREATE TABLE {Tables.TagMap} (
+    TagId Integer,
+    PageId TEXT,
+    FOREIGN KEY(TagId) REFERENCES {Tables.Tag}(Id));
+    CREATE INDEX tag_id_idx ON {Tables.TagMap} (TagId);
+    CREATE INDEX page_id_idx ON {Tables.TagMap} (PageId);";
+
     }
 }

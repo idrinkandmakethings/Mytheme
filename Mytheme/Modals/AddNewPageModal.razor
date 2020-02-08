@@ -2,6 +2,7 @@
 @using Mytheme.Services.Interfaces
 
 @inject ISectionService SectionService
+@inject ITemplateService TemplateService
 @inject IModalService ModalService
 
 <Styled @bind-Classname="@contentView">
@@ -13,22 +14,23 @@
     color: #8b0000;
 </Styled>
 
-<div>
-    <span class="@validationError">@errorMessage</span>
-    <input id="name" placeholder="Name" @bind="@Name" />
-    <label for="type">Type: </label>
-    <select id="type" name="pagetype" @bind="@pageType">
-        <option value="@PageType.Person.ToString()">@PageType.Person.ToString()</option>
-        <option value="@PageType.Place.ToString()">@PageType.Place.ToString()</option>
-        <option value="@PageType.Thing.ToString()">@PageType.Thing.ToString()</option>
-        <option value="@PageType.Rules.ToString()">@PageType.Rules.ToString()</option>
-        <option value="@PageType.None.ToString()">@PageType.None.ToString()</option>
-    </select>
+@if (loading)
+{
+    <p>Loading...</p>
+}
+else
+{
     <div>
-        <button @onclick="@(() => {ModalService.Cancel();})">Cancel</button>
-        <button @onclick="@HandleSubmit">Add</button>
+        <span class="@validationError">@errorMessage</span>
+        <input id="name" placeholder="Name" @bind="@Name"/>
+        <label for="type">Template: </label>
+        <input id="tags" name="pagetype"/>
+        <div>
+            <button @onclick="@(() => { ModalService.Cancel(); })">Cancel</button>
+            <button @onclick="@HandleSubmit">Add</button>
+        </div>
     </div>
-</div>
+}
 
 @code {
 
@@ -40,7 +42,8 @@
 
     private Guid parentId;
 
-    private string pageType;
+    private bool loading;
+    private List<Template> templates;
 
     [Parameter]
     public string Name { get; set; }
@@ -48,11 +51,23 @@
     [CascadingParameter]
     public ModalParameters Parameters { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        loading = true;
+        templates = new List<Template>();
+
         parentId = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
 
-        pageType = PageType.Person.ToString();
+        var templateResult = await TemplateService.GetAllTemplates();
+
+        templates.Add(new Template{Id = Guid.Empty, Category = "", Name = "None"});
+
+        var temp = templateResult.Result.ToList();
+        temp.Sort();
+
+        templates.AddRange(temp);
+
+        loading = false;
     }
 
     private async Task HandleSubmit()
@@ -70,7 +85,6 @@
             Id = Guid.Empty,
             Name = Name,
             FK_Section = parentId,
-            PageType = Enum.Parse<PageType>(pageType,true),
             Enabled = true,
             Content = ""
         };

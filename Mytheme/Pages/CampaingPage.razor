@@ -14,9 +14,11 @@
 @inject IModalService ModalService
 @inject BreadcrumbService BreadcrumbService
 
-<Styled @bind-Classname="@sectionView">
-    display: @viewSection;
-</Styled>
+    <Styled @bind-Classname="@sectionView">
+        display: @viewSection;
+        flex-direction: column;
+        height: 100%;
+    </Styled>
 
 <Styled @bind-Classname="@pageView">
     display: @viewPage;
@@ -85,7 +87,7 @@
 
             viewMap = "none";
             viewPage = "none";
-            viewSection = "block";
+            viewSection = "flex";
 
             SetNavBar(ViewType.Section);
         }
@@ -157,7 +159,7 @@
 
             viewMap = "none";
             viewPage = "none";
-            viewSection = "block";
+            viewSection = "flex";
 
             StateHasChanged();
         }

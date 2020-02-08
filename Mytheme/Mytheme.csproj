@@ -64,7 +64,6 @@
     <ProjectReference Include="..\Mytheme.Modal\Mytheme.Modal.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\Interfaces\" />
     <Folder Include="JsInterops\" />
   </ItemGroup>
 </Project>

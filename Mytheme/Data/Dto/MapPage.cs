@@ -18,6 +18,8 @@ namespace Mytheme.Data.Dto
 
         [NotMapped]
         public List<MapMarker> MapMarkers { get; set; }
+        [NotMapped]
+        public List<Tag> Tags { get; set; }
 
         public MapPage()
         {
