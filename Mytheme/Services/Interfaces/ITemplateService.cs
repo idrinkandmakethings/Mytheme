@@ -12,6 +12,7 @@ namespace Mytheme.Services.Interfaces
         Task<DalResult> UpdateTemplate(Template template);
         Task<DalResult<Template>> GetTemplate(Guid id);
         Task<DalResult<Template>> GetTemplateByName(string name);
+        Task<DalResult<List<Option>>> GetTemplatesForSelect();
         Task<DalResult<Template[]>> GetAllTemplates();
         Task<DalResult<List<string>>> GetCategories();
         Task<DalResult> AddCategory(string category);

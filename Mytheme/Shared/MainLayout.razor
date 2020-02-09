@@ -356,6 +356,13 @@ Colors
         }
     }
 
+    private void ClearCampaignNav()
+    {
+        campaignLabel = "";
+        campaignLink = new NavigationLink(Guid.Empty, ViewType.None);
+        index.Clear();
+    }
+
     private void UpdateBreadCrumb(string text)
     {
         breadCrumb = text;
@@ -435,6 +442,22 @@ Colors
         navOpen = false;
         mgmtSectionDisplay = "none";
         mgmtSectionOpen = false;
+
+        var location = e.Location.Split("/");
+
+        switch(location[^1])
+        {
+            case "tables":
+                ClearCampaignNav();
+                break;
+            case "templates":
+                ClearCampaignNav();
+                break;
+            case "#":
+                ClearCampaignNav();
+                break;
+        }
+
         StateHasChanged();
     }
 

@@ -35,14 +35,10 @@
     display: none;
 }
 .scroll-popup {
+    font-size: 14px;
     text-align: center;
-    padding: 10px;
-    min-width: 50px;
-    max-width: 200px;
     background: #EEE5D5;
-    display: table;
     word-break: break-word;
-    border: 1px solid darkgrey;
 }
 
 .scroll-popup p {
@@ -60,11 +56,11 @@
 }
 
 .scroll-popup a {
-    font-size: 18px;
+    font-size: 14px;
     color: #36464f;
 }
 
 .scroll-popup .title p {
-    font-size: 18px;
+    font-size: 14px;
     color: #36464f;
 }

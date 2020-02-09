@@ -42,6 +42,7 @@ namespace Mytheme.Services
 
         public void CampaignSelected(string campaignId)
         {
+            history.Clear();
             currentCampaignId = campaignId;
             OnCampaignSelected?.Invoke(campaignId);
         }

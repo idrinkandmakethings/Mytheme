@@ -6,7 +6,6 @@ using Mytheme.Templating.TemplateTypes;
 
 namespace Mytheme.Data.Dto
 {
-
     public class Template : DtoObject
     {
         public Template()

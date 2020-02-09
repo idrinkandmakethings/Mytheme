@@ -1,6 +1,5 @@
 ﻿@page "/templates"
 
-@using Mytheme.ButtonGroup
 @using Mytheme.Data
 @using Mytheme.Data.Dto
 @using Mytheme.Models
@@ -8,12 +7,10 @@
 @using Mytheme.Services.Interfaces
 
 @inject ITemplateService TemplateService
+@inject IModalService ModalService
 @inject NavigationManager NavigationManager
 @inject BreadcrumbService BreadcrumbService
 
-<MythemeButtonGroup Buttons="buttons"/>
-<br/>
-<br/>
 @if (templates == null)
 {
     <p><em>@loadingText</em></p>
@@ -39,19 +36,20 @@ else
 @code {
 
     Template[] templates;
-    List<ButtonOptions> buttons;
 
     private string loadingText = "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
-        BreadcrumbService.SetBreadCrumb("Templates", new NavigationLink(Guid.Empty, ViewType.None), false);
+        var buttons = new List<NavBarButton>();
 
-        buttons = new List<ButtonOptions>
-        {
-            new ButtonOptions("Add Template", () => NavigationManager.NavigateTo($"edit-template")),
-            new ButtonOptions("Import Template", null)
-        };
+        buttons.Add(new NavBarButton("Add Template", SvgName.Add, AddTemplate));
+        buttons.Add(new NavBarButton("Import Template", SvgName.Import, ImportTemplate));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+
+        BreadcrumbService.ClearHistory();
+        BreadcrumbService.SetBreadCrumb("Templates", new NavigationLink(Guid.Empty, ViewType.Templates), true);
 
         var result = await TemplateService.GetAllTemplates();
 
@@ -59,5 +57,16 @@ else
         {
             templates = result.Result;
         }
+    }
+
+    
+    private void AddTemplate()
+    {
+        NavigationManager.NavigateTo($"edit-template");
+    }
+
+    private void ImportTemplate()
+    {
+        ModalService.ShowInfoModal($"Not Implemented", "Need moar code, dummy.");
     }
 }

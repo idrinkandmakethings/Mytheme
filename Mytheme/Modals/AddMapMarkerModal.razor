@@ -1,10 +1,14 @@
 ﻿@using System.Text
+@using System.Text.RegularExpressions
 @using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments
 @using Mytheme.Data.Dto
 @using Mytheme.Services.Interfaces
 
 @inject IModalService ModalService
 
+<Styled @bind-Classname="@input">
+    width: 100%;
+</Styled>
 
 <Styled @bind-Classname="@validationError">
     display: @validationDisplay;
@@ -13,8 +17,9 @@
 
 <div>
     <span class="@validationError">@errorMessage</span>
-    <input id="name" placeholder="Name" @bind="@Name" />
-    <input id="link" placeholder="Link" @bind="@Link" />
+    <input id="name" class="@input" placeholder="Name" @bind="@Name" />
+    <br/>
+    <input id="link" class="@input" placeholder="Link" @bind="@Link" />
     <textarea placeholder="Description" @bind="@Description"></textarea>
     <div>
         <button @onclick="@(() => { ModalService.Cancel(); })">Cancel</button>
@@ -24,7 +29,7 @@
 
 @code {
 
-    private string validationError;
+    private string validationError, input;
 
     private string validationDisplay;
     private string errorMessage;
@@ -33,6 +38,8 @@
     private double lon;
 
     private Guid parent;
+
+    private Regex linkRegex;
 
     [Parameter]
     public string Name { get; set; }
@@ -49,6 +56,8 @@
         lat = Parameters?.Get<double>("lat") ?? 0;
         lon = Parameters?.Get<double>("lon") ?? 0;
         parent = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
+
+        linkRegex = new Regex(@"\[\[(.*)\](\w+):([\w\d-]+)\]");
     }
 
     private async Task HandleSubmit()
@@ -63,7 +72,7 @@
         var marker = new MapMarker
         {
             Id = Guid.NewGuid(),
-            FK_MapPage = parent, 
+            FK_MapPage = parent,
             Name = Name,
             Content = SetContent(),
             Lat = lat,
@@ -81,7 +90,7 @@
 
         if (string.IsNullOrEmpty(Name))
         {
-            errorMessage = "Name cannot be blank.";
+            sb.AppendLine("Name cannot be blank.");
             valid = false;
         }
 
@@ -89,11 +98,21 @@
         {
             Link = "";
         }
+        else
+        {
+            if (!linkRegex.IsMatch(Link))
+            {
+                sb.AppendLine("Link format is not valid");
+                valid = false;
+            }
+        }
 
         if (Description == null)
         {
             Description = "";
         }
+
+        errorMessage = sb.ToString();
 
         return valid;
     }
@@ -104,16 +123,18 @@
 
         sb.Append($@"<div class=""scroll-popup"">");
 
+        sb.Append($@"<p class=""title"">{Name}</p>");
 
-        if (string.IsNullOrEmpty(Link))
+        if (!string.IsNullOrEmpty(Link))
         {
-            sb.Append($@"<p class=""title"">{Name}</p>");
+            var match = linkRegex.Match(Link);
+            if (match.Success)
+            { 
+                sb.Append("<hr/>");
+                sb.Append($@"<a tabindex=""0"" onclick=""bracketLink('{match.Groups[2].Value}:{match.Groups[3].Value}')"">{match.Groups[1].Value}</a>");
+            }
         }
-        else
-        {
-            sb.Append($@"<a href=""{Link}"">{Name}</a>");
-        }
-        
+
         if (!string.IsNullOrEmpty(Description))
         {
             sb.Append("<hr/>");

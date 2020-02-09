@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Mytheme.Data.Dto;
+using Mytheme.Data.SQL;
 
 namespace Mytheme.Data.Dal
 {
@@ -61,6 +62,24 @@ namespace Mytheme.Data.Dal
                 await conn.OpenAsync();
                 var result = await conn.RecordCountAsync<Template>(new { Name = name });
                 return result < 0;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
+        }
+
+        public async Task<List<Option>> GetByOptionsAsync()
+        {
+            await using var conn = GetConnection();
+
+            try
+            {
+                var sql = $"SELECT Id, Category || '-' || Name AS Label FROM {Tables.Template}";
+
+                await conn.OpenAsync();
+                var result = await conn.QueryAsync<Option>(sql);
+                return result.ToList();
             }
             finally
             {

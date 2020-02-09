@@ -106,6 +106,20 @@ namespace Mytheme.Services
             }
         }
 
+        public async Task<DalResult<List<Option>>> GetTemplatesForSelect()
+        {
+            try
+            {
+                var result = await db.Template.GetByOptionsAsync();
+                return new DalResult<List<Option>>(DalStatus.Success, result);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception getting template select options.");
+                return new DalResult<List<Option>>(DalStatus.Unknown, new List<Option>(), "Unknown error retrieving template select options");
+            }
+        }
+
         public async Task<DalResult<Template[]>> GetAllTemplates()
         {
             try

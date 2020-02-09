@@ -16,7 +16,9 @@ namespace Mytheme.Services
         private const string searchD = "viewBox=\"0 0 8 8\">\r\n  <path d=\"M3.5 0c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5c.59 0 1.17-.14 1.66-.41a1 1 0 0 0 .13.13l1 1a1.02 1.02 0 1 0 1.44-1.44l-1-1a1 1 0 0 0-.16-.13c.27-.49.44-1.06.44-1.66 0-1.93-1.57-3.5-3.5-3.5zm0 1c1.39 0 2.5 1.11 2.5 2.5 0 .66-.24 1.27-.66 1.72-.01.01-.02.02-.03.03a1 1 0 0 0-.13.13c-.44.4-1.04.63-1.69.63-1.39 0-2.5-1.11-2.5-2.5s1.11-2.5 2.5-2.5z\"\r\n ";
         private const string linkD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M5.88.03c-.18.01-.36.03-.53.09-.27.1-.53.25-.75.47a.5.5 0 1 0 .69.69c.11-.11.24-.17.38-.22.35-.12.78-.07 1.06.22.39.39.39 1.04 0 1.44l-1.5 1.5c-.44.44-.8.48-1.06.47-.26-.01-.41-.13-.41-.13a.5.5 0 1 0-.5.88s.34.22.84.25c.5.03 1.2-.16 1.81-.78l1.5-1.5c.78-.78.78-2.04 0-2.81-.28-.28-.61-.45-.97-.53-.18-.04-.38-.04-.56-.03zm-2 2.31c-.5-.02-1.19.15-1.78.75l-1.5 1.5c-.78.78-.78 2.04 0 2.81.56.56 1.36.72 2.06.47.27-.1.53-.25.75-.47a.5.5 0 1 0-.69-.69c-.11.11-.24.17-.38.22-.35.12-.78.07-1.06-.22-.39-.39-.39-1.04 0-1.44l1.5-1.5c.4-.4.75-.45 1.03-.44.28.01.47.09.47.09a.5.5 0 1 0 .44-.88s-.34-.2-.84-.22z\"";
         private const string backBtnD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M4 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z\" transform=\"translate(1)\"";
-        
+        private const string addD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z\"";
+        private const string importD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M3 0v1h4v5h-4v1h5v-7h-5zm1 2v1h-4v1h4v1l2-1.5-2-1.5z\"";
+
         public MarkupString GetImage(SvgName name, int size, string color)
         {
             switch (name)
@@ -43,6 +45,10 @@ namespace Mytheme.Services
                     return GetSvgString(size, linkD, color);
                 case SvgName.BackButton:
                     return GetSvgString(size, backBtnD, color);
+                case SvgName.Add:
+                    return GetSvgString(size, addD, color);
+                case SvgName.Import:
+                    return GetSvgString(size, importD, color);
                 default:
                     return GetSvgString(size, bugD, color);
             }
@@ -57,18 +63,20 @@ namespace Mytheme.Services
 
     public enum SvgName
     {
-        Menu,
-        CircleArrowRight,
-        Edit,
-        Save,
-        Delete,
-        Map,
-        Page,
-        Folder,
-        Link,
+        Add,
+        BackButton,
         Bug,
+        CircleArrowRight,
+        Delete,
+        Edit,
+        Folder,
+        Import,
+        Link,
+        Map,
+        Menu,
+        Page,
+        Save,
         Search,
-        BackButton
     }
 }
 

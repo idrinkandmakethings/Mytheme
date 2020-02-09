@@ -24,7 +24,10 @@ else
         <span class="@validationError">@errorMessage</span>
         <input id="name" placeholder="Name" @bind="@Name"/>
         <label for="type">Template: </label>
-        <input id="tags" name="pagetype"/>
+        <select >
+            <option value="">None</option>
+
+        </select>
         <div>
             <button @onclick="@(() => { ModalService.Cancel(); })">Cancel</button>
             <button @onclick="@HandleSubmit">Add</button>
@@ -43,7 +46,7 @@ else
     private Guid parentId;
 
     private bool loading;
-    private List<Template> templates;
+    private List<Option> templates;
 
     [Parameter]
     public string Name { get; set; }
@@ -54,18 +57,14 @@ else
     protected override async Task OnInitializedAsync()
     {
         loading = true;
-        templates = new List<Template>();
+        templates = new List<Option>();
 
         parentId = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
 
-        var templateResult = await TemplateService.GetAllTemplates();
-
-        templates.Add(new Template{Id = Guid.Empty, Category = "", Name = "None"});
-
-        var temp = templateResult.Result.ToList();
-        temp.Sort();
-
-        templates.AddRange(temp);
+        var result = await TemplateService.GetTemplatesForSelect();
+        templates = result.Result;
+        
+        templates.Sort();
 
         loading = false;
     }

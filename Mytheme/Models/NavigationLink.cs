@@ -7,7 +7,9 @@ namespace Mytheme.Models
         Section,
         Page,
         MapPage,
-        None
+        None,
+        Templates,
+        Tables
     }
 
     public class NavigationLink

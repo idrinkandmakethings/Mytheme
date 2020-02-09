@@ -48,6 +48,11 @@ namespace TemplatingTests.Mocks
             var template = templates[name];
             return new DalResult<Template>(DalStatus.Success, template);
         }
+
+        public Task<DalResult<List<Option>>> GetTemplatesForSelect()
+        {
+            throw new NotImplementedException();
+        }
 #pragma warning restore 1998
 
         public Task<DalResult<Template[]>> GetAllTemplates()

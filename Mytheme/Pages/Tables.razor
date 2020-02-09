@@ -1,19 +1,17 @@
 ﻿@page "/tables"
-@using Mytheme.ButtonGroup
+
 @using Mytheme.Data
 @using Mytheme.Data.Dto
-@using Mytheme.Grid
 @using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
 @inject IRandomTableService RandomTableService
+@inject IModalService ModalService
 @inject NavigationManager NavigationManager
 @inject BreadcrumbService BreadcrumbService
 
-<MythemeButtonGroup Buttons="buttons" />
-<br />
-<br />
+
 @if (tables == null)
 {
     <p><em>@loadingText</em></p>
@@ -38,25 +36,36 @@ else
 
 @code {
     RandomTable[] tables;
-    List<ButtonOptions> buttons; 
 
     private string loadingText = "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
-        BreadcrumbService.SetBreadCrumb("Tables", new NavigationLink(Guid.Empty, ViewType.None), false);
-      
-        buttons = new List<ButtonOptions>
-        {
-            new ButtonOptions("Add Table", () => { NavigationManager.NavigateTo($"edit-table"); }),
-            new ButtonOptions("Import Table", null)
-        };
-        
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("Add Table", SvgName.Add, AddTable));
+        buttons.Add(new NavBarButton("Import Table", SvgName.Import, ImportTable));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+
+        BreadcrumbService.ClearHistory();
+        BreadcrumbService.SetBreadCrumb("Tables", new NavigationLink(Guid.Empty, ViewType.Tables), true);
+
         var result = await RandomTableService.GetAllRandomTables();
 
         if (result.Status == DalStatus.Success)
         {
             tables = result.Result;
         }
+    }
+
+    private void AddTable()
+    {
+        NavigationManager.NavigateTo($"edit-table");
+    }
+
+    private void ImportTable()
+    {
+        ModalService.ShowInfoModal($"Not Implemented", "Need moar code, dummy.");
     }
 }

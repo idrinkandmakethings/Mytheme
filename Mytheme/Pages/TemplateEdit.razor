@@ -138,8 +138,10 @@
 
 
     protected void OpenCategoryModal()
-    {
-        ModalService.Show<AddCategoryModal>("Add Category", null,
+    {   var p = new ModalParameters();
+        p.Add("type", "template");
+
+        ModalService.Show<AddCategoryModal>("Add Category", p,
             new ModalOptions
             {
                 HeaderColor = "white",
