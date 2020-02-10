@@ -9,11 +9,13 @@
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
 
+@implements IDisposable
 @inject IRandomTableService RandomTableService
 @inject IFileHandlerService FileHandlerService
 @inject IFileReaderService FileReaderService
 @inject IModalService ModalService
 @inject BreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager
 
 
 
@@ -43,13 +45,10 @@
 </Styled>
 
 
-<EditForm Model="@table" class="@form" OnValidSubmit="@HandleValidSubmit">
+<EditForm Model="@table" class="@form">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <label for="name">Name: </label>
-    <InputText id="name" @bind-Value="table.Name" />
-
-    <label for="category">Category: </label>
+    <InputText id="name" @bind-Value="table.Name" placeholder="Name"/>
     <div>
         <InputSelect id="classification" @bind-Value="table.Category">
             <option value="">@categoryText</option>
@@ -60,10 +59,7 @@
         </InputSelect>
         <button type="button" class="btn btn-primary" @onclick="@OpenCategoryModal">+</button>
     </div>
-
-    <label for="desc">Description: </label>
-    <InputTextArea id="desc" @bind-Value="table.Description"></InputTextArea>
-    <button type="Submit" class="btn btn-primary">Save Table</button>
+    <InputTextArea id="desc" @bind-Value="table.Description" placeholder="Description"></InputTextArea>
 </EditForm>
 
 <div class="@dropArea"
@@ -129,9 +125,19 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        BreadcrumbService.OnNavigateToLink += HandleNavBack;
+
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("New Table", SvgName.Add, NewRandomTable));
+        buttons.Add(new NavBarButton("Save Table", SvgName.Save, SaveTable));
+        buttons.Add(new NavBarButton("Delete Table", SvgName.Delete, DeleteTable));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+
         if (string.IsNullOrEmpty(Tablename))
         {
-            BreadcrumbService.SetBreadCrumb("Add Table", new NavigationLink(Guid.Empty, ViewType.None), false);
+            BreadcrumbService.SetBreadCrumb("New Table", new NavigationLink(Guid.Empty, ViewType.None), false);
             dropZoneVisibility = "block";
             isUpdate = false;
         }
@@ -143,6 +149,7 @@ else
             if (result.IsSuccess)
             {
                 table = result.Result;
+                BreadcrumbService.SetBreadCrumb(table.Name, new NavigationLink(Guid.Empty, ViewType.None), false);
             }
             entries = table.Entries.Select(x => x.Entry).ToArray();
         }
@@ -188,7 +195,7 @@ else
         {
             try
             {
-                categories.Add((string)result.Data);
+                categories.Add((string) result.Data);
                 categories.Sort();
                 StateHasChanged();
             }
@@ -199,14 +206,23 @@ else
         }
     }
 
-    protected async Task HandleValidSubmit()
+    protected async void NewRandomTable()
     {
-        await SaveTable();
+        if (table.Id == Guid.Empty)
+        {
+            ModalService.ShowInfoModal("Table Not Saved!", "The current table is not saved yet. Please save before creating a new table");
+        }
+
+        BreadcrumbService.SetBreadCrumb("New Table", new NavigationLink(Guid.Empty, ViewType.None), false);
+        table = new RandomTable();
+        entries = null;
+        dropZoneVisibility = "block";
+        isUpdate = false;
     }
 
-    protected async Task SaveTable()
+    protected async void SaveTable()
     {
-        table.Entries = entries.Select(e => new TableEntry() { Entry = e }).ToList();
+        table.Entries = entries.Select(e => new TableEntry() {Entry = e}).ToList();
 
         if (isUpdate)
         {
@@ -228,14 +244,17 @@ else
             if (result.IsSuccess)
             {
                 loadingText = "Saved!";
-                table = new RandomTable();
-                entries = null;
             }
             else
             {
                 loadingText = result.Message;
             }
         }
+    }
+
+    private async void DeleteTable()
+    {
+        ModalService.ShowInfoModal($"Not Implemented", "Need moar code, dummy.");
     }
 
     public void OnDragEnter(EventArgs e)
@@ -287,6 +306,17 @@ else
 
             }
         }
+    }
+
+
+    private void HandleNavBack(NavigationLink link)
+    {
+        NavigationManager.NavigateTo( "tables", true);
+    }
+
+    public void Dispose()
+    {
+        BreadcrumbService.OnNavigateToLink -= HandleNavBack;
     }
 
 }

@@ -1,7 +1,9 @@
 ﻿@using Mytheme.Data.Dto
 @using Mytheme.Services.Interfaces
+@using Mytheme.Templating
 
 @inject ISectionService SectionService
+@inject IRandomTableService RandomTableService
 @inject ITemplateService TemplateService
 @inject IModalService ModalService
 
@@ -24,9 +26,13 @@ else
         <span class="@validationError">@errorMessage</span>
         <input id="name" placeholder="Name" @bind="@Name"/>
         <label for="type">Template: </label>
-        <select >
+        <br/>
+        <select @bind="@selectedTemplate">
             <option value="">None</option>
-
+            @foreach (var option in templates)
+            {
+                <option value="@option.Id">@option.Label</option>
+            }
         </select>
         <div>
             <button @onclick="@(() => { ModalService.Cancel(); })">Cancel</button>
@@ -46,7 +52,10 @@ else
     private Guid parentId;
 
     private bool loading;
+
     private List<Option> templates;
+    private TemplateRenderer renderer;
+    private Guid selectedTemplate;
 
     [Parameter]
     public string Name { get; set; }
@@ -58,12 +67,13 @@ else
     {
         loading = true;
         templates = new List<Option>();
+        renderer = new TemplateRenderer(RandomTableService, TemplateService);
 
         parentId = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
 
         var result = await TemplateService.GetTemplatesForSelect();
         templates = result.Result;
-        
+
         templates.Sort();
 
         loading = false;
@@ -87,6 +97,16 @@ else
             Enabled = true,
             Content = ""
         };
+
+        if (selectedTemplate != Guid.Empty)
+        {
+            var result = await TemplateService.GetTemplate(selectedTemplate);
+
+            if (result.IsSuccess)
+            {
+                page.Content = await renderer.RenderTemplateToMarkDown(result.Result);
+            }
+        }
 
         ModalService.Close(ModalResult.Ok(page));
     }

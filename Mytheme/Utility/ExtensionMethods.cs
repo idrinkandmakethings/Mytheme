@@ -17,6 +17,18 @@ namespace Mytheme.Utility
 
     public static class ExtensionMethods
     {
+
+            public static string ReplaceFirst(this string text, string search, string replace)
+            {
+                int pos = text.IndexOf(search);
+                if (pos < 0)
+                {
+                    return text;
+                }
+                return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+            }
+        
+
         public static string GetDescription<T>(this T enumerationValue)
             where T : struct
         {

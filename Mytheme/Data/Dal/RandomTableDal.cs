@@ -60,7 +60,7 @@ namespace Mytheme.Data.Dal
             {
                 await conn.OpenAsync();
                 var result = await conn.RecordCountAsync<RandomTable>(new { Name = name });
-                return result < 0;
+                return result > 0;
             }
             finally
             {

@@ -1,14 +1,19 @@
 ﻿@page "/edit-template"
 @page "/edit-template/{templateId}"
+@using System.Text
 @using Mytheme.Data.Dto
 @using Mytheme.Modals
 @using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
+@using Mytheme.Templating
 
+@implements IDisposable
 @inject ITemplateService TemplateService
+@inject IRandomTableService RandomTableService
 @inject IModalService ModalService
 @inject BreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager
 
 
 <Styled>
@@ -62,7 +67,7 @@
 </Styled>
 
 
-<EditForm Model="@template" class="@form" OnValidSubmit="@HandleValidSubmit">
+<EditForm Model="@template" class="@form">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <InputText class="@name" placeholder="Template Name" @bind-Value="template.Name" />
@@ -80,13 +85,8 @@
 
     <InputTextArea class="@description" placeholder="Description" @bind-Value="template.Description"></InputTextArea>
 
-        <TabbedMarkdownEditor Content="@Content" PercentHeight="60"></TabbedMarkdownEditor>
-        <button type="Submit" class="btn btn-primary">Save Table</button>
+        <TabbedMarkdownEditor Content="@Content" PercentHeight="60" @ref="@markdown"></TabbedMarkdownEditor>
 </EditForm>
-
-
-
-
 
 
 @code {
@@ -99,6 +99,9 @@
     // css class names
     private string form, loading, name, description, categoryDiv;
 
+    private TabbedMarkdownEditor markdown;
+    private TemplateValidator validator;
+
     private bool isUpdate;
 
     private string categoryText = "Loading...";
@@ -110,6 +113,17 @@
 
     protected override async Task OnInitializedAsync()
     {
+        validator = new TemplateValidator(RandomTableService, TemplateService);
+
+        BreadcrumbService.OnNavigateToLink += HandleNavBack;
+
+        var buttons = new List<NavBarButton>();
+
+        buttons.Add(new NavBarButton("Save Table", SvgName.Save, PreSaveValidation));
+        buttons.Add(new NavBarButton("Delete Table", SvgName.Delete, DeleteTemplate));
+
+        BreadcrumbService.SetNavBarButtons(buttons);
+
         if (string.IsNullOrEmpty(TemplateId))
         {
             BreadcrumbService.SetBreadCrumb("Add Template",  new NavigationLink(Guid.Empty, ViewType.None), false);
@@ -122,6 +136,8 @@
             if (result.IsSuccess)
             {
                 template = result.Result;
+                Content = template.TemplateBody;
+                BreadcrumbService.SetBreadCrumb(template.Name, new NavigationLink(Guid.Empty, ViewType.None), false);
             }
         }
 
@@ -168,19 +184,33 @@
         }
     }
 
-    protected async Task HandleValidSubmit()
+
+    protected async void PreSaveValidation()
     {
-        await SaveTemplate();
+        template.TemplateBody = markdown.Content;
+
+        var validation = await validator.ValidateTemplate(template);
+
+        if (validation.ValidationErrors.Count == 0)
+        {
+            await SaveTemplate();
+        }
+        else
+        {
+            var sb = new StringBuilder();
+
+            foreach (var key in validation.ValidationErrors.Keys)
+            {
+                sb.AppendLine($"{key}:{validation.ValidationErrors[key]}");
+            }
+            ModalService.ShowInfoModal("Invalid Template Fields", sb.ToString());
+        }
     }
 
     protected async Task SaveTemplate()
     {
-        //TODO: Add Template validation
-
         if (isUpdate)
         {
-
-
             var result = await TemplateService.UpdateTemplate(template);
 
             if (result.IsSuccess)
@@ -199,6 +229,7 @@
             if (result.IsSuccess)
             {
                 loadingText = "Saved!";
+                BreadcrumbService.SetBreadCrumb(template.Name, new NavigationLink(Guid.Empty, ViewType.None), false);
             }
             else
             {
@@ -207,5 +238,18 @@
         }
     }
 
+    private async void DeleteTemplate()
+    {
+        ModalService.ShowInfoModal($"Not Implemented", "Need moar code, dummy.");
+    }
 
+    private void HandleNavBack(NavigationLink link)
+    {
+        NavigationManager.NavigateTo( "templates", true);
+    }
+
+    public void Dispose()
+    {
+        BreadcrumbService.OnNavigateToLink -= HandleNavBack;
+    }
 }

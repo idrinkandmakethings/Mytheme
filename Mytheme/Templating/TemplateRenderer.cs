@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Mytheme.Data.Dto;
 using Mytheme.Services.Interfaces;
 using Mytheme.Templating.TemplateTypes;
+using Mytheme.Utility;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -41,18 +42,18 @@ namespace Mytheme.Templating
 
                 if (json.Display)
                 {
-                    templateBody = templateBody.Replace(field.Value, result);
+                    templateBody = templateBody.ReplaceFirst(field.Value, result);
                 }
                 else
                 {
-                    templateBody = templateBody.Replace(field.Value, "");
+                    templateBody = templateBody.ReplaceFirst(field.Value, "");
                 }
             }
 
             foreach (var field in template.Fields)
             {
                 var result = await RenderTemplateField(field, generatedVars);
-                templateBody = templateBody.Replace(field.Value, result);
+                templateBody = templateBody.ReplaceFirst(field.Value, result);
             }
 
             return templateBody;
@@ -89,7 +90,8 @@ namespace Mytheme.Templating
                 var die = JsonConvert.DeserializeObject<TemplateDie>(field.TemplateJson);
                 for (int i = 0; i < die.DieCount; i++)
                 {
-                    result += rng.Next(1, die.DieSize + 1);
+                    var next = rng.Next(1, die.DieSize + 1);
+                    result += next;
                 }
 
                 result += die.Modifier;

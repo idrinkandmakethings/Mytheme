@@ -1,4 +1,6 @@
 ﻿
+@using System.Text
+@using System.Text.RegularExpressions
 @using Mytheme.Data.Dto
 @using Mytheme.Map.Models
 @using Mytheme.Modals
@@ -14,16 +16,166 @@
 @inject IMapService MapService
 
 
+<Styled @bind-Classname="@modalContainer">
+    display: @modalDisplay;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+</Styled>
+
+
+<Styled @bind-Classname="@modalBackground">
+    display: block;
+    position:absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 101;
+    background-color: rgba(0,0,0,0.5);
+</Styled>
+
+<Styled @bind-Classname="@modalWrapper">
+    z-index: 102;
+    width: auto;
+</Styled>
+
+<Styled @bind-Classname="@modal">
+    background-color: #fff;
+    border-radius: 4px;
+    border: 1px solid #000;
+    box-shadow: 0 2px 2px rgba(0,0,0,.25);
+    animation-name: @animateTop;
+    animation-duration: 0.4s;
+</Styled>
+
+<Styled @bind-Classname="@animateTop" IsKeyframes="true">
+    from {
+    top:-300px;
+    opacity:0;
+    }
+    to {
+    top:0;
+    opacity:1;
+    }
+</Styled>
+
+<Styled @bind-Classname="@modalHeader">
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: @titleBackground;
+
+</Styled>
+
+<Styled @bind-Classname="@modalTitle">
+    color: @titleColor;
+    margin-bottom: 0;
+</Styled>
+
+<Styled @bind-Classname="@modalClose">
+    padding: 1rem;
+    margin: -1rem -1rem -1rem auto;
+    background-color: transparent;
+    color: @titleColor;
+    border: 0;
+    -webkit-appearance: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@modalContent">
+    padding: 10px 20px 20px ;
+</Styled>
+
+<Styled @bind-Classname="@input">
+    width: 100%;
+</Styled>
+
+<Styled @bind-Classname="@validationError">
+    display: @validationDisplay;
+    color: #8b0000;
+</Styled>
+
 <Styled @bind-Classname="@mapStyle">
     position: relative;
     width: 100%;
     height: 100%;
 </Styled>
 
+<div class="@modalContainer">
+    <div class="@modalBackground" @onclick="HandleBackgroundClick"></div>
+    <div class="@modalWrapper">
+        <div class="@modal">
+            <div class="@modalHeader">
+                <h3 class="@modalTitle">Add Map Marker</h3>
+
+                <button type="button" class="@modalClose" @onclick="@ModalCancel">
+                    <span>&times;</span>
+                </button>
+
+            </div>
+            <div class="@modalContent">
+                <div>
+                    <span class="@validationError">@errorMessage</span>
+                    <input id="name" class="@input" placeholder="Name" @bind="@Name" />
+                    <br />
+                    <input id="link" class="@input" placeholder="Link" @bind="@Link" />
+                    <textarea placeholder="Description" @bind="@Description"></textarea>
+                    <div>
+                        <button @onclick="@ModalCancel">Cancel</button>
+                        <button @onclick="@HandleSubmit">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <LeafletMap OnMarkerAdded="MarkerAdded" @ref="@mapView"></LeafletMap>
 
 
 @code {
+
+    #region Modal Stuff
+
+    // css classes
+    private string modalContainer, modalBackground, modalContent, modal, modalHeader, modalTitle, modalClose, modalWrapper, animateTop;
+
+
+    // css properties
+    private string modalDisplay = "none";
+    private string titleBackground = "white";
+    private string titleColor = "black";
+    private string modalWidth = "80%";
+
+
+    private string validationError, input;
+
+    private string validationDisplay;
+    private string errorMessage;
+
+    private double lat;
+    private double lon;
+
+    public string Name { get; set; }
+    public string Link { get; set; }
+    public string Description { get; set; }
+
+    private Regex linkRegex;
+
+    protected void HandleBackgroundClick()
+    {
+        return;
+    }
+
+    #endregion
 
     private string mapStyle;
 
@@ -37,8 +189,15 @@
     public MapPage MapPage { get; set; }
 
 
+    protected override void OnInitialized()
+    {
+        linkRegex = new Regex(@"\[\[(.*)\](\w+):([\w\d-]+)\]");
+    }
+
     protected override async Task OnParametersSetAsync()
     {
+        modalDisplay = "none";
+
         if (MapPage != null && MapPage?.Id != Guid.Empty)
         {
             await LoadMap();
@@ -61,23 +220,6 @@
         StateHasChanged();
     }
 
-    private async void MarkerAdded(Coordinate coord)
-    {
-        var p = new ModalParameters();
-        p.Add("lat", coord.Latitude);
-        p.Add("lon", coord.Longitude);
-        p.Add("parent", MapPage.Id);
-
-        ModalService.Show<AddMapMarkerModal>("Add Map Marker", p,
-            new ModalOptions
-            {
-                HeaderColor = "white",
-                HeaderBackgroundColor = "black",
-                PixelWidth = 800,
-                DisableBackgroundCancel = true
-            }, OnMapMarkerModalClosed);
-    }
-
     public async Task Save()
     {
         var result = await MapService.UpdateMapPageAsync(MapPage);
@@ -88,30 +230,129 @@
         }
     }
 
-
-    private async void OnMapMarkerModalClosed(ModalResult result)
+    private async void MarkerAdded(Coordinate coord)
     {
-        if (!result.Cancelled)
+        lat = coord.Latitude;
+        lon = coord.Longitude;
+
+        modalDisplay = "flex";
+    }
+
+    private async void ModalCancel()
+    {
+        modalDisplay = "none";
+    }
+
+    private async Task HandleSubmit()
+    {
+
+        if (!ValidateInputs())
         {
-            try
+            validationDisplay = "block";
+            return;
+        }
+
+        var marker = new MapMarker
+        {
+            Id = Guid.NewGuid(),
+            FK_MapPage = MapPage.Id,
+            Name = Name,
+            Content = SetContent(),
+            Lat = lat,
+            Lon = lon
+        };
+
+        await OnMapMarkerModalClosed(marker);
+
+        modalDisplay = "none";
+    }
+
+    private async Task OnMapMarkerModalClosed(MapMarker marker)
+    {
+
+        try
+        {
+            MapPage.MapMarkers.Add(marker);
+
+            var dalResult = await MapService.AddMarkerAsync(marker);
+
+            marker.Id = dalResult.Result;
+
+            await mapView.AddMarker(marker.ToLeafletMarker());
+
+            await Save();
+        }
+        catch (Exception e)
+        {
+            ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
+            Log.Error(e, "Exception adding map marker.");
+        }
+
+    }
+
+
+    private bool ValidateInputs()
+    {
+        var valid = true;
+
+        var sb = new StringBuilder();
+
+        if (string.IsNullOrEmpty(Name))
+        {
+            sb.AppendLine("Name cannot be blank.");
+            valid = false;
+        }
+
+        if (Link == null)
+        {
+            Link = "";
+        }
+        else
+        {
+            if (!linkRegex.IsMatch(Link))
             {
-                var marker = (MapMarker) result.Data;
-
-                MapPage.MapMarkers.Add(marker);
-
-                var dalResult = await MapService.AddMarkerAsync(marker);
-
-                marker.Id = dalResult.Result;
-
-                await mapView.AddMarker(marker.ToLeafletMarker());
-
-                await Save();
-            }
-            catch (Exception e)
-            {
-                ModalService.ShowInfoModal($"Error", $"An unknown error occured.{Environment.NewLine}Msg:{e.Message}");
-                Log.Error(e, "Exception adding map marker.");
+                sb.AppendLine("Link format is not valid");
+                valid = false;
             }
         }
+
+        if (Description == null)
+        {
+            Description = "";
+        }
+
+        errorMessage = sb.ToString();
+
+        return valid;
+    }
+
+    private string SetContent()
+    {
+        var sb = new StringBuilder();
+
+        sb.Append($@"<div class=""scroll-popup"">");
+
+        sb.Append($@"<p class=""title"">{Name}</p>");
+
+        if (!string.IsNullOrEmpty(Link))
+        {
+            var match = linkRegex.Match(Link);
+            if (match.Success)
+            {
+                sb.Append("<hr/>");
+                sb.Append($@"<a tabindex=""0"" onclick=""bracketLink('{match.Groups[2].Value}:{match.Groups[3].Value}')"">{match.Groups[1].Value}</a>");
+            }
+        }
+
+        if (!string.IsNullOrEmpty(Description))
+        {
+            sb.Append("<hr/>");
+            sb.Append($"<p>{Description}</p>");
+        }
+
+        sb.Append("</div>");
+
+        return sb.ToString();
+
     }
 }

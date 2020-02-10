@@ -4,7 +4,7 @@
     {
         public const string Settings = "Setting";
         public const string FileData = "FileData";
-        public const string TemplateCategory = "TempalateCategory";
+        public const string TemplateCategory = "TemplateCategory";
         public const string Template = "Template";
         public const string TemplateField = "TemplateField";
         public const string TableCategory = "TableCategory";
