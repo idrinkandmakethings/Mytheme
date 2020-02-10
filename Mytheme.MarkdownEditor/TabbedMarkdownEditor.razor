@@ -145,18 +145,14 @@
 
     public MarkupString ModeButton { get; private set; }
 
-
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-
-
-        ModeButton = SetSvgToView();
-
         if (string.IsNullOrEmpty(Content))
         {
             editViewSize= "50%";
             editTabVisibility = "block";
             displayTabVisibility = "none";
+            ModeButton = SetSvgToView();
             showPreview = false;
         }
         else
@@ -164,9 +160,9 @@
             editViewSize = "0px";
             editTabVisibility = "none";
             displayTabVisibility = "block";
+            ModeButton = SetSvgToEdit();
             showPreview = true;
         }
-
     }
 
     private MarkupString ConvertStringToMarkupString(string value)

@@ -28,7 +28,7 @@ else
         <label for="type">Template: </label>
         <br/>
         <select @bind="@selectedTemplate">
-            <option value="">None</option>
+            <option value="@Guid.Empty">None</option>
             @foreach (var option in templates)
             {
                 <option value="@option.Id">@option.Label</option>
