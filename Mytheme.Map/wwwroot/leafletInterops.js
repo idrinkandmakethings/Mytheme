@@ -39,16 +39,39 @@ window.leafletBlazor = {
 
     },
 
-    addMarker: function(lat, lng, content) {
+    addMarker: function(lat, lng, content, guid) {
         var marker = L.marker([lat, lng]).addTo(map);
+        marker.mythemeGuid = guid;
         marker.bindPopup(content);
+        marker.on("popupopen", onPopupOpen);
     }
 };
+
+// Function to handle delete as well as other events on marker popup open
+
+function onPopupOpen() {
+
+    var tempMarker = this;
+
+    if (tempMarker.mythemeGuid) {
+
+
+        var button = document.getElementById('btn-' + tempMarker.mythemeGuid);
+
+        if (button) {
+            button.onclick = function() {
+                DotNet.invokeMethodAsync("Mytheme.Map", "RemoveMarkerInterop", tempMarker.mythemeGuid);
+                map.removeLayer(tempMarker);
+            } ;
+        }
+    }
+}
 
 function AddIconToMap() {
     DotNet.invokeMethodAsync("Mytheme.Map", "AddMarkerInterop", popup._latlng.lat, popup._latlng.lng);
     map.closePopup();
 }
+
 
 function ClosePopups() {
     map.closePopup();

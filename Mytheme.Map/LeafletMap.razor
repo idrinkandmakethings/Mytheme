@@ -15,13 +15,18 @@
 @code {
 
     protected  delegate void OnMarkerAdd(Coordinate coord);
+    protected  delegate void OnMarkerDelete(string id);
 
     private static event OnMarkerAdd OnMarkerAddOccured;
+    private static event OnMarkerDelete OnMarkerDeletedOccured;
 
     private string mapId, mapStyle;
 
     [Parameter]
     public EventCallback<Coordinate> OnMarkerAdded { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnMarkerDeleted { get; set; }
 
 
     protected override void OnInitialized()
@@ -37,6 +42,14 @@
             });
         };
 
+        OnMarkerDeletedOccured += async delegate(string id)
+        {
+            await InvokeAsync(async () =>
+            {
+                await OnMarkerDeleted.InvokeAsync(id);
+            });
+        };
+
 #pragma warning restore 4014
 
         mapId = StringHelper.GetRandomString(10);
@@ -48,6 +61,12 @@
         OnMarkerAddOccured?.Invoke(new Coordinate{Latitude = lat, Longitude = lng});
     }
 
+    [JSInvokable]
+    public static void RemoveMarkerInterop(string id)
+    {
+        OnMarkerDeletedOccured?.Invoke(id);
+    }
+
     public async Task InitializeMap(MapImage mapImage)
     {
         await LeafletInterop.CreateImageMap(JsRuntime, mapId, mapImage.Url, mapImage.Height, mapImage.Width);
@@ -55,7 +74,7 @@
 
     public async Task AddMarker(LeafletMarker marker)
     {
-        await LeafletInterop.AddMarker(JsRuntime, marker.Lat, marker.Lon, marker.Content);
+        await LeafletInterop.AddMarker(JsRuntime, marker.Lat, marker.Lon, marker.Content, marker.Id);
     }
 
 }

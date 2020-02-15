@@ -92,7 +92,7 @@
             valid = false;
         }
 
-        if (Link == null)
+        if (string.IsNullOrEmpty(Link))
         {
             Link = "";
         }
@@ -139,7 +139,11 @@
             sb.Append($"<p>{Description}</p>");
         }
 
+        sb.Append(@"<a type=""button"" >X</a>");
+
         sb.Append("</div>");
+
+       
 
         return sb.ToString();
 

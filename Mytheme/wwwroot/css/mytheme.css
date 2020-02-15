@@ -64,3 +64,12 @@
     font-size: 14px;
     color: #36464f;
 }
+
+.marker-delete-button {
+    border: none;
+    position: absolute;
+    background: none;
+    top: 3px;
+    left: 0;
+    cursor: pointer;
+}

@@ -3,7 +3,6 @@
 @using System.Text.RegularExpressions
 @using Mytheme.Data.Dto
 @using Mytheme.Map.Models
-@using Mytheme.Modals
 @using Mytheme.Models
 @using Mytheme.Services
 @using Mytheme.Services.Interfaces
@@ -139,7 +138,7 @@
     </div>
 </div>
 
-<LeafletMap OnMarkerAdded="MarkerAdded" @ref="@mapView"></LeafletMap>
+<LeafletMap OnMarkerAdded="MarkerAdded" OnMarkerDeleted="MarkerDeleted" @ref="@mapView"></LeafletMap>
 
 
 @code {
@@ -243,6 +242,14 @@
         modalDisplay = "flex";
     }
 
+    private async void MarkerDeleted(string id)
+    {
+        Guid.TryParse(id, out var guid);
+
+        MapPage.MapMarkers.RemoveAll(x => x.Id == guid);
+        await Save();
+    }
+
     private async void ModalCancel()
     {
         modalDisplay = "none";
@@ -257,16 +264,19 @@
             return;
         }
 
+        var id = Guid.NewGuid();
+
         var marker = new MapMarker
         {
-            Id = Guid.NewGuid(),
+            Id = id,
             FK_MapPage = MapPage.Id,
             Name = Name,
-            Content = SetContent(),
+            Content = SetContent(id),
             Lat = lat,
             Lon = lon
         };
 
+        
         await OnMapMarkerModalClosed(marker);
 
         modalDisplay = "none";
@@ -286,6 +296,10 @@
             await mapView.AddMarker(marker.ToLeafletMarker());
 
             await Save();
+
+            Name = "";
+            Link = "";
+            Description = "";
         }
         catch (Exception e)
         {
@@ -308,7 +322,7 @@
             valid = false;
         }
 
-        if (Link == null)
+        if (string.IsNullOrEmpty(Link))
         {
             Link = "";
         }
@@ -331,7 +345,7 @@
         return valid;
     }
 
-    private string SetContent()
+    private string SetContent(Guid id)
     {
         var sb = new StringBuilder();
 
@@ -354,6 +368,8 @@
             sb.Append("<hr/>");
             sb.Append($"<p>{Description}</p>");
         }
+
+        sb.Append($@"<button id=""btn-{id}"" class=""marker-delete-button"">{@SvgHelperService.GetImage(SvgName.Trash, 14, "darkgrey")}</button>");
 
         sb.Append("</div>");
 

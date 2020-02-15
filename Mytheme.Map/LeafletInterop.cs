@@ -14,9 +14,9 @@ namespace Mytheme.Map
             return jsRuntime.InvokeVoidAsync($"{_BaseObjectContainer}.createImageMap", mapId, mapUrl, width, height);
         }
 
-        public static async Task AddMarker(IJSRuntime jsRuntime, double lat, double lng, MarkupString content)
+        public static async Task AddMarker(IJSRuntime jsRuntime, double lat, double lng, MarkupString content, string id)
         {
-            await jsRuntime.InvokeVoidAsync($"{_BaseObjectContainer}.addMarker", lat, lng, content.Value);
+            await jsRuntime.InvokeVoidAsync($"{_BaseObjectContainer}.addMarker", lat, lng, content.Value, id);
         }
     }
 }
