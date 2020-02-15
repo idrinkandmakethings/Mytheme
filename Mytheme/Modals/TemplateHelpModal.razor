@@ -1,0 +1,97 @@
+﻿@inject IModalService ModalService
+
+<Styled @bind-Classname="@text">
+    overflow: auto;
+    max-height: 400px;
+    & a {
+    display: inline;
+    }
+</Styled>
+
+<Styled @bind-Classname="@bold">
+    font-weight: bold;
+</Styled>
+
+<Styled @bind-Classname="@padded">
+    padding: 10px 0px;
+</Styled>
+
+<div>
+    <div class="@text">
+        Templates are used when a new page is created to automatically add content. There are several template tags that are used to randomly generate values that will be added to the page.
+        <br />
+        <br />
+        <span>This view uses standard markdown syntax as well as custom tags for content generation. Please see <span><a href="https://daringfireball.net/projects/markdown/syntax">daringfireball.net</a></span> for more information on markdown.</span>
+        <br />
+        <br />
+        To toggle between edit and view mode, click on the icon in the upper right hand corner of the page view.
+        <br />
+        <br />
+        <span class="@bold">Tables</span>
+        Using the table tag will randomly select an entry from the named table. These tables are added to Mytheme through the Table administration page.
+        <br />
+        <br />
+        ex. [tbl:First Names]
+        <br />
+        <br />
+        <span class="@bold">Lists</span>
+        Using the list tag will randomly select an entry from the items defined in the tag.
+        <br />
+        <br />
+        ex. [lst:item 1, item 2]
+        <br />
+        <br />
+        <span class="@bold">Random Numbers</span>
+        Using the random number tag will generate a value between the upper and lower range, inclusive. Negative numbers are allowed.
+        <br />
+        <br />
+        ex. [rng:-3:3]
+        <br />
+        <br />
+        <span class="@bold">Die Rolls</span>
+        Using the die roll tag will generate a value using the count and size of die provided. Positive and negative modifiers are allowed.
+        <br />
+        <br />
+        ex. [die:d100]
+        <br />
+        ex. [die:3d6+2]
+        <br />
+        <br />
+        <span class="@bold">Variables</span>
+        Using the variable tag creates a value that can be used by other tags. The variable is comprised of a name, display, and value property.
+        <br />
+        The name property is how the tag is referred to by other tags.
+        <br />
+        The display property determines if the variable tag value is rendered on the page.
+        <br />
+        The value property can either be a table tag or a list tag. When the page is rendered, a value will be randomly chosen from the table or list and becomes the value of the variable.
+        <br />
+        To use a variable in another tag, put the variable name in braces.
+        <br />
+        <br />
+        ex. [var:{"name":"race","display":true,"value":"lst:elf, dwarf, human"}]
+        <br />
+        ex. [tbl:{race} First Names]
+        <br />
+        <br />
+        ex. [var:{"name":"race","display":true,"value":"tbl:race"}]
+        <br />
+        ex. [tbl:{race} First Names]
+        <br />
+        <br />
+        <span class="@bold">Templates</span>
+        Templates can be nested within other templates.
+        <br />
+        <br />
+        ex. [tmp:My Cool Template]
+        <br />
+        <br />
+    </div>
+    <div>
+        <button @onclick="@(() => { ModalService.Cancel(); })">OK</button>
+    </div>
+</div>
+
+@code {
+    string text, padded, bold;
+}

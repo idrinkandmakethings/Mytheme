@@ -7,6 +7,7 @@ using BlazorTypography;
 using CurrieTechnologies.Razor.Clipboard;
 using Dapper;
 using ElectronNET.API;
+using ElectronNET.API.Entities;
 using Ganss.XSS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -115,7 +116,13 @@ namespace Mytheme
                 endpoints.MapFallbackToPage("/_Host");
             });
 
-            Task.Run(function: async () => await Electron.WindowManager.CreateWindowAsync());
+            Task.Run(function: async () => await Electron.WindowManager.CreateWindowAsync(
+                new BrowserWindowOptions
+                {
+                    AutoHideMenuBar = true,
+                    MinHeight = 680,
+                    MinWidth = 680
+                }));
         }
     }
 }

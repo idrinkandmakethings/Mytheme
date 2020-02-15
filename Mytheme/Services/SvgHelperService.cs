@@ -18,7 +18,9 @@ namespace Mytheme.Services
         private const string backBtnD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M4 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z\" transform=\"translate(1)\"";
         private const string addD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z\"";
         private const string importD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M3 0v1h4v5h-4v1h5v-7h-5zm1 2v1h-4v1h4v1l2-1.5-2-1.5z\"";
-
+        private const string tagD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M0 0v2l3 3 1.5-1.5.5-.5-2-2-1-1h-2zm3.41 0l3 3-1.19 1.22.78.78 2-2-3-3h-1.59zm-1.91 1c.28 0 .5.22.5.5s-.22.5-.5.5-.5-.22-.5-.5.22-.5.5-.5z\" transform=\"translate(0 1)\"";
+        private const string helpD = " viewBox=\"0 0 8 8\">\r\n  <path d=\"M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z\"\r\n  transform=\"translate(2)\" ";
+       
         public MarkupString GetImage(SvgName name, int size, string color)
         {
             switch (name)
@@ -49,6 +51,10 @@ namespace Mytheme.Services
                     return GetSvgString(size, addD, color);
                 case SvgName.Import:
                     return GetSvgString(size, importD, color);
+                case SvgName.Tag:
+                    return GetSvgString(size, tagD, color);
+                case SvgName.Help:
+                    return GetSvgString(size, helpD, color);
                 default:
                     return GetSvgString(size, bugD, color);
             }
@@ -70,6 +76,7 @@ namespace Mytheme.Services
         Delete,
         Edit,
         Folder,
+        Help,
         Import,
         Link,
         Map,
@@ -77,6 +84,7 @@ namespace Mytheme.Services
         Page,
         Save,
         Search,
+        Tag
     }
 }
 

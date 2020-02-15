@@ -256,6 +256,7 @@
                 BreadcrumbService.SetBreadCrumb(currentSection.Name, new NavigationLink(currentSection.Id, ViewType.Section), currentSection.Id != Guid.Empty);
                 break;
             case ViewType.Page:
+                buttons.Add(new NavBarButton("Help", SvgName.Help, OpenHelpModal));
                 buttons.Add(new NavBarButton("Save", SvgName.Save, SavePage));
                 buttons.Add(new NavBarButton("Delete", SvgName.Delete, DeletePage));
 
@@ -350,6 +351,16 @@
 
     #region Page logic 
 
+    private async void OpenHelpModal()
+    {
+        ModalService.Show<PageHelpModal>("Page Help", null,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                DisableBackgroundCancel = true
+            });
+    }
 
     private async void AddPageButton()
     {

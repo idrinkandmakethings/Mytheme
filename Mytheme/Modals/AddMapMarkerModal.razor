@@ -1,8 +1,6 @@
 ﻿@using System.Text
 @using System.Text.RegularExpressions
-@using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments
 @using Mytheme.Data.Dto
-@using Mytheme.Services.Interfaces
 
 @inject IModalService ModalService
 
@@ -18,7 +16,7 @@
 <div>
     <span class="@validationError">@errorMessage</span>
     <input id="name" class="@input" placeholder="Name" @bind="@Name" />
-    <br/>
+    <br />
     <input id="link" class="@input" placeholder="Link" @bind="@Link" />
     <textarea placeholder="Description" @bind="@Description"></textarea>
     <div>
@@ -129,7 +127,7 @@
         {
             var match = linkRegex.Match(Link);
             if (match.Success)
-            { 
+            {
                 sb.Append("<hr/>");
                 sb.Append($@"<a tabindex=""0"" onclick=""bracketLink('{match.Groups[2].Value}:{match.Groups[3].Value}')"">{match.Groups[1].Value}</a>");
             }

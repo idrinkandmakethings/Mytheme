@@ -119,6 +119,7 @@
 
         var buttons = new List<NavBarButton>();
 
+        buttons.Add(new NavBarButton("Help", SvgName.Help, OpenHelpModal));
         buttons.Add(new NavBarButton("Save Table", SvgName.Save, PreSaveValidation));
         buttons.Add(new NavBarButton("Delete Table", SvgName.Delete, DeleteTemplate));
 
@@ -152,6 +153,16 @@
         StateHasChanged();
     }
 
+    private void OpenHelpModal()
+    {
+        ModalService.Show<TemplateHelpModal>("Template Help", null,
+            new ModalOptions
+            {
+                HeaderColor = "white",
+                HeaderBackgroundColor = "black",
+                DisableBackgroundCancel = true
+            });
+    }
 
     protected void OpenCategoryModal()
     {   var p = new ModalParameters();

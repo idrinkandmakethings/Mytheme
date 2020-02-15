@@ -38,6 +38,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BlazorInputFile" Version="0.1.0-preview-00002" />
     <PackageReference Include="BlazorStyled" Version="1.0.0" />
     <PackageReference Include="BlazorTypography" Version="1.0.0" />
     <PackageReference Include="CurrieTechnologies.Razor.Clipboard" Version="1.2.1" />
@@ -56,7 +57,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BlazorInputFile\BlazorInputFile.csproj" />
     <ProjectReference Include="..\Mytheme.ButtonGroup\Mytheme.ButtonGroup.csproj" />
     <ProjectReference Include="..\Mytheme.Grid\Mytheme.Grid.csproj" />
     <ProjectReference Include="..\Mytheme.Map\Mytheme.Map.csproj" />

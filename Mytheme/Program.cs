@@ -32,16 +32,10 @@ namespace Mytheme
 
         public static IWebHost BuildWebHost(string[] args)
         {
-#if (DEBUG)
             return WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
-#else
-            return WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
                 .UseElectron(args)
+                .UseStartup<Startup>()
                 .Build();
-#endif
         }
     }
 }

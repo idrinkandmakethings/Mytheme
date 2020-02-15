@@ -1,0 +1,45 @@
+﻿
+@inject IModalService ModalService
+
+<Styled @bind-Classname="@text">
+    overflow: auto;
+    max-height: 400px;
+    & a {
+    display: inline;
+    }
+</Styled>
+
+<Styled @bind-Classname="@padded">
+    padding: 10px 0px;
+</Styled>
+
+<div>
+    <div class="@text">
+        <span>This view uses standard markdown syntax as well as custom tags for linking. Please see <span><a href="https://daringfireball.net/projects/markdown/syntax">daringfireball.net</a></span> for more information on markdown.</span>
+        <br />
+        <br />
+        <p>
+            To toggle between edit and view mode, click on the icon in the upper right hand corner of the page view.
+            <br />
+            <br />
+            To link existing Pages or Maps, open the left hand navigation panel, click on the link symbol, and paste into the edit area.
+            <br />
+            <br />
+            To create a link to a page by name, even if that page hasn't been created yet, add a double bracketed name to the page.
+            <br />
+            <br />
+            ex. [[My new page]]
+            <br />
+            <br />
+            When this link is selected, if a page of that name has not yet been created, the new page dialog will open.
+        </p>
+        <p></p>
+    </div>
+    <div>
+        <button @onclick="@(() => { ModalService.Cancel(); })">OK</button>
+    </div>
+</div>
+
+@code {
+    string text, padded;
+}

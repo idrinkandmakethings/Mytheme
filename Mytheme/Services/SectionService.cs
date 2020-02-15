@@ -50,23 +50,14 @@ namespace Mytheme.Services
 
                 var directory = new Directory(section.Name, new NavigationLink(section.Id, ViewType.Section));
 
-                var maps = await db.MapPage.GetAllForSectionAsync(id);
-
                 var mapsDirectory = new Directory("Maps", new NavigationLink(Guid.Empty, ViewType.None));
-                foreach (var mapPage in maps)
-                {
-                    mapsDirectory.Links.Add(new LinkObject(mapPage.Name, new NavigationLink(mapPage.Id, ViewType.MapPage)));
-                }
+                mapsDirectory.Links = await db.MapPage.GetAllLinkObjectsForSectionAsync(id);
                 mapsDirectory.Links.Sort();
 
                 directory.Directories.Add(mapsDirectory);
 
-                var pages = await db.Page.GetAllForSectionAsync(id);
                 var pageDirectory = new Directory("Pages", new NavigationLink(Guid.Empty, ViewType.None));
-                foreach (var page in pages)
-                {
-                    pageDirectory.Links.Add(new LinkObject(page.Name, new NavigationLink(page.Id, ViewType.Page)));
-                }
+                pageDirectory.Links = await db.Page.GetAllLinkObjectsForSectionAsync(id);
                 pageDirectory.Links.Sort();
 
                 directory.Directories.Add(pageDirectory);

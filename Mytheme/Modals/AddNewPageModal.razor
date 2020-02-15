@@ -11,6 +11,10 @@
     display: block;
 </Styled>
 
+<Styled @bind-Classname="@fullWidth">
+    width: 100%;
+</Styled>
+
 <Styled @bind-Classname="@validationError">
     display: @validationDisplay;
     color: #8b0000;
@@ -24,10 +28,10 @@ else
 {
     <div>
         <span class="@validationError">@errorMessage</span>
-        <input id="name" placeholder="Name" @bind="@Name"/>
+        <input class="@fullWidth" id="name" placeholder="Name" @bind="@Name" />
         <label for="type">Template: </label>
-        <br/>
-        <select @bind="@selectedTemplate">
+        <br />
+        <select class="@fullWidth" @bind="@selectedTemplate">
             <option value="@Guid.Empty">None</option>
             @foreach (var option in templates)
             {
@@ -43,7 +47,7 @@ else
 
 @code {
 
-    private string contentView, validationError;
+    private string contentView, validationError, fullWidth;
 
     private string validationDisplay = "none";
 
@@ -70,6 +74,7 @@ else
         renderer = new TemplateRenderer(RandomTableService, TemplateService);
 
         parentId = Parameters?.Get<Guid>("parent") ?? Guid.Empty;
+        Name = Parameters?.Get<string>("name") ?? "";
 
         var result = await TemplateService.GetTemplatesForSelect();
         templates = result.Result;

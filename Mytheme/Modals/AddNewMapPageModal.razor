@@ -14,6 +14,11 @@
     display: block;
 </Styled>
 
+
+<Styled @bind-Classname="@fullWidth">
+    width: 100%;
+</Styled>
+
 <Styled @bind-Classname="@validationError">
     display: @validationDisplay;
     color: #8b0000;
@@ -51,7 +56,7 @@
 
 <div>
     <span class="@validationError">@errorMessage</span>
-    <input id="name" placeholder="Name" @bind="@Name" />
+    <input id="name" class="@fullWidth" placeholder="Name" @bind="@Name" />
     <div class="@dropTarget">
         <InputFile OnChange="FileChosen" />
         @status
@@ -66,7 +71,7 @@
 
 @code {
     // css class names
-    private string dropTarget;
+    private string dropTarget, fullWidth;
     private string contentView, validationError;
 
     const int MB = 20;

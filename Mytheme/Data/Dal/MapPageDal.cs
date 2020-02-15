@@ -43,7 +43,7 @@ namespace Mytheme.Data.Dal
 
                 return tags.Select(x =>
                 {
-                    x.ViewType = ViewType.Page;
+                    x.ViewType = ViewType.MapPage;
                     return new LinkObject(x.Name, x);
                 }).ToList();
             }
