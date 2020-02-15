@@ -7,8 +7,8 @@
   "build": {
     "appId": "com.Mytheme.app",
     "productName": "Mytheme",
-    "copyright": "Copyright © 2019",
-    "buildVersion": "1.0.0",
+    "copyright": "Copyright © 2020",
+    "buildVersion": "0.9.0",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"
