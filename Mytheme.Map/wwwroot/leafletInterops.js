@@ -16,7 +16,7 @@ window.leafletBlazor = {
         }
         map = L.map(mapId,
             {
-                minZoom: 0,
+                minZoom: -1,
                 maxZoom: 6,
                 center: [0, 0],
                 zoom: 0,

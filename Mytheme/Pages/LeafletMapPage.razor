@@ -178,51 +178,53 @@
     #endregion
 
     private string mapStyle;
+    private bool markersLoaded;
+    private Guid currentMap;
+    private MapPage mapPage;
 
-    MapImage map;
+    MapImage mapImage;
     LeafletMap mapView;
 
     [Parameter]
     public EventCallback<NavigationLink> OnNavigate { get; set; }
 
-    [Parameter]
-    public MapPage MapPage { get; set; }
-
 
     protected override void OnInitialized()
     {
+        currentMap = Guid.Empty;
         linkRegex = new Regex(@"\[\[(.*)\](\w+):([\w\d-]+)\]");
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         modalDisplay = "none";
-
-        if (MapPage != null && MapPage?.Id != Guid.Empty)
-        {
-            await LoadMap();
-        }
     }
 
-    private async Task LoadMap()
+
+    public async Task LoadMap(MapPage map)
     {
-        var result = await FileHandlerService.GetMapImage(MapPage.Image);
+        mapPage = map;
 
-        map = result;
-
-        await mapView.InitializeMap(map);
-
-        foreach (var marker in MapPage.MapMarkers)
+        if (mapPage != null && mapPage?.Id != Guid.Empty)
         {
-            await mapView.AddMarker(marker.ToLeafletMarker());
-        }
+            var result = await FileHandlerService.GetMapImage(this.mapPage.Image);
 
-        StateHasChanged();
+            mapImage = result;
+
+            await mapView.InitializeMap(mapImage);
+
+            foreach (var marker in this.mapPage.MapMarkers)
+            {
+                await mapView.AddMarker(marker.ToLeafletMarker());
+            }
+
+            StateHasChanged();
+        }
     }
 
     public async Task Save()
     {
-        var result = await MapService.UpdateMapPageAsync(MapPage);
+        var result = await MapService.UpdateMapPageAsync(mapPage);
 
         if (!result.IsSuccess)
         {
@@ -246,8 +248,9 @@
     {
         Guid.TryParse(id, out var guid);
 
-        MapPage.MapMarkers.RemoveAll(x => x.Id == guid);
-        await Save();
+        mapPage.MapMarkers.RemoveAll(x => x.Id == guid);
+
+        await MapService.DeleteMarkerAsync(guid);
     }
 
     private async void ModalCancel()
@@ -269,14 +272,14 @@
         var marker = new MapMarker
         {
             Id = id,
-            FK_MapPage = MapPage.Id,
+            FK_MapPage = mapPage.Id,
             Name = Name,
             Content = SetContent(id),
             Lat = lat,
             Lon = lon
         };
 
-        
+
         await OnMapMarkerModalClosed(marker);
 
         modalDisplay = "none";
@@ -287,7 +290,7 @@
 
         try
         {
-            MapPage.MapMarkers.Add(marker);
+            mapPage.MapMarkers.Add(marker);
 
             var dalResult = await MapService.AddMarkerAsync(marker);
 
@@ -349,29 +352,30 @@
     {
         var sb = new StringBuilder();
 
-        sb.Append($@"<div class=""scroll-popup"">");
+        sb.Append($@"<div class="" scroll-popup"">
+            ");
 
-        sb.Append($@"<p class=""title"">{Name}</p>");
+            sb.Append($@"<p class="" scroll-popup-title"">{Name}</p>");
 
-        if (!string.IsNullOrEmpty(Link))
-        {
+            if (!string.IsNullOrEmpty(Link))
+            {
             var match = linkRegex.Match(Link);
             if (match.Success)
             {
-                sb.Append("<hr/>");
-                sb.Append($@"<a tabindex=""0"" onclick=""bracketLink('{match.Groups[2].Value}:{match.Groups[3].Value}')"">{match.Groups[1].Value}</a>");
+            sb.Append("<hr />");
+            sb.Append($@"<a tabindex="" 0"" onclick="" bracketLink('{match.Groups[2].Value}:{match.Groups[3].Value}')"">{match.Groups[1].Value}</a>");
             }
-        }
+            }
 
-        if (!string.IsNullOrEmpty(Description))
-        {
-            sb.Append("<hr/>");
+            if (!string.IsNullOrEmpty(Description))
+            {
+            sb.Append("<hr />");
             sb.Append($"<p>{Description}</p>");
-        }
+            }
 
-        sb.Append($@"<button id=""btn-{id}"" class=""marker-delete-button"">{@SvgHelperService.GetImage(SvgName.Trash, 14, "darkgrey")}</button>");
+            sb.Append($@"<button id="" btn-{id}"" class="" marker-delete-button"">{@SvgHelperService.GetImage(SvgName.Trash, 14, "darkgrey")}</button>");
 
-        sb.Append("</div>");
+            sb.Append("</div>");
 
         return sb.ToString();
 

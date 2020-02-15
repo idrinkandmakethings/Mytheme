@@ -52,7 +52,7 @@
 
 
 .scroll-popup p {
-    margin: 0;
+    margin: 0px;
 }
 
 .scroll-popup a {
@@ -60,7 +60,9 @@
     color: #36464f;
 }
 
-.scroll-popup .title p {
+.scroll-popup-title {
+    margin: 0px;
+    font-weight: bold;
     font-size: 14px;
     color: #36464f;
 }

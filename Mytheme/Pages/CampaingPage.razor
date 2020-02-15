@@ -42,8 +42,7 @@
                   @ref="pageRef"></MarkdownPage>
 </div>
 <div class="@mapView" id="mapView">
-    <LeafletMapPage MapPage="mapPage"
-                    OnNavigate="Navigate"
+    <LeafletMapPage OnNavigate="Navigate"
                     @ref="@mapRef"></LeafletMapPage>
 </div>
 
@@ -222,6 +221,8 @@
             viewMap = "block";
 
             mapPage = result.Result;
+
+            await mapRef.LoadMap(mapPage);
 
             StateHasChanged();
         }
