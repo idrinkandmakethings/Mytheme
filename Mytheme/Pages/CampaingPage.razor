@@ -293,6 +293,8 @@
                 {
                     BreadcrumbService.CampaignSelected(currentSection.Id.ToString());
                 }
+
+                BreadcrumbService.RefreshIndex();
             }
             else
             {
@@ -306,6 +308,10 @@
             if (!result.IsSuccess)
             {
                 ModalService.ShowInfoModal($"Error Saving section", result.Message);
+            }
+            else
+            {
+                BreadcrumbService.RefreshIndex();
             }
         }
     }
@@ -398,6 +404,7 @@
                     viewPage = "block";
 
                     SetNavBar(ViewType.Page);
+                    BreadcrumbService.RefreshIndex();
                     StateHasChanged();
                 }
                 else
@@ -474,6 +481,8 @@
                     viewMap = "block";
 
                     SetNavBar(ViewType.MapPage);
+                    BreadcrumbService.RefreshIndex();
+
                     StateHasChanged();
                 }
                 else
@@ -492,6 +501,8 @@
     private async void SaveMapPage()
     {
         await mapRef.Save();
+
+        BreadcrumbService.RefreshIndex();
     }
 
     private async void DeleteMapPage()

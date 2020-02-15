@@ -158,7 +158,8 @@ Colors
 <Styled @bind-Classname="@sideNav">
 
     height: 100%;
-    width: @navWidth;
+    min-width: @navWidth;
+    max-width: @navWidth;
     background-color: #111;
     overflow-x: hidden;
     transition: 0.5s;
@@ -352,6 +353,8 @@ Colors
             campaignLink = result.Result.Header.Link;
             index.Clear();
             index.AddRange(result.Result.Directories);
+
+            StateHasChanged();
         }
     }
 

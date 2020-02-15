@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mytheme.Models;
+using Mytheme.Utility;
 
 namespace Mytheme.Data.Dto
 {
@@ -15,7 +16,7 @@ namespace Mytheme.Data.Dto
     }
 
 
-    public class Section : DtoObject
+    public class Section : DtoObject, IComparable<Section>
     {
         [Key]
         public Guid Id { get; set; }
@@ -41,6 +42,13 @@ namespace Mytheme.Data.Dto
             Children = new List<Section>();
             PageIds = new List<LinkObject>();
             MapPageIds = new List<LinkObject>();
+        }
+
+        public int CompareTo(Section other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return CustomCompare.CompareNatural(Name, other.Name);
         }
     }
 }

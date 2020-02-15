@@ -11,6 +11,7 @@
 
 @inject IFileHandlerService FileHandlerService
 @inject SvgHelperService SvgHelperService
+@inject BreadcrumbService BreadcrumbService
 @inject IJSRuntime JsRuntime
 @inject IModalService ModalService
 @inject IMapService MapService
@@ -227,6 +228,10 @@
         if (!result.IsSuccess)
         {
             ModalService.ShowInfoModal($"Error Saving Map Page", result.Message);
+        }
+        else
+        {
+            BreadcrumbService.RefreshIndex();
         }
     }
 

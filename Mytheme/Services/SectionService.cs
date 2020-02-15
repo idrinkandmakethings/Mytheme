@@ -57,6 +57,7 @@ namespace Mytheme.Services
                 {
                     mapsDirectory.Links.Add(new LinkObject(mapPage.Name, new NavigationLink(mapPage.Id, ViewType.MapPage)));
                 }
+                mapsDirectory.Links.Sort();
 
                 directory.Directories.Add(mapsDirectory);
 
@@ -66,6 +67,7 @@ namespace Mytheme.Services
                 {
                     pageDirectory.Links.Add(new LinkObject(page.Name, new NavigationLink(page.Id, ViewType.Page)));
                 }
+                pageDirectory.Links.Sort();
 
                 directory.Directories.Add(pageDirectory);
 
@@ -81,6 +83,8 @@ namespace Mytheme.Services
                     {
                         directory.Directories.Add(await GetDirectoryForSection(sub.Id));
                     }
+
+                    directory.Directories.Sort();
                 }
 
                 return directory;
@@ -196,20 +200,20 @@ namespace Mytheme.Services
                 {
                     var childResult = await GetAllSectionsForParentAsync(id);
                     result.Children = childResult.Result.ToList();
+                    result.Children.Sort();
                 }
                 else
                 {
                     var subsections = await db.Section.GetAllSubSectionsAsync(id);
                     result.Children = subsections.ToList();
+                    result.Children.Sort();
                 }
                 
-                var pages = await db.Page.GetAllForSectionAsync(id);
+                result.PageIds = await db.Page.GetAllLinkObjectsForSectionAsync(id);
+                result.PageIds.Sort();
 
-                result.PageIds = pages.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.Page))).ToList();
-
-                var maps = await db.MapPage.GetAllForSectionAsync(id);
-
-                result.MapPageIds = maps.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.MapPage))).ToList();
+                result.MapPageIds = await db.MapPage.GetAllLinkObjectsForSectionAsync(id);
+                result.MapPageIds.Sort();
 
                 return new DalResult<Section>(DalStatus.Success, result);
             }
@@ -231,14 +235,13 @@ namespace Mytheme.Services
                     var childResult = await GetAllSectionsForParentAsync(id);
 
                     section.Children = childResult.Result.ToList();
+                    section.Children.Sort();
 
-                    var pages = await db.Page.GetAllForSectionAsync(id);
-
-                    section.PageIds = pages.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.Page))).ToList();
-
-                    var maps = await db.MapPage.GetAllForSectionAsync(id);
-
-                    section.MapPageIds = maps.Select(x => new LinkObject(x.Name, new NavigationLink(x.Id, ViewType.MapPage))).ToList();
+                    section.PageIds = await db.Page.GetAllLinkObjectsForSectionAsync(id);
+                    section.PageIds.Sort();
+                    
+                    section.MapPageIds = await db.MapPage.GetAllLinkObjectsForSectionAsync(id);
+                    section.MapPageIds.Sort();
                 }
 
                 return new DalResult<Section[]>(DalStatus.Success, result);

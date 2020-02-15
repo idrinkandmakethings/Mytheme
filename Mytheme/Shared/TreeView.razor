@@ -78,6 +78,10 @@
     [Parameter]
     public EventCallback<NavigationLink> OnNavigation { get; set; }
 
+    protected override void OnParametersSet()
+    {
+
+    }
 
     private void NavigateTo(NavigationLink link)
     {

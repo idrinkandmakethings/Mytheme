@@ -18,6 +18,11 @@ namespace Mytheme.Models
         public ViewType ViewType { get; set; }
         public string Name { get; set; }
 
+        public NavigationLink()
+        {
+            
+        }
+
         public NavigationLink(string name)
         {
             Link = Guid.Empty;

@@ -4,9 +4,11 @@
 @using Mytheme.Services.Interfaces
 
 @inject SvgHelperService SvgHelperService
+@inject BreadcrumbService BreadcrumbService
 @inject IJSRuntime JsRuntime
 @inject ISectionService SectionService
 @inject IModalService ModalService
+
 
 
 @if (CurrentPage != null)
@@ -40,6 +42,10 @@
         if (!result.IsSuccess)
         {
             ModalService.ShowInfoModal($"Error Saving Page", result.Message);
+        }
+        else
+        {
+            BreadcrumbService.RefreshIndex();
         }
     }
 }

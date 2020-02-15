@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Mytheme.Utility;
 
 namespace Mytheme.Models
 {
-    public class Directory
+    public class Directory : IComparable<Directory>
     {
         public LinkObject Header { get; set; }
         public bool Expanded { get; set; } = false;
@@ -35,6 +37,13 @@ namespace Mytheme.Models
             }
 
             return "+";
+        }
+
+        public int CompareTo(Directory other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return CustomCompare.CompareNatural(Header.Name, other.Header.Name);
         }
     }
 }
